@@ -1,2 +1,6 @@
 .DS_Store
+**/.DS_Store
+Thumbs.db
+
+# backups que deja el guardado del editor / MCP (lottie_save)
 *.bak
