@@ -121,8 +121,7 @@ A control client sends a flat JSON object. Any subset of these keys is valid —
 | Name | Start (tm) | Duration (dr) | Comment |
 |------|-----------|--------------|---------|
 | `play` | 0 | 106 | play |
-| `stop` | 240.0000097754 | 32.0000013033867 | stop |
-| `stopjugadores` | 213 | 59 | stopjugadores |
+| `stop` | 240.0000097754 | 1 | stop |
 | `marcador` | 100 | 6 | marcador |
 | `jugadores` | 120 | 16 | jugadores |
 | `sinjugadores` | 213 | 19 | sinjugadores |
