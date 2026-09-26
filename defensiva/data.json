@@ -9879,7 +9879,7 @@
     },
     {
       "ddd": 0,
-      "ind": 34,
+      "ind": 30,
       "ty": 5,
       "nm": ".equipo",
       "cl": "equipo",
@@ -9937,7 +9937,7 @@
         "a": {
           "a": 0,
           "k": [
-            0.329,
+            -18.671,
             -7.412,
             0
           ],
@@ -9963,7 +9963,7 @@
               "s": {
                 "s": 20,
                 "f": "LeagueGothic-Regular",
-                "t": "NAVEGANTES DEL MAGALLANES",
+                "t": "LEONES DEL CARACAS",
                 "ca": 0,
                 "j": 0,
                 "tr": 200,
@@ -10000,7 +10000,7 @@
     },
     {
       "ddd": 0,
-      "ind": 38,
+      "ind": 31,
       "ty": 4,
       "nm": "mascara2",
       "td": 1,
@@ -10168,7 +10168,7 @@
     },
     {
       "ddd": 0,
-      "ind": 39,
+      "ind": 32,
       "ty": 5,
       "nm": ".titulo",
       "tt": 1,
@@ -10228,7 +10228,7 @@
         "a": {
           "a": 0,
           "k": [
-            -78.412,
+            -95.412,
             -20.013,
             0
           ],
@@ -10292,7 +10292,7 @@
     },
     {
       "ddd": 0,
-      "ind": 40,
+      "ind": 33,
       "ty": 3,
       "nm": "Null 1",
       "sr": 1,
@@ -10377,7 +10377,7 @@
     },
     {
       "ddd": 0,
-      "ind": 41,
+      "ind": 34,
       "ty": 4,
       "nm": "mascaraequipos 7",
       "td": 1,
@@ -10545,11 +10545,11 @@
     },
     {
       "ddd": 0,
-      "ind": 42,
+      "ind": 35,
       "ty": 4,
       "nm": ".TIGRES_opacidad",
       "cl": "TIGRES_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -36065,7 +36065,7 @@
     },
     {
       "ddd": 0,
-      "ind": 43,
+      "ind": 36,
       "ty": 4,
       "nm": "mascaraequipos 6",
       "td": 1,
@@ -36233,11 +36233,11 @@
     },
     {
       "ddd": 0,
-      "ind": 44,
+      "ind": 37,
       "ty": 4,
       "nm": ".TIBUS_opacidad",
       "cl": "TIBUS_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -66471,7 +66471,7 @@
     },
     {
       "ddd": 0,
-      "ind": 45,
+      "ind": 38,
       "ty": 4,
       "nm": "mascaraequipos 5",
       "td": 1,
@@ -66639,11 +66639,11 @@
     },
     {
       "ddd": 0,
-      "ind": 46,
+      "ind": 39,
       "ty": 4,
       "nm": ".MAGA_opacidad",
       "cl": "MAGA_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -76296,7 +76296,7 @@
     },
     {
       "ddd": 0,
-      "ind": 47,
+      "ind": 40,
       "ty": 4,
       "nm": "mascaraequipos 4",
       "td": 1,
@@ -76464,11 +76464,11 @@
     },
     {
       "ddd": 0,
-      "ind": 48,
+      "ind": 41,
       "ty": 4,
       "nm": ".CARD_opacidad",
       "cl": "CARD_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -77439,7 +77439,7 @@
     },
     {
       "ddd": 0,
-      "ind": 49,
+      "ind": 42,
       "ty": 4,
       "nm": "mascaraequipos 3",
       "td": 1,
@@ -77607,11 +77607,11 @@
     },
     {
       "ddd": 0,
-      "ind": 50,
+      "ind": 43,
       "ty": 4,
       "nm": ".BRAVOS_opacidad",
       "cl": "BRAVOS_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -80507,7 +80507,7 @@
     },
     {
       "ddd": 0,
-      "ind": 51,
+      "ind": 44,
       "ty": 4,
       "nm": "mascaraequipos 2",
       "td": 1,
@@ -80675,11 +80675,11 @@
     },
     {
       "ddd": 0,
-      "ind": 52,
+      "ind": 45,
       "ty": 4,
       "nm": ".ANZ_opacidad",
       "cl": "ANZ_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -110809,7 +110809,7 @@
     },
     {
       "ddd": 0,
-      "ind": 53,
+      "ind": 46,
       "ty": 4,
       "nm": "mascaraequipos",
       "td": 1,
@@ -110977,11 +110977,11 @@
     },
     {
       "ddd": 0,
-      "ind": 54,
+      "ind": 47,
       "ty": 4,
       "nm": ".AGUI_opacidad",
       "cl": "AGUI_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -115479,7 +115479,7 @@
     },
     {
       "ddd": 0,
-      "ind": 55,
+      "ind": 48,
       "ty": 4,
       "nm": "mascara1",
       "td": 1,
@@ -115647,11 +115647,11 @@
     },
     {
       "ddd": 0,
-      "ind": 56,
+      "ind": 49,
       "ty": 4,
       "nm": ".LEO_opacidad",
       "cl": "LEO_opacidad",
-      "parent": 40,
+      "parent": 33,
       "tt": 1,
       "sr": 1,
       "ks": {
@@ -120337,7 +120337,7 @@
     },
     {
       "ddd": 0,
-      "ind": 57,
+      "ind": 50,
       "ty": 5,
       "nm": ".lineaparainformacion",
       "cl": "lineaparainformacion",
@@ -120466,7 +120466,7 @@
     },
     {
       "ddd": 0,
-      "ind": 58,
+      "ind": 51,
       "ty": 4,
       "nm": "barrainfobaja",
       "sr": 1,
@@ -120734,7 +120734,7 @@
     },
     {
       "ddd": 0,
-      "ind": 60,
+      "ind": 53,
       "ty": 2,
       "nm": ".logomeridiano",
       "cl": "logomeridiano",
@@ -120900,13 +120900,13 @@
         }
       ],
       "ip": 14.0000005702317,
-      "op": 150.000006109625,
+      "op": 29.0000011811942,
       "st": 14.0000005702317,
       "bm": 0
     },
     {
       "ddd": 0,
-      "ind": 61,
+      "ind": 54,
       "ty": 4,
       "nm": "FONDO Outlines 5",
       "td": 1,
@@ -121152,7 +121152,7 @@
     },
     {
       "ddd": 0,
-      "ind": 62,
+      "ind": 55,
       "ty": 4,
       "nm": "FONDO Outlines 4",
       "tt": 1,
@@ -121457,7 +121457,7 @@
     },
     {
       "ddd": 0,
-      "ind": 63,
+      "ind": 56,
       "ty": 4,
       "nm": "FONDO Outlines 7",
       "td": 1,
@@ -121754,7 +121754,7 @@
     },
     {
       "ddd": 0,
-      "ind": 64,
+      "ind": 57,
       "ty": 5,
       "nm": ".titulo_entrada",
       "tt": 1,
@@ -121878,7 +121878,7 @@
     },
     {
       "ddd": 0,
-      "ind": 65,
+      "ind": 58,
       "ty": 4,
       "nm": "FONDO Outlines 3",
       "sr": 1,
@@ -122174,7 +122174,7 @@
     },
     {
       "ddd": 0,
-      "ind": 66,
+      "ind": 59,
       "ty": 4,
       "nm": "FONDO Outlines 6",
       "td": 1,
@@ -122420,7 +122420,7 @@
     },
     {
       "ddd": 0,
-      "ind": 67,
+      "ind": 60,
       "ty": 4,
       "nm": "fondo translucido Outlines",
       "tt": 1,

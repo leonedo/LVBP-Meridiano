@@ -69,12 +69,12 @@ Team names as the design writes them: `AGUILAS DEL ZULIA`, `BRAVOS DE MARGARITA`
 ## Text layers
 
 The position labels (`catcher` … `rightfield`), the player names (`jugador…`) and `lineaparainformacion`
-are box text: a longer string shrinks to fit instead of overflowing. `equipo` is point text sized
-for the longest team name (`NAVEGANTES DEL MAGALLANES`).
+are box text: a longer string shrinks to fit instead of overflowing. `equipo` is point text; the
+longest team name (`NAVEGANTES DEL MAGALLANES`) fits.
 
 | Class | Default text |
 |-------|-------------|
-| `equipo` | NAVEGANTES DEL MAGALLANES |
+| `equipo` | LEONES DEL CARACAS |
 | `titulo` | DEFENSIVA |
 | `titulo_entrada` | DEFENSIVA (only visible during the first 26 frames of the entry) |
 | `catcher` | C |
