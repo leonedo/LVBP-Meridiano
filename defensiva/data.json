@@ -123148,13 +123148,19 @@
       "payload": {
         "name": "play",
         "type": "pause",
-        "order": 1
+        "order": 1,
+        "stop": "salida"
       }
     },
     {
       "tm": 120.0000048877,
       "cm": "stop",
       "dr": 1
+    },
+    {
+      "tm": 90.0000036657751,
+      "cm": "salida",
+      "dr": -90.0000036657751
     }
   ]
 }

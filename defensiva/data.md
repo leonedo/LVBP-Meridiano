@@ -120,8 +120,11 @@ longest team name (`NAVEGANTES DEL MAGALLANES`) fits.
 
 | Name | Start (tm) | Duration (dr) | Payload |
 |------|-----------|--------------|---------|
-| `play` | 0 | 90 | stage `pause`, order 1 |
+| `play` | 0 | 90 | stage `pause`, order 1, `stop: "salida"` |
+| `salida` | 90 | -90 | — (the entry played backwards) |
 | `stop` | 120.0000048877 | 1 | — |
 
 `play` enters and pauses on frame 90. No update animation: data sent while on air replaces
-silently. There is no exit animation: `stop` cuts, and the layer is released about 10 ms later.
+silently. The exit is the entry in reverse: `stop` while on air plays `salida` (frame 90 → 0,
+3 s) and releases the layer when it ends. A `stop` that arrives mid-entry, before the pause,
+falls back to the global `stop` marker and cuts.
