@@ -42,10 +42,10 @@ const addFont = (fam, path) => {
 };
 
 // Lee el JSON con XMLHttpRequest, no con fetch: CasparCG abre los templates como
-// file:// y el Chromium embebido rechaza fetch() sobre ese esquema
-// ("URL scheme "file" is not supported"), en 2.3 y en 2.6. XHR sí puede leer file://
-// (es lo que usa Lottie por dentro con `path:`). Con file:// XHR devuelve status 0
-// aunque haya leído bien, así que el éxito se decide por tener contenido.
+// file:// y el Chromium de CasparCG 2.3.x rechaza fetch() sobre ese esquema
+// ("URL scheme "file" is not supported"). En 2.6.0 fetch sí funciona, pero XHR
+// sirve en las dos (es lo que usaba Lottie por dentro con `path:`). Con file://
+// XHR devuelve status 0 aunque haya leído bien: el éxito se decide por el contenido.
 function loadJSON(url) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();

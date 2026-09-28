@@ -277,7 +277,7 @@ git archive --worktree-attributes --format=zip -o /tmp/t.zip HEAD && unzip -l /t
 - No reusar nombres de stages — cada `payload.name` debe ser único.
 - No repetir `order` entre stages.
 - No tocar `lottie.js` ni `webcg-framework.umd.js` (son vendors).
-- **No usar `fetch()` para leer archivos del template** (el JSON del Lottie, etc.). CasparCG abre los templates como `file://` y su Chromium rechaza `fetch` sobre ese esquema (`URL scheme "file" is not supported`, visto en CasparCG 2.3.2; 2.6 también carga por `file://`). `index.js` usa `loadJSON()` con `XMLHttpRequest`, que sí lee `file://`. Con Live Server (`http://`) los dos funcionan, así que el error no aparece al testear en el browser.
+- **No usar `fetch()` para leer archivos del template** (el JSON del Lottie, etc.). CasparCG abre los templates como `file://`, y en **CasparCG 2.3.x** su Chromium rechaza `fetch` sobre ese esquema (`URL scheme "file" is not supported`, visto con LVBP-Stats). En 2.6.0 `fetch` sí funciona (el server unificado de CueCore lo carga sin errores), así que el problema solo aparece en clientes con el server viejo. `index.js` usa `loadJSON()` con `XMLHttpRequest`, que funciona en las dos versiones. Con Live Server (`http://`) los dos funcionan, así que al testear en el browser no se ve.
 - No agregar al bloque genérico del `.gitattributes` una exclusión que sea específica de un proyecto — va en la sección marcada del final, y en el repo derivado.
 - No meter reglas `text`, `eol` ni `* text=auto` en `.gitattributes` — `index.html` y `webcg-framework.umd.js` están en CRLF y una normalización los reescribe enteros. Ese archivo lleva sólo `export-ignore`.
 
