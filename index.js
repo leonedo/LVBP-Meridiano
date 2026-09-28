@@ -41,17 +41,39 @@ const addFont = (fam, path) => {
     document.head.appendChild(newFont);
 };
 
+// Lee el JSON con XMLHttpRequest, no con fetch: CasparCG abre los templates como
+// file:// y el Chromium embebido rechaza fetch() sobre ese esquema
+// ("URL scheme "file" is not supported"), en 2.3 y en 2.6. XHR sí puede leer file://
+// (es lo que usa Lottie por dentro con `path:`). Con file:// XHR devuelve status 0
+// aunque haya leído bien, así que el éxito se decide por tener contenido.
+function loadJSON(url) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = () => {
+            const ok = (xhr.status >= 200 && xhr.status < 300) || (xhr.status === 0 && xhr.responseText);
+            if (!ok) {
+                reject(new Error(`HTTP ${xhr.status}`));
+                return;
+            }
+            try {
+                resolve(JSON.parse(xhr.responseText));
+            } catch (err) {
+                reject(err);
+            }
+        };
+        xhr.onerror = () => reject(new Error(`XHR failed: ${url}`));
+        xhr.send();
+    });
+}
+
 // Pre-fetch the JSON so we can normalize markers (object payload -> stringified cm)
 // before Lottie parses them. Lottie only reads `cm` to populate `marker.payload`,
 // so the user's tool can emit either the legacy stringified-cm form or a clean
 // `{ ..., payload: { name, type, order, update? } }` object.
 const animPromise = new Promise((resolve, reject) => {
     console.log('loading ' + data_file);
-    fetch(data_file)
-        .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return r.json();
-        })
+    loadJSON(data_file)
         .then(json => {
             if (json.markers) {
                 json.markers.forEach(m => {
