@@ -21,7 +21,8 @@ if (process.env.JSON) {
 await page.goto(url);
 await page.waitForFunction(() => typeof anim !== 'undefined' && anim && anim.isLoaded);
 await page.evaluate(() => document.fonts.ready);
-await page.evaluate(() => { document.body.style.background = '#2b2b2b'; });
+// BG=none: fondo transparente, para superponer el render sobre un frame de video
+if (process.env.BG !== 'none') await page.evaluate(() => { document.body.style.background = '#2b2b2b'; });
 if (data) {
     await page.evaluate(d => update(d), data);
     await page.waitForTimeout(600);
@@ -29,7 +30,7 @@ if (data) {
 for (const f of frames) {
     await page.evaluate(f => anim.goToAndStop(f, true), f);
     await page.waitForTimeout(80);
-    await page.screenshot({ path: `${out}_${f}.png`, clip });
+    await page.screenshot({ path: `${out}_${f}.png`, clip, omitBackground: process.env.BG === 'none' });
 }
 const errs = logs.filter(l => /error|warn|PAGEERROR/i.test(l));
 if (errs.length) console.log(errs.join('\n'));

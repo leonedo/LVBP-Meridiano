@@ -236367,7 +236367,8 @@
       "payload": {
         "name": "marcador",
         "type": "pause",
-        "order": 1
+        "order": 1,
+        "stop": "salida"
       }
     },
     {
@@ -236377,7 +236378,8 @@
       "payload": {
         "name": "jugadores",
         "type": "pause",
-        "order": 2
+        "order": 2,
+        "stop": "salida_jugadores"
       }
     },
     {
@@ -236387,8 +236389,19 @@
       "payload": {
         "name": "sinjugadores",
         "type": "pause",
-        "order": 3
+        "order": 3,
+        "stop": "salida"
       }
+    },
+    {
+      "tm": 106,
+      "cm": "salida",
+      "dr": -106
+    },
+    {
+      "tm": 136,
+      "cm": "salida_jugadores",
+      "dr": -136
     }
   ]
 }

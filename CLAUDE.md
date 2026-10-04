@@ -9,7 +9,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
 |---|---|---|---|
-| `score/` | Pizarra: escudos, carreras, inning, conteo, outs, bases y barra de bateador/lanzador | `play` (0–106) → stages `marcador` → `jugadores` → `sinjugadores`, los tres `pause` | `stop` de 1 frame: corta |
+| `score/` | Pizarra: escudos, carreras, inning, conteo, outs, bases y barra de bateador/lanzador | `play` (0–106) → stages `marcador` → `jugadores` → `sinjugadores`, los tres `pause` | `salida`: la entrada al revés (3,5 s); desde `jugadores`, `salida_jugadores` baja antes la barra (4,5 s) |
 | `defensiva/` | Campo con las 9 posiciones, escudo y nombre del equipo, línea de información | stage `play` pause (0–104) | `salida`: la entrada al revés (3,5 s) |
 | `lanzador/` | Tabla del lanzador: escudo, nombre, mano, temporada y 6 estadísticas | stage `play` pause (0–35) | `salida`: la entrada al revés (1,2 s) |
 | `bateador/` | Barra baja del bateador: escudo, número, posición, nombre, 4 estadísticas y temporada | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
@@ -19,6 +19,15 @@ Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
 los 56 cruces `visita_vs_local`). Son de v0.0.7: si un gráfico cambia, hay que regenerarlas. No
 entran al zip (`.gitattributes`).
+
+Video de referencia del diseñador: `GRAPHICS FINAL LISTO.mp4` (2026-10-04, 23,976 fps, en Descargas
+del usuario), con todos los gráficos al aire. Ahí score y defensiva son la versión **original**: una
+diferencia con lo nuestro puede ser un cambio decidido después, no un error. Lo que confirmó: todas las
+salidas son la entrada al revés (score incluido). Muestra seis gráficos que todavía no llegaron:
+JUEGO DE HOY, OFENSIVA (lineup), 3 EN LÍNEA, PREVENIDO, PARCIAL y LINESCORE / SCORE FINAL (los cuatro
+últimos con logo de Gatorade). Pendiente con el diseñador: en lanzador y bateador el video es otra
+revisión (encabezado del lanzador corrido, "TEMPORADA" espaciado, nombre del bateador más grande y sin
+el triángulo amarillo).
 
 Escudos: en `defensiva`, `lanzador` y las dos barras de bateador son
 `AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y arrancan ocultos por CSS en `index.html`; en `score` son `<SIGLAS>LOCAL_opacidad` y

@@ -118,13 +118,21 @@ A control client sends a flat JSON object. Any subset of these keys is valid —
 
 ## Markers
 
-| Name | Start (tm) | Duration (dr) | Comment |
+| Name | Start (tm) | Duration (dr) | Payload |
 |------|-----------|--------------|---------|
-| `play` | 0 | 106 | play |
-| `stop` | 240.0000097754 | 1 | stop |
-| `marcador` | 100 | 6 | marcador |
-| `jugadores` | 120 | 16 | jugadores |
-| `sinjugadores` | 213 | 19 | sinjugadores |
+| `play` | 0 | 106 | — (the entry; it pauses in `marcador`) |
+| `marcador` | 100 | 6 | stage `pause`, order 1, `stop: "salida"` |
+| `jugadores` | 120 | 16 | stage `pause`, order 2, `stop: "salida_jugadores"` |
+| `sinjugadores` | 213 | 19 | stage `pause`, order 3, `stop: "salida"` |
+| `salida` | 106 | -106 | — (the entry played backwards) |
+| `salida_jugadores` | 136 | -136 | — (the player bar goes down, then the entry backwards) |
+| `stop` | 240.0000097754 | 1 | — |
+
+`next` walks the stages: `marcador` (board only) → `jugadores` (player bar up) → `sinjugadores`
+(bar down). The exit is the entry in reverse, as in the designer's reference video: `stop` from
+`marcador` or `sinjugadores` plays `salida` (3.5 s); from `jugadores`, `salida_jugadores` first
+lowers the bar (4.5 s in all). Both release the layer when they end. A `stop` during the entry,
+before `marcador`, falls back to the global `stop` marker and cuts.
 
 ## Invocación directa desde CasparCG
 
