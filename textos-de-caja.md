@@ -50,6 +50,13 @@ diseño queda en el mismo píxel y cualquier otro se centra sobre el mismo eje. 
 que la caja quede dentro de la placa con el margen de siempre. Usado en
 `lanzador/informacionbarranegra`.
 
+### Variante: casilleros intercambiables
+
+Cuando cualquier texto puede ir en cualquier casillero (las estadísticas genéricas `etiquetaN` /
+`valorN`), todas las cajas del mismo tipo pasan al ancho de la más ancha. Para que el texto del
+diseño no se mueva, el borde de anclaje queda fijo: con `j: 0` no se toca `ps[0]`; con `j: 1`,
+`ps[0] += Wviejo − Wnuevo`; con `j: 2`, la mitad de eso. Usado en `lanzador` y `bateador`.
+
 ### Por qué queda igual — `lottie.js` 5.13.0
 
 - `TextAnimatorProperty.getMeasures` y `ITextElement.applyTextPropertiesToMatrix`: con `ps`,
@@ -111,4 +118,8 @@ y los números están en el `textos-de-caja.md` de ese repo.
 
 `LVBP-Meridiano/lanzador` (2026-10-04): `informacionbarranegra` con la variante centrada, cero
 píxeles distintos en 5 frames. `nombrelanzador` con `W` 222 en vez del 230 del diseñador, para dejar
-aire antes de la línea divisoria; el texto del diseño, idéntico en 7 frames.
+aire antes de la línea divisoria; el texto del diseño, idéntico en 7 frames. Casilleros de
+estadísticas igualados: idéntico en 7 frames, y `WHIP` entra sin achicarse en el casillero de `JL`.
+
+`LVBP-Meridiano/bateador` (2026-10-04): `nombrejugador` con `W` 260 en vez de 275.4, el mismo aire
+(15 px) a los dos lados del panel; idéntico en 9 frames.
