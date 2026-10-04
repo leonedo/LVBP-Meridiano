@@ -25,7 +25,7 @@ En el `index.html` del gráfico, los scripts apuntan al root con `../`:
 ```html
 <script>
     let data_file = "MiAnim.json";
-    // let audio_inframe = 5;
+    // let audio_clips = [{ src: '../audio/aud_0.mp3', inframe: 5 }];
     // window.ENABLE_CLOCK = true;
 </script>
 <script src="../webcg-framework.umd.js"></script>
@@ -113,7 +113,7 @@ Detalles completos del schema de markers en [CLAUDE.md](CLAUDE.md).
 
 ## Data: reemplazo de texto, color, opacidad, imágenes
 
-El evento `SET DATA "..."` desde CasparCG dispara el reemplazo. Convenciones:
+El `CG UPDATE` desde CasparCG (evento `data`) dispara el reemplazo. Convenciones:
 
 | Tipo | Trigger | Acción |
 |---|---|---|
@@ -152,18 +152,19 @@ Si el stage no tiene `update` definido, el reemplazo es silencioso (sin animaci�
 
 ## Audio (SFX one-shot)
 
-Para disparar un sonido en un frame específico del `play`:
+Para disparar uno o varios sonidos en frames específicos del `play`:
 
-1. Descomentar el tag en el `<head>` del `index.html`:
+1. Un tag por clip en el `<head>` del `index.html`, con índice desde 0:
    ```html
-   <audio id="sfxOut" src="../audio/aud_0.mp3" preload="auto"></audio>
+   <audio id="sfx_0" src="../audio/aud_0.mp3" preload="auto"></audio>
    ```
-2. Definir el frame en el bloque `<script>`:
+2. Los frames en el bloque `<script>`, antes de cargar `../index.js`:
    ```js
-   let audio_inframe = 5;
+   let audio_clips = [{ src: '../audio/aud_0.mp3', inframe: 5 }];
    ```
 
-Se dispara una vez al cruzar el frame; se resetea en cada `play`.
+Cada clip se dispara una vez al cruzar su `inframe`; se resetean en cada `play`. Lo que suena es el
+`<audio id="sfx_<i>">`: el `src` de `audio_clips` es sólo informativo.
 
 ---
 
@@ -202,7 +203,7 @@ El intervalo está alineado a la marca de minuto/segundo, así que el cambio ocu
 
 ## Testeo local con webcg-devtools
 
-Los samples en [samples/](samples/) cargan `webcg-devtools.umd.js` que monta una UI de control en el browser. Abrir el HTML con Live Server de VSCode (o cualquier server estático) para mandar eventos sin CasparCG.
+Cada `<gráfico>/index.html` carga `webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode, para mandar eventos sin CasparCG. En cualquier otro server estático se maneja desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
 
 ---
 
@@ -212,6 +213,9 @@ Tags semver con [release.sh](release.sh):
 - `./release.sh` → patch estable
 - `./release.sh minor` / `major`
 - `./release.sh patch pre` → pre-release
+
+Antes, `git fetch --tags`: `gh release create` crea el tag sólo en GitHub y `release.sh` calcula la
+versión con los tags locales.
 
 Tasks de VSCode en `.vscode/tasks.json` cubren Mac y Windows (Git Bash).
 

@@ -41,6 +41,15 @@ no entra en `W`, parte línea y encoge — y ya no queda igual que antes.
 ⚠ **Copiá `ascent` con todos los decimales** (`-14.743728637695323`, no `-14.74`). Con eso
 la matriz de cada letra sale idéntica, no «casi».
 
+### Variante: un texto que el diseño centró a ojo
+
+Si el diseñador lo centró a mano con `j: 0`, un texto más corto queda corrido a la izquierda. Se
+pasa a `j: 2` con `ps[0] = (Lw − W) / 2`, donde `Lw` es el ancho de línea del texto del diseño
+medido con la fuente cargada (`textProperty.currentData.lineWidths[0]`). Con eso el texto del
+diseño queda en el mismo píxel y cualquier otro se centra sobre el mismo eje. `W` se elige para
+que la caja quede dentro de la placa con el margen de siempre. Usado en
+`lanzador/informacionbarranegra`.
+
 ### Por qué queda igual — `lottie.js` 5.13.0
 
 - `TextAnimatorProperty.getMeasures` y `ITextElement.applyTextPropertiesToMatrix`: con `ps`,
@@ -71,6 +80,12 @@ altura supera `H`, baja `finalSize` en 1 y vuelve a probar, hasta que entra en u
   entra **parte en dos líneas** en vez de encoger.
 - **El ancho se mide con la fuente cargada** (`measureText`). Con la fuente embebida en el
   JSON no hay carrera; con una fuente externa que tarda en cargar, la medida puede salir mal.
+- **`H` sólo impide dos líneas al cuerpo del diseño.** Al encoger, el interlineado también se
+  achica: con cuerpo `f`, dos líneas entran si `f × (lh / s + ascentDeLaFuente / 100) ≤ H`. Un
+  texto muy largo puede quedar en dos líneas más chicas en vez de seguir encogiendo; cuanto más
+  cerca de `ascent` esté `H`, más largo tiene que ser para que pase. Visto en
+  `lanzador/nombrelanzador` (caja del diseñador, `H` 43): un nombre de cuatro palabras va en dos
+  líneas, uno de dos palabras queda en una.
 
 ---
 
@@ -93,3 +108,7 @@ altura supera `H`, baja `finalSize` en 1 y vuelve a probar, hasta que entra en u
 izquierda. **4 textos × 8 frames, cero píxeles distintos** y la misma matriz en cada letra.
 Un sorteo de 8 cifras que antes se salía de su placa pasó a 15 px y quedó adentro. El detalle
 y los números están en el `textos-de-caja.md` de ese repo.
+
+`LVBP-Meridiano/lanzador` (2026-10-04): `informacionbarranegra` con la variante centrada, cero
+píxeles distintos en 5 frames. `nombrelanzador` con `W` 222 en vez del 230 del diseñador, para dejar
+aire antes de la línea divisoria; el texto del diseño, idéntico en 7 frames.

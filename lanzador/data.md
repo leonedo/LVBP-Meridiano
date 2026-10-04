@@ -55,7 +55,8 @@ turn off the previous one. Same keys as `defensiva`.
 ## Text layers
 
 The name, the stat values (`numeros…`) and `informacionbarranegra` are box text: a longer string
-shrinks to fit instead of overflowing. `informacionbarranegra` is centered on the black bar.
+shrinks to fit instead of overflowing. `informacionbarranegra` is centered on the black bar. A very
+long name (four words) goes on two smaller lines; a first name and surname stay on one.
 
 | Class | Default text |
 |-------|-------------|

@@ -2,6 +2,47 @@
 
 Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
+## Este repo: LVBP para Meridiano TV
+
+Tres gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Las keys del UPDATE de cada uno están en su `data.md`.
+
+| Carpeta | Qué es | Flujo | Salida |
+|---|---|---|---|
+| `score/` | Pizarra: escudos, carreras, inning, conteo, outs, bases y barra de bateador/lanzador | `play` (0–106) → stages `marcador` → `jugadores` → `sinjugadores`, los tres `pause` | `stop` de 1 frame: corta |
+| `defensiva/` | Campo con las 9 posiciones, escudo y nombre del equipo, línea de información | stage `play` pause (0–104) | `salida`: la entrada al revés (3,5 s) |
+| `lanzador/` | Tabla del lanzador: escudo, nombre, mano, temporada y 6 estadísticas | stage `play` pause (0–35) | `salida`: la entrada al revés (1,2 s) |
+
+Escudos: en `defensiva` y `lanzador` son `AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y
+arrancan ocultos por CSS en `index.html`; en `score` son `<SIGLAS>LOCAL_opacidad` y
+`<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los que no van.
+
+### Cuando llega un export nuevo del diseñador
+
+Cada export de AE trae los nombres crudos y hay que repetir la preparación. Buscar las capas por
+`nm` (los índices cambian) y comparar contra `git show HEAD:<carpeta>/data.json`:
+
+- **Clases:** las de la versión publicada. El logo llega siempre como `png` (es `logomeridiano`).
+  Ya se repitieron: en `score`, `nlanxamientos`, `INININGabajo/arriba` sin `_opacidad`,
+  `outs`/`lvbp`/`meridiano televisión` sin punto y `SEGUNDOOUT_opacidad` con un `\n`; en
+  `defensiva`, `.lanzador 2` (es `catcher`), `equiponombre_opacidad` (es `equipo`) y los escudos
+  como `*VISITA`/`*EFENSIVA`.
+- **Capas ocultas en AE** no se exportan (quedan `ind` salteados): `TIBUSVISITA` y su máscara en
+  `score`, `AGUI` y su máscara en `lanzador`. Se trasplantan de la versión publicada.
+- **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
+  arriba. Si cambia la duración de la entrada, `play` y `salida` van al último keyframe real, no
+  al `start` del diseñador.
+- **Textos de caja propios** ([textos-de-caja.md](textos-de-caja.md)): en `lanzador`,
+  `informacionbarranegra` (centrada en la barra) y el ancho de `nombrelanzador` (222, no 230).
+
+### QA
+
+- Juzgar con el runtime real y la fuente cargada (`<carpeta>/index.html` en el browser o con
+  Playwright). `lottie_render` del editor usa una fuente de reemplazo: los textos parten en dos y
+  se separan, no sirve para revisar textos.
+- Todos los equipos (en `score`, los 56 cruces visita × local), entrada frame a frame, data al
+  aire con el gráfico pausado, `next` y `stop` desde cada stage, y que el layer se suelte.
+
 ## Modelo del proyecto
 
 El root contiene los **archivos compartidos** que todos los gráficos consumen vía `../`:
@@ -220,7 +261,7 @@ Cada clip se dispara una vez al cruzar su `inframe`; todos los flags se resetean
 
 ## Testeo local
 
-Los samples en [samples/](samples/) cargan `../webcg-devtools.umd.js` que monta una UI de control en el browser. Abrirlos con Live Server de VSCode (o cualquier server estático) para mandar eventos manualmente sin CasparCG.
+Cada `<gráfico>/index.html` carga `../webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode. En cualquier otro server estático se maneja desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
 
 ## Releases
 
@@ -232,6 +273,9 @@ Tags semver gestionados con [release.sh](release.sh) + `gh release create`:
 Tasks de VSCode en [.vscode/tasks.json](.vscode/tasks.json) cubren Mac y Windows (Git Bash).
 
 **No correr `release.sh` sin pedir confirmación** — crea release público en GitHub.
+
+Antes de `release.sh`, `git fetch --tags`: `gh release create` crea el tag sólo en GitHub y
+`release.sh` calcula la versión con los tags locales, así que sin traerlos repite una que ya existe.
 
 ## Deploy: qué entra al zip del release
 
@@ -424,7 +468,6 @@ Son markers regulares (sin `type`/`order`) que se referencian desde un stage:
 |---|---|---|
 | `loopExternal: true` (loop en archivo separado) | Eliminado | No hay; pendiente de re-diseño |
 | `loopDelay` (frames muertos entre iteraciones de loop) | Eliminado | Agregar frames "muertos" al final del segmento del loop |
-| Marker `update` legacy (sin stage owner) | Eliminado | Cualquier data triggerea update solo si el stage actual lo declara |
 | `prev` (navegación hacia atrás) | No implementado | Usar `goto <stageName>` para saltar atrás |
 | Multiple updates por stage | No implementado | Un solo `update` por stage |
 
