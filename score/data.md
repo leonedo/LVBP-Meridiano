@@ -21,13 +21,13 @@ A control client sends a flat JSON object. Any subset of these keys is valid —
 {
   "lanzamientos": "40L",
   "average": ".300",
-  "lanzador": "FRANCISCO RODRIGUEZ",
-  "bateador": "FRANCISCO RODRIGUEZ",
+  "lanzador": "EDUARDO COLINA",
+  "bateador": "ALÍ CASTILLO",
   "outs": "OUTS",
-  "inning": "2",
+  "inning": "7",
   "conteobolasystrikes": "1-2",
-  "CARRERASLOCAL": "20",
-  "CARRERASVISITA": "20",
+  "CARRERASLOCAL": "5",
+  "CARRERASVISITA": "4",
   "lvbp": "LVBP",
   "meridianotv": "MERIDIANO TELEVISIÓN",
   "INNINGabajo_opacidad": 100,
@@ -72,13 +72,13 @@ A control client sends a flat JSON object. Any subset of these keys is valid —
 |-------|----|-------------|
 | `lanzamientos` | `.lanzamientos` | 40L |
 | `average` | `.average` | .300 |
-| `lanzador` | `.lanzador` | FRANCISCO RODRIGUEZ |
-| `bateador` | `.bateador` | FRANCISCO RODRIGUEZ |
+| `lanzador` | `.lanzador` | EDUARDO COLINA |
+| `bateador` | `.bateador` | ALÍ CASTILLO |
 | `outs` | `.outs` | OUTS |
-| `inning` | `.inning` | 2 |
+| `inning` | `.inning` | 7 |
 | `conteobolasystrikes` | `.conteobolasystrikes` | 1-2 |
-| `CARRERASLOCAL` | `.CARRERASLOCAL` | 20 |
-| `CARRERASVISITA` | `.CARRERASVISITA` | 20 |
+| `CARRERASLOCAL` | `.CARRERASLOCAL` | 5 |
+| `CARRERASVISITA` | `.CARRERASVISITA` | 4 |
 | `lvbp` | `.lvbp` | LVBP |
 | `meridianotv` | `.meridianotv` | MERIDIANO TELEVISIÓN |
 
