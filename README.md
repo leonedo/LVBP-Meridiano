@@ -203,7 +203,7 @@ El intervalo está alineado a la marca de minuto/segundo, así que el cambio ocu
 
 ## Testeo local con webcg-devtools
 
-Cada `<gráfico>/index.html` carga `webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode, para mandar eventos sin CasparCG. En cualquier otro server estático se maneja desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
+Cada `<gráfico>/index.html` carga `webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode, o en cualquier puerto con `?debug=true` en la URL, para mandar eventos sin CasparCG. El panel acepta el payload en modo JSON. Sin panel, desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
 
 ---
 

@@ -286,7 +286,7 @@ Cada clip se dispara una vez al cruzar su `inframe`; todos los flags se resetean
 
 ## Testeo local
 
-Cada `<gráfico>/index.html` carga `../webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode. En cualquier otro server estático se maneja desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
+Cada `<gráfico>/index.html` carga `../webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode, o en cualquier puerto con `?debug=true` en la URL (ej. `python3 -m http.server 5510` y `http://localhost:5510/lanzador/index.html?debug=true`). El panel acepta el payload en modo JSON. Sin panel, desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
 
 ## Releases
 
