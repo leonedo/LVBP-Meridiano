@@ -14,6 +14,11 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `lanzador/` | Tabla del lanzador: escudo, nombre, mano, temporada y 6 estadísticas | stage `play` pause (0–35) | `salida`: la entrada al revés (1,2 s) |
 | `bateador/` | Barra baja del bateador: escudo, número, posición, nombre, 4 estadísticas y temporada | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
 
+Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
+ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
+los 56 cruces `visita_vs_local`). Son de v0.0.5: si un gráfico cambia, hay que regenerarlas. No
+entran al zip (`.gitattributes`).
+
 Escudos: en `defensiva`, `lanzador` y `bateador` son `AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad`
 y arrancan ocultos por CSS en `index.html`; en `score` son `<SIGLAS>LOCAL_opacidad` y
 `<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los que no van.

@@ -36,3 +36,6 @@
 # suelto matchea en cualquier nivel y puede llevarse gráficos homónimos de otras carpetas.
 # Ejemplo:
 # /viejo/loop_old.json    export-ignore
+
+# Capturas de cómo se ve cada gráfico (documentación; el playout no las carga)
+/capturas                 export-ignore
