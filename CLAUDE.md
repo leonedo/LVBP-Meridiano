@@ -68,6 +68,26 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
 - Todos los equipos (en `score`, los 56 cruces visita × local), entrada frame a frame, data al
   aire con el gráfico pausado, `next` y `stop` desde cada stage, y que el layer se suelte.
 
+### Herramientas
+
+En [herramientas/](herramientas/), fuera del zip. Los scripts de render necesitan un server estático
+en la raíz del repo (`python3 -m http.server 5510`) y el Playwright del Lottie Layer Editor (o
+`PLAYWRIGHT=<ruta a index.mjs>`).
+
+| Script | Para qué |
+|---|---|
+| `prep.js` | La receta de arriba, ejecutable: prepara los exports del diseñador. Instrucciones en su encabezado |
+| `shot.mjs` | Frames de un gráfico con data: `node herramientas/shot.mjs <url> <salida> '<json>' <frames> [x,y,w,h]`; `JSON=<archivo>` sirve otro data.json para comparar versiones |
+| `matrix.mjs` | Muchas variantes de data en una carga (todos los equipos…), con reporte de textos y consola |
+| `onair.mjs` | Un flujo al aire (update, play, next, stop) con capturas en cada paso |
+| `lifecycle.mjs` | Tiempos de play → pausa → stop → salida, y que el layer se suelte |
+| `sheet.py` | Hojas de contacto con etiqueta (así se arman las de `capturas/`) |
+| `lint.py` | Chequeo estructural de todos los gráficos |
+| `dump.py`, `kf.py`, `deepdiff.py` | Analizar un export: capas, keyframes y diferencias contra lo publicado |
+
+Para comparar con un video del diseñador: `ffmpeg -i video.mp4 -vf fps=29.97 frames/%05d.png` y
+renderizar los mismos momentos con `shot.mjs`.
+
 ## Modelo del proyecto
 
 El root contiene los **archivos compartidos** que todos los gráficos consumen vía `../`:
