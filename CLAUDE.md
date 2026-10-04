@@ -17,7 +17,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
-los 56 cruces `visita_vs_local`). Son de v0.0.6: si un gráfico cambia, hay que regenerarlas. No
+los 56 cruces `visita_vs_local`). Son de v0.0.7: si un gráfico cambia, hay que regenerarlas. No
 entran al zip (`.gitattributes`).
 
 Escudos: en `defensiva`, `lanzador` y las dos barras de bateador son
@@ -47,6 +47,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   `titulo`, y `leadinbarrainformacion` (el triángulo amarillo) pierde la clase: no es una clave.
   En `bateador_informacion` la línea libre llega como `numeroaverage` (quedó de la otra barra):
   pasa a `texto`.
+- **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
+  naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
+  copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
 - **Capas ocultas en AE** no se exportan (quedan `ind` salteados): `TIBUSVISITA` y su máscara en
   `score`, `AGUI` y su máscara en `lanzador`. Se trasplantan de la versión publicada.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
