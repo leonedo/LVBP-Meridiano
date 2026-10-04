@@ -19,6 +19,10 @@ A control client sends a flat JSON object. Any subset of these keys is valid —
 pitcher's team and `0` for the others. The crests overlap, so if you switch teams you have to
 turn off the previous one. Same keys as `defensiva`.
 
+**Stats:** six generic slots, top to bottom. Each one is a label (`etiquetaN`) and a value
+(`valorN`): any stat can go in any slot, the design's JL / G-P / IL / K-BB / WHIP / ERA are only
+the default. Same scheme as `bateador`.
+
 ```json
 {
   "nombrelanzador": "JOHAN SANTANA",
@@ -32,12 +36,18 @@ turn off the previous one. Same keys as `defensiva`.
   "TIBUS_opacidad": 0,
   "TIGRES_opacidad": 0,
   "informacionbarranegra": "TEMPORADA 2025-26",
-  "numerosjuegoslanzados": "23",
-  "numerosganadosyperdidos": "10-2",
-  "numerosinninglanzados": "30.2",
-  "numerosponchesybolas": "10-20",
-  "numeroswhip": "1.23",
-  "numerosefectividad": "5.00",
+  "etiqueta1": "JL",
+  "valor1": "23",
+  "etiqueta2": "G-P",
+  "valor2": "10-2",
+  "etiqueta3": "IL",
+  "valor3": "30.2",
+  "etiqueta4": "K-BB",
+  "valor4": "10-20",
+  "etiqueta5": "WHIP",
+  "valor5": "1.23",
+  "etiqueta6": "ERA",
+  "valor6": "5.00",
   "titulo": "LANZADOR",
   "logomeridiano": "<https://... or relative/path/from/web-root>"
 }
@@ -54,7 +64,7 @@ turn off the previous one. Same keys as `defensiva`.
 
 ## Text layers
 
-The name, the stat values (`numeros…`) and `informacionbarranegra` are box text: a longer string
+The name, the stat labels and values, and `informacionbarranegra` are box text: a longer string
 shrinks to fit instead of overflowing. `informacionbarranegra` is centered on the black bar. A very
 long name (four words) goes on two smaller lines; a first name and surname stay on one.
 
@@ -64,15 +74,12 @@ long name (four words) goes on two smaller lines; a first name and surname stay 
 | `manodelanzar` | LD |
 | `informacionbarranegra` | TEMPORADA 2025-26 |
 | `titulo` | LANZADOR (only visible during the entry, frames 1–19) |
-| `juegoslanzados` / `numerosjuegoslanzados` | JL / 23 |
-| `ganadosyperdidos` / `numerosganadosyperdidos` | G-P / 10-2 |
-| `inninglanzados` / `numerosinninglanzados` | IL / 30.2 |
-| `ponchesybasesxbolas` / `numerosponchesybolas` | K-BB / 10-20 |
-| `whip` / `numeroswhip` | WHIP / 1.23 |
-| `efectividad` / `numerosefectividad` | ERA / 5.00 |
-
-The six labels (`juegoslanzados` … `efectividad`) are fixed in the design; they are exposed but
-there is normally no need to send them.
+| `etiqueta1` / `valor1` | JL / 23 |
+| `etiqueta2` / `valor2` | G-P / 10-2 |
+| `etiqueta3` / `valor3` | IL / 30.2 |
+| `etiqueta4` / `valor4` | K-BB / 10-20 |
+| `etiqueta5` / `valor5` | WHIP / 1.23 |
+| `etiqueta6` / `valor6` | ERA / 5.00 |
 
 ## Opacity layers
 

@@ -2678,8 +2678,8 @@
       "ddd": 0,
       "ind": 15,
       "ty": 5,
-      "nm": ".numerosefectividad",
-      "cl": "numerosefectividad",
+      "nm": ".valor6",
+      "cl": "valor6",
       "sr": 1,
       "ks": {
         "o": {
@@ -2730,11 +2730,11 @@
             {
               "s": {
                 "sz": [
-                  71.75,
+                  87.5,
                   43
                 ],
                 "ps": [
-                  -21,
+                  -36.75,
                   -21.5
                 ],
                 "s": 40.0999984741211,
@@ -2778,8 +2778,8 @@
       "ddd": 0,
       "ind": 16,
       "ty": 5,
-      "nm": ".numeroswhip",
-      "cl": "numeroswhip",
+      "nm": ".valor5",
+      "cl": "valor5",
       "sr": 1,
       "ks": {
         "o": {
@@ -2830,11 +2830,11 @@
             {
               "s": {
                 "sz": [
-                  71.75,
+                  87.5,
                   43
                 ],
                 "ps": [
-                  -21,
+                  -36.75,
                   -21.5
                 ],
                 "s": 40.0999984741211,
@@ -2878,8 +2878,8 @@
       "ddd": 0,
       "ind": 17,
       "ty": 5,
-      "nm": ".numerosponchesybolas",
-      "cl": "numerosponchesybolas",
+      "nm": ".valor4",
+      "cl": "valor4",
       "sr": 1,
       "ks": {
         "o": {
@@ -2930,11 +2930,11 @@
             {
               "s": {
                 "sz": [
-                  85.75,
+                  87.5,
                   43
                 ],
                 "ps": [
-                  -51,
+                  -52.75,
                   -21.5
                 ],
                 "s": 40.0999984741211,
@@ -2978,8 +2978,8 @@
       "ddd": 0,
       "ind": 18,
       "ty": 5,
-      "nm": ".numerosinninglanzados",
-      "cl": "numerosinninglanzados",
+      "nm": ".valor3",
+      "cl": "valor3",
       "sr": 1,
       "ks": {
         "o": {
@@ -3030,11 +3030,11 @@
             {
               "s": {
                 "sz": [
-                  76,
+                  87.5,
                   43
                 ],
                 "ps": [
-                  -55,
+                  -66.5,
                   -21.5
                 ],
                 "s": 40.0999984741211,
@@ -3078,8 +3078,8 @@
       "ddd": 0,
       "ind": 19,
       "ty": 5,
-      "nm": ".numerosganadosyperdidos",
-      "cl": "numerosganadosyperdidos",
+      "nm": ".valor2",
+      "cl": "valor2",
       "sr": 1,
       "ks": {
         "o": {
@@ -3178,8 +3178,8 @@
       "ddd": 0,
       "ind": 20,
       "ty": 5,
-      "nm": ".numerosjuegoslanzados",
-      "cl": "numerosjuegoslanzados",
+      "nm": ".valor1",
+      "cl": "valor1",
       "sr": 1,
       "ks": {
         "o": {
@@ -3230,11 +3230,11 @@
             {
               "s": {
                 "sz": [
-                  42,
+                  87.5,
                   43
                 ],
                 "ps": [
-                  -21,
+                  -66.5,
                   -21.5
                 ],
                 "s": 40.0999984741211,
@@ -3278,8 +3278,8 @@
       "ddd": 0,
       "ind": 21,
       "ty": 5,
-      "nm": ".efectividad",
-      "cl": "efectividad",
+      "nm": ".etiqueta6",
+      "cl": "etiqueta6",
       "sr": 1,
       "ks": {
         "o": {
@@ -3378,8 +3378,8 @@
       "ddd": 0,
       "ind": 22,
       "ty": 5,
-      "nm": ".whip",
-      "cl": "whip",
+      "nm": ".etiqueta5",
+      "cl": "etiqueta5",
       "sr": 1,
       "ks": {
         "o": {
@@ -3478,8 +3478,8 @@
       "ddd": 0,
       "ind": 23,
       "ty": 5,
-      "nm": ".ponchesybasesxbolas",
-      "cl": "ponchesybasesxbolas",
+      "nm": ".etiqueta4",
+      "cl": "etiqueta4",
       "sr": 1,
       "ks": {
         "o": {
@@ -3530,7 +3530,7 @@
             {
               "s": {
                 "sz": [
-                  55.75,
+                  71.75,
                   43
                 ],
                 "ps": [
@@ -3578,8 +3578,8 @@
       "ddd": 0,
       "ind": 24,
       "ty": 5,
-      "nm": ".inninglanzados",
-      "cl": "inninglanzados",
+      "nm": ".etiqueta3",
+      "cl": "etiqueta3",
       "sr": 1,
       "ks": {
         "o": {
@@ -3630,7 +3630,7 @@
             {
               "s": {
                 "sz": [
-                  42,
+                  71.75,
                   43
                 ],
                 "ps": [
@@ -3678,8 +3678,8 @@
       "ddd": 0,
       "ind": 25,
       "ty": 5,
-      "nm": ".ganadosyperdidos",
-      "cl": "ganadosyperdidos",
+      "nm": ".etiqueta2",
+      "cl": "etiqueta2",
       "sr": 1,
       "ks": {
         "o": {
@@ -3730,7 +3730,7 @@
             {
               "s": {
                 "sz": [
-                  42,
+                  71.75,
                   43
                 ],
                 "ps": [
@@ -3778,8 +3778,8 @@
       "ddd": 0,
       "ind": 26,
       "ty": 5,
-      "nm": ".juegoslanzados",
-      "cl": "juegoslanzados",
+      "nm": ".etiqueta1",
+      "cl": "etiqueta1",
       "sr": 1,
       "ks": {
         "o": {
@@ -3830,7 +3830,7 @@
             {
               "s": {
                 "sz": [
-                  42,
+                  71.75,
                   43
                 ],
                 "ps": [
