@@ -74,28 +74,28 @@ longest team name (`NAVEGANTES DEL MAGALLANES`) fits.
 
 | Class | Default text |
 |-------|-------------|
-| `equipo` | LEONES DEL CARACAS |
+| `equipo` | NAVEGANTES DEL MAGALLANES |
 | `titulo` | DEFENSIVA |
 | `titulo_entrada` | DEFENSIVA (only visible during the first 26 frames of the entry) |
 | `catcher` | C |
-| `jugadorcatcher` | F.RODRIGUEZ |
+| `jugadorcatcher` | E. ALFONZO |
 | `lanzador` | L |
-| `jugadorlanzador` | F.RODRIGUEZ |
+| `jugadorlanzador` | E.COLINA |
 | `primerabase` | 1B |
-| `jugadorprimerabase` | F.RODRIGUEZ |
+| `jugadorprimerabase` | R.NUÑEZ |
 | `segundabase` | 2B |
-| `jugadorsegundabase` | F.RODRIGUEZ |
+| `jugadorsegundabase` | R. ODOR |
 | `tercerabase` | 3B |
-| `jugadortercerabase` | F.RODRIGUEZ |
+| `jugadortercerabase` | L.SIUSBEL |
 | `shortstop` | SS |
-| `jugadorshortstop` | F.RODRIGUEZ |
+| `jugadorshortstop` | D. VELÁSQUEZ |
 | `leftfield` | LF |
-| `jugadorleftfield` | F.RODRIGUEZ |
+| `jugadorleftfield` | T. MARCANO |
 | `centerfield` | CF |
-| `jugadorcenterfield` | F.RODRIGUEZ |
+| `jugadorcenterfield` | C. RDODRÍGUEZ |
 | `rightfield` | RF |
-| `jugadorrightfield` | F.RODRIGUEZ |
-| `lineaparainformacion` | LINEA PARA INFORMACION |
+| `jugadorrightfield` | D RINCONES |
+| `lineaparainformacion` | MAGALLANES 26-27: DEBUTAN 3 NOVATOS TODOS CON PROYECCION MLB |
 
 ## Opacity layers
 
@@ -120,11 +120,11 @@ longest team name (`NAVEGANTES DEL MAGALLANES`) fits.
 
 | Name | Start (tm) | Duration (dr) | Payload |
 |------|-----------|--------------|---------|
-| `play` | 0 | 90 | stage `pause`, order 1, `stop: "salida"` |
-| `salida` | 90 | -90 | — (the entry played backwards) |
+| `play` | 0 | 104 | stage `pause`, order 1, `stop: "salida"` |
+| `salida` | 104 | -104 | — (the entry played backwards) |
 | `stop` | 120.0000048877 | 1 | — |
 
-`play` enters and pauses on frame 90. No update animation: data sent while on air replaces
-silently. The exit is the entry in reverse: `stop` while on air plays `salida` (frame 90 → 0,
-3 s) and releases the layer when it ends. A `stop` that arrives mid-entry, before the pause,
-falls back to the global `stop` marker and cuts.
+`play` enters and pauses on frame 104. No update animation: data sent while on air replaces
+silently. The exit is the entry in reverse: `stop` plays `salida` (frame 104 → 0, 3.5 s) and
+releases the layer when it ends. The `play` stage is active from frame 0, so a `stop` that
+arrives mid-entry also plays `salida`: it jumps to the full graphic and exits from there.
