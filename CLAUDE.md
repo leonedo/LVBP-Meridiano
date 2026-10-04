@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Cuatro gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Cinco gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -13,21 +13,22 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `defensiva/` | Campo con las 9 posiciones, escudo y nombre del equipo, línea de información | stage `play` pause (0–104) | `salida`: la entrada al revés (3,5 s) |
 | `lanzador/` | Tabla del lanzador: escudo, nombre, mano, temporada y 6 estadísticas | stage `play` pause (0–35) | `salida`: la entrada al revés (1,2 s) |
 | `bateador/` | Barra baja del bateador: escudo, número, posición, nombre, 4 estadísticas y temporada | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
+| `bateador_informacion/` | La misma barra con una línea de texto libre (`texto`) en lugar de las estadísticas; el uso todavía no está definido | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
-los 56 cruces `visita_vs_local`). Son de v0.0.5: si un gráfico cambia, hay que regenerarlas. No
+los 56 cruces `visita_vs_local`). Son de v0.0.6: si un gráfico cambia, hay que regenerarlas. No
 entran al zip (`.gitattributes`).
 
-Escudos: en `defensiva`, `lanzador` y `bateador` son `AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad`
-y arrancan ocultos por CSS en `index.html`; en `score` son `<SIGLAS>LOCAL_opacidad` y
+Escudos: en `defensiva`, `lanzador` y las dos barras de bateador son
+`AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y arrancan ocultos por CSS en `index.html`; en `score` son `<SIGLAS>LOCAL_opacidad` y
 `<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los que no van.
 
 Estadísticas: en `lanzador` y `bateador` los casilleros son genéricos, `etiquetaN` (rótulo) y
 `valorN` (número), para poner cualquier estadística en cualquiera. Todas las cajas de rótulo tienen
 el mismo ancho, y las de valor también, para que cualquier texto entre en cualquier casillero.
 
-⚠ `bateador` lleva la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
+⚠ Las dos barras de bateador llevan la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
 de entrada, y así una sola clave cambia el título (`AL BATE`, `PREVENIDO`…). El audit del editor lo
 marca como clase duplicada: es esperado, no "arreglarlo".
 
@@ -42,8 +43,10 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   `defensiva`, `.lanzador 2` (es `catcher`), `equiponombre_opacidad` (es `equipo`) y los escudos
   como `*VISITA`/`*EFENSIVA`. Las estadísticas llegan con nombres por estadística
   (`juegoslanzados`/`numerosjuegoslanzados`, `average`/`numeroaverage`…): pasan a
-  `etiquetaN`/`valorN`. En `bateador`, `al bate` y `al bate 2` pasan las dos a `titulo`, y
-  `leadinbarrainformacion` (el triángulo amarillo) pierde la clase: no es una clave.
+  `etiquetaN`/`valorN`. En las barras de bateador, `al bate` y `al bate 2` pasan las dos a
+  `titulo`, y `leadinbarrainformacion` (el triángulo amarillo) pierde la clase: no es una clave.
+  En `bateador_informacion` la línea libre llega como `numeroaverage` (quedó de la otra barra):
+  pasa a `texto`.
 - **Capas ocultas en AE** no se exportan (quedan `ind` salteados): `TIBUSVISITA` y su máscara en
   `score`, `AGUI` y su máscara en `lanzador`. Se trasplantan de la versión publicada.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
@@ -51,8 +54,8 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   al `start` del diseñador.
 - **Textos de caja propios** ([textos-de-caja.md](textos-de-caja.md)): en `lanzador`,
   `informacionbarranegra` (centrada en la barra), el ancho de `nombrelanzador` (222, no 230) y las
-  cajas de estadísticas igualadas (rótulos 71.75, valores 87.5); en `bateador`, el ancho de
-  `nombrejugador` (260, no 275.4). Los anchos de nombre dejan el mismo aire a los dos lados.
+  cajas de estadísticas igualadas (rótulos 71.75, valores 87.5); en las dos barras de bateador,
+  el ancho de `nombrejugador` (260, no 275.4). Los anchos de nombre dejan el mismo aire a los dos lados.
 
 ### QA
 
