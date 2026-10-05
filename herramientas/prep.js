@@ -38,6 +38,12 @@ function freeInd(d, ind) {
     return ind;
 }
 const FONT = 'font/LeagueGothic-Regular.otf';
+// El diseño va todo en mayúsculas: All Caps (ca: 1) en todas las capas de texto, que es lo que
+// index.js mira para pasar a mayúsculas el texto del UPDATE. Hay exports que lo traen apagado
+// en alguna capa (en ofensiva, nombres, valores e información; en defensiva y lanzador, titulo).
+function allCaps(d) {
+    for (const l of d.layers) if (l.ty === 5) for (const k of l.t.d.k) k.s.ca = 1;
+}
 
 // Último keyframe visible de la animación: el de cada capa dentro de su [ip, op], con los
 // precomps corridos por su st. Sirve para avisar si un export trae una entrada más larga que
@@ -94,6 +100,7 @@ function avisarEntrada(d, nombre) {
 
     d.markers = clone(cur.markers);
     d.fonts.list[0].fPath = FONT;
+    allCaps(d);
     save(path.join(REPO, 'score/data.json'), d);
 }
 
@@ -153,6 +160,7 @@ const ENTRADA_DEF = 104; // la última animación de la entrada (barra del catch
         { tm: ENTRADA_DEF, cm: 'salida', dr: -ENTRADA_DEF }
     ];
     d.fonts.list[0].fPath = FONT;
+    allCaps(d);
     avisarEntrada(d, 'defensiva');
     save(path.join(REPO, 'defensiva/data.json'), d);
 }
@@ -230,6 +238,7 @@ const ENTRADA_DEF = 104; // la última animación de la entrada (barra del catch
         { tm: 35.0000014255792, cm: 'salida', dr: -35.0000014255792 }
     ];
     d.fonts.list[0].fPath = FONT;
+    allCaps(d);
     avisarEntrada(d, 'lanzador');
     save(path.join(REPO, 'lanzador/data.json'), d);
 }
@@ -257,6 +266,7 @@ function prepBateador(d) {
         { tm: ENTRADA_BAT, cm: 'salida', dr: -ENTRADA_BAT }
     ];
     d.fonts.list[0].fPath = FONT;
+    allCaps(d);
     avisarEntrada(d, 'bateador');
 }
 {
@@ -316,6 +326,7 @@ const ENTRADA_OF = 41; // la fila del noveno bate termina de aparecer en el 40
         { tm: ENTRADA_OF, cm: 'salida', dr: -ENTRADA_OF }
     ];
     d.fonts.list[0].fPath = FONT;
+    allCaps(d);
     avisarEntrada(d, 'ofensiva');
     save(path.join(REPO, 'ofensiva/data.json'), d);
 }

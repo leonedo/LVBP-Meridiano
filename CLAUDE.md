@@ -21,10 +21,9 @@ ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los 
 los 56 cruces `visita_vs_local`). Son de v0.0.7 (las de `ofensiva`, de v0.0.9): si un gráfico
 cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
-Textos: el reproductor no aplica el All Caps de After Effects, así que un texto sale tal cual llega.
-El diseño va en mayúsculas: el controlador las manda (lo dice cada `data.md`). En `ofensiva` los
-nombres van como `NOMBRE APELLIDO` hasta 18 caracteres y como `N. APELLIDO` si pasan de eso: más
-largos encogen a la vista (21 caracteres, un 20 %).
+Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
+Lottie). En `ofensiva` los nombres van como `NOMBRE APELLIDO` hasta 18 caracteres y como
+`N. APELLIDO` si pasan de eso: más largos encogen a la vista (21 caracteres, un 20 %).
 
 Video de referencia del diseñador: `GRAPHICS FINAL LISTO.mp4` (2026-10-04, 23,976 fps, en Descargas
 del usuario), con todos los gráficos al aire. Ahí score y defensiva son la versión **original**: una
@@ -70,6 +69,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
 - **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
   naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
   copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
+- **All Caps:** `ca: 1` en todas las capas de texto, que es lo que `index.js` mira para pasar a
+  mayúsculas. Llegó apagado en `ofensiva` (nombres, valores e información) y en el `titulo` de
+  `defensiva` y `lanzador`: `prep.js` lo prende y el lint lo controla.
 - **Capas ocultas en AE** no se exportan (quedan `ind` salteados): `TIBUSVISITA` y su máscara en
   `score`, `AGUI` y su máscara en `lanzador`. Se trasplantan de la versión publicada.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
@@ -89,6 +91,8 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   se separan, no sirve para revisar textos.
 - Todos los equipos (en `score`, los 56 cruces visita × local), entrada frame a frame, data al
   aire con el gráfico pausado, `next` y `stop` desde cada stage, y que el layer se suelte.
+- Textos: nombres largos (que encojan dentro de su lugar) y textos en minúsculas (que salgan en
+  mayúsculas).
 
 ### Herramientas
 
@@ -133,6 +137,11 @@ El nombre de la capa en AE → clase CSS del SVG renderizado. Es el contrato ent
 —`sz` + `ps` en `t.d.k[i].s`— para que encoja en vez de salirse. `index.js` ya llama a
 `canResizeFont(true)`. Se hace a mano en el JSON y, siguiendo la receta, queda idéntico al
 píxel con el texto del diseño: [textos-de-caja.md](textos-de-caja.md).
+
+**Mayúsculas:** Lottie no aplica el All Caps de After Effects (`ca: 1` en `t.d.k[i].s`): un texto
+que llega en minúsculas saldría en minúsculas aunque en AE la capa se vea en mayúsculas.
+`index.js` pasa a mayúsculas el texto del UPDATE en las capas que lo tienen; en las que no, lo deja
+como llega.
 
 **Capas reservadas (clase obligatoria):**
 - `time` → reloj automático

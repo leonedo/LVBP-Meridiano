@@ -140,6 +140,9 @@ CG 1-10 UPDATE 10 "<templateData>
 pasarlo a **texto de caja** en el JSON: `index.js` ya llama a `canResizeFont(true)` y Lottie le
 baja el cuerpo hasta que entra, en vez de salirse. Receta en [textos-de-caja.md](textos-de-caja.md).
 
+⚠ **Mayúsculas:** Lottie no aplica el All Caps de After Effects. Si la capa lo tiene (`ca: 1` en
+el JSON), `index.js` pasa a mayúsculas el texto que llega; si no, lo muestra tal cual.
+
 ### Update markers (transición visual al cambiar data)
 
 Si el stage actual tiene `update: "<markerName>"` en su payload, el data dispara el reemplazo **acompañado** de la animación de ese marker. La animación queda al final del segmento del update; el operador puede mandar más data para reproducirlo de nuevo.

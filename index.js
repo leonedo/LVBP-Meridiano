@@ -361,9 +361,12 @@ webcg.on('data', function (data) {
                     } else {
                         try {
                             animElement.canResizeFont(true);
-                            animElement.updateDocumentData({
-                                t: data[cl] ? data[cl].text || data[cl] : ''
-                            }, 0);
+                            let text = data[cl] ? data[cl].text || data[cl] : '';
+                            // Lottie no aplica el All Caps de After Effects (ca: 1 en el
+                            // documento de texto): sin esto, un texto que llega en minúsculas
+                            // sale en minúsculas aunque en AE la capa se vea en mayúsculas.
+                            if (animElement.data.t.d.k[0].s.ca === 1) text = String(text).toUpperCase();
+                            animElement.updateDocumentData({ t: text }, 0);
                         } catch (err) {
                             console.log(err);
                         }

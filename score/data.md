@@ -4,8 +4,8 @@
 > prepared for CasparCG. Use it to understand **what data to send** from a control client.
 > Do not use this file to modify the animation itself.
 >
-> **Text layers** — send the target text string using the layer's CSS class name. The text is shown
-> exactly as sent (the player ignores After Effects' All Caps): the design is in capitals, so send uppercase.
+> **Text layers** — send the target text string using the layer's CSS class name. The graphic shows
+> it in capitals, whatever the case you send.
 > **Color fill layers** — send a hex color string (e.g. `#FF0000`) to change the fill color.
 > **Opacity layers** — send a number from `0` (transparent) to `1` (fully opaque).
 > **Image layers** — send a web-accessible path to swap the displayed image. Accepted formats:

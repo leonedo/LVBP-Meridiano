@@ -32,6 +32,8 @@ for g in GRAFICOS:
         nm = l.get('nm', '')
         if l.get('cl') and nm != '.' + l['cl']: p(g, f'nm/cl desincronizados {nm!r} / {l["cl"]!r}')
         if l.get('ty') == 5 and not l.get('cl'): p(g, f'texto sin clase {nm!r}')
+        # index.js pasa a mayúsculas el texto del UPDATE sólo en capas con All Caps (ca 1)
+        if l.get('ty') == 5 and any(k['s'].get('ca') != 1 for k in l['t']['d']['k']): p(g, f'{nm!r} sin All Caps (ca 1)')
     # markers contra el contrato de index.js
     ms = {}
     for m in d['markers']:
