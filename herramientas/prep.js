@@ -4,7 +4,7 @@
 //
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
-//      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/.
+//      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -275,5 +275,48 @@ function prepBateador(d) {
     prepBateador(d);
     rename(d, '.numeroaverage', 'texto'); // la clase quedó de la versión con estadísticas
     save(path.join(REPO, 'bateador_informacion/data.json'), d);
+}
+
+// ---------------------------------------------------------------- ofensiva
+const ENTRADA_OF = 41; // la fila del noveno bate termina de aparecer en el 40
+{
+    const d = load(path.join(SRC, 'ofensiva/data.json'));
+
+    rename(d, 'ofensiva 4', 'titulo');
+    rename(d, 'ofensiva 3', 'titulo_entrada');
+    rename(d, '.NOMBREEQUIPO', 'equipo'); // la misma clave que en defensiva
+    rename(d, 'numeros', 'numeros'); // los turnos 1–9: texto fijo, con clase como los de score
+    rename(d, '2024-Logo-MeridianoTV-original (6).png', 'logomeridiano');
+    renameCrests(d);
+    // Una fila por turno al bate: posicionN, jugadorN y valorN. La columna del .300 no tiene
+    // rótulo y sirve para cualquier estadística, como los valorN de lanzador y bateador.
+    // Anchos de caja (el export trae 222 en las dos columnas, montadas una sobre la otra): el
+    // nombre llega hasta la línea divisoria con el mismo aire que tiene a la izquierda (9 px)
+    // y el valor hasta el borde del panel con el aire que tiene después de la línea (11 px).
+    for (let i = 1; i <= 9; i++) {
+        rename(d, `.POSICION${i}`, `posicion${i}`);
+        layer(d, `.jugador${i}`).t.d.k[0].s.sz[0] = 183;
+        rename(d, `.averagej${i}`, `valor${i}`).t.d.k[0].s.sz[0] = 40.6;
+    }
+
+    // Línea de la barra negra: el export la trae alineada a la izquierda y en el video del
+    // diseñador va centrada. Caja centrada en la barra, con 10 px de aire a cada lado. El
+    // export trae lh 0.01: con eso un texto largo parte en dos líneas encimadas en vez de
+    // encoger (textos-de-caja.md); va el 1.2 del cuerpo, que sólo mueve la segunda línea.
+    const info = layer(d, '.informacion');
+    const s = info.t.d.k[0].s, W = 356;
+    s.j = 2;
+    s.sz[0] = W;
+    s.ps[0] = layer(d, 'barra negra baja Outlines').ks.p.k[0] - info.ks.p.k[0] - W / 2;
+    s.lh = s.s * 1.2;
+
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_OF, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_OF, cm: 'salida', dr: -ENTRADA_OF }
+    ];
+    d.fonts.list[0].fPath = FONT;
+    avisarEntrada(d, 'ofensiva');
+    save(path.join(REPO, 'ofensiva/data.json'), d);
 }
 console.log('ok');

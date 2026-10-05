@@ -93,6 +93,10 @@ altura supera `H`, baja `finalSize` en 1 y vuelve a probar, hasta que entra en u
   cerca de `ascent` esté `H`, más largo tiene que ser para que pase. Visto en
   `lanzador/nombrelanzador` (caja del diseñador, `H` 43): un nombre de cuatro palabras va en dos
   líneas, uno de dos palabras queda en una.
+- **Revisar `lh` en las cajas que trae el diseñador.** Con un `lh` casi 0 (llegó 0.01 en
+  `ofensiva/informacion`) dos líneas miden lo mismo que una: un texto largo parte en líneas
+  encimadas en vez de encoger. Va el 1.2 del cuerpo; `lh` sólo mueve las líneas que siguen a la
+  primera, así que el texto del diseño no cambia.
 
 ---
 
@@ -123,3 +127,9 @@ estadísticas igualados: idéntico en 7 frames, y `WHIP` entra sin achicarse en 
 
 `LVBP-Meridiano/bateador` (2026-10-04): `nombrejugador` con `W` 260 en vez de 275.4, el mismo aire
 (15 px) a los dos lados del panel; idéntico en 9 frames.
+
+`LVBP-Meridiano/ofensiva` (2026-10-05): cajas del diseñador achicadas, `jugadorN` a 183 (hasta la
+línea divisoria) y `valorN` a 40.6 (hasta el borde del panel), con el aire de la izquierda;
+`informacion` centrada en la barra y con `lh` corregido. Idéntico en 10 frames salvo
+`informacion`, que se movió a propósito. 72 nombres probados: hasta 18 caracteres quedan a 31–32
+(el diseño es 32), con 21 bajan a 25.

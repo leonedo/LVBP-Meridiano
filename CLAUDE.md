@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Cinco gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Seis gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -14,28 +14,36 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `lanzador/` | Tabla del lanzador: escudo, nombre, mano, temporada y 6 estadísticas | stage `play` pause (0–35) | `salida`: la entrada al revés (1,2 s) |
 | `bateador/` | Barra baja del bateador: escudo, número, posición, nombre, 4 estadísticas y temporada | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
 | `bateador_informacion/` | La misma barra con una línea de texto libre (`texto`) en lugar de las estadísticas; el uso todavía no está definido | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
+| `ofensiva/` | Lineup: escudo y nombre del equipo, 9 filas (posición, jugador, valor) y línea de información. Va arriba del score, en la misma columna | stage `play` pause (0–41) | `salida`: la entrada al revés (1,4 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
-los 56 cruces `visita_vs_local`). Son de v0.0.7: si un gráfico cambia, hay que regenerarlas. No
-entran al zip (`.gitattributes`).
+los 56 cruces `visita_vs_local`). Son de v0.0.7 (las de `ofensiva`, de v0.0.9): si un gráfico
+cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
+
+Textos: el reproductor no aplica el All Caps de After Effects, así que un texto sale tal cual llega.
+El diseño va en mayúsculas: el controlador las manda (lo dice cada `data.md`). En `ofensiva` los
+nombres van como `NOMBRE APELLIDO` hasta 18 caracteres y como `N. APELLIDO` si pasan de eso: más
+largos encogen a la vista (21 caracteres, un 20 %).
 
 Video de referencia del diseñador: `GRAPHICS FINAL LISTO.mp4` (2026-10-04, 23,976 fps, en Descargas
 del usuario), con todos los gráficos al aire. Ahí score y defensiva son la versión **original**: una
 diferencia con lo nuestro puede ser un cambio decidido después, no un error. Lo que confirmó: todas las
-salidas son la entrada al revés (score incluido). Muestra seis gráficos que todavía no llegaron:
-JUEGO DE HOY, OFENSIVA (lineup), 3 EN LÍNEA, PREVENIDO, PARCIAL y LINESCORE / SCORE FINAL (los cuatro
-últimos con logo de Gatorade). Pendiente con el diseñador: en lanzador y bateador el video es otra
-revisión (encabezado del lanzador corrido, "TEMPORADA" espaciado, nombre del bateador más grande y sin
-el triángulo amarillo).
+salidas son la entrada al revés (score incluido). Muestra cinco gráficos que todavía no llegaron:
+JUEGO DE HOY, 3 EN LÍNEA, PREVENIDO, PARCIAL y LINESCORE / SCORE FINAL (los cuatro últimos con logo
+de Gatorade). Pendiente con el diseñador: en lanzador y bateador el video es otra revisión
+(encabezado del lanzador corrido, "TEMPORADA" espaciado, nombre del bateador más grande y sin el
+triángulo amarillo). En `ofensiva` la línea de información va centrada, como en el video.
 
-Escudos: en `defensiva`, `lanzador` y las dos barras de bateador son
-`AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y arrancan ocultos por CSS en `index.html`; en `score` son `<SIGLAS>LOCAL_opacidad` y
+Escudos: en `defensiva`, `ofensiva`, `lanzador` y las dos barras de bateador son
+`AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y arrancan ocultos por CSS en `index.html`
+(en `ofensiva` cada escudo trae el color del encabezado); en `score` son `<SIGLAS>LOCAL_opacidad` y
 `<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los que no van.
 
 Estadísticas: en `lanzador` y `bateador` los casilleros son genéricos, `etiquetaN` (rótulo) y
 `valorN` (número), para poner cualquier estadística en cualquiera. Todas las cajas de rótulo tienen
-el mismo ancho, y las de valor también, para que cualquier texto entre en cualquier casillero.
+el mismo ancho, y las de valor también, para que cualquier texto entre en cualquier casillero. En
+`ofensiva`, `valorN` es la columna sin rótulo de cada fila (el diseño muestra el average).
 
 ⚠ Las dos barras de bateador llevan la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
 de entrada, y así una sola clave cambia el título (`AL BATE`, `PREVENIDO`…). El audit del editor lo
@@ -55,7 +63,10 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   `etiquetaN`/`valorN`. En las barras de bateador, `al bate` y `al bate 2` pasan las dos a
   `titulo`, y `leadinbarrainformacion` (el triángulo amarillo) pierde la clase: no es una clave.
   En `bateador_informacion` la línea libre llega como `numeroaverage` (quedó de la otra barra):
-  pasa a `texto`.
+  pasa a `texto`. En `ofensiva`, `NOMBREEQUIPO` pasa a `equipo` (como en defensiva),
+  `ofensiva 4`/`ofensiva 3` a `titulo`/`titulo_entrada`, `POSICIONn` a `posicionN` y `averagejN`
+  a `valorN`; `numeros` (los turnos 1–9, fijos) llega sin clase y se le pone, como a los textos
+  fijos de `score`.
 - **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
   naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
   copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
@@ -67,7 +78,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
 - **Textos de caja propios** ([textos-de-caja.md](textos-de-caja.md)): en `lanzador`,
   `informacionbarranegra` (centrada en la barra), el ancho de `nombrelanzador` (222, no 230) y las
   cajas de estadísticas igualadas (rótulos 71.75, valores 87.5); en las dos barras de bateador,
-  el ancho de `nombrejugador` (260, no 275.4). Los anchos de nombre dejan el mismo aire a los dos lados.
+  el ancho de `nombrejugador` (260, no 275.4); en `ofensiva`, `informacion` centrada en la barra y
+  con `lh` 26.4 (el export trae 0.01), `jugadorN` a 183 y `valorN` a 40.6 (el export trae 222 en
+  las dos columnas, una encima de la otra). Los anchos de nombre dejan el mismo aire a los dos lados.
 
 ### QA
 
