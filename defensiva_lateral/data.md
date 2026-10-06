@@ -12,9 +12,9 @@
 > Local filesystem paths (e.g. `C:/...`) will not work — the path must be resolvable by the browser rendering the template.
 > **Markers** — `play` and `stop` control playback.
 
-**This is the big, centered layout.** `defensiva_lateral` is the original, compact one, on the right
-side of the screen. Both take exactly the same keys: a control client can send the same payload to
-either one.
+**This is the original, compact layout, on the right side of the screen.** `defensiva` is the same
+graphic, bigger and centered. Both take exactly the same keys: a control client can send the same
+payload to either one.
 
 ## Example payload
 
@@ -79,28 +79,28 @@ longest team name (`NAVEGANTES DEL MAGALLANES`) fits.
 
 | Class | Default text |
 |-------|-------------|
-| `equipo` | NAVEGANTES DEL MAGALLANES |
+| `equipo` | LEONES DEL CARACAS |
 | `titulo` | DEFENSIVA |
 | `titulo_entrada` | DEFENSIVA (only visible during the first 26 frames of the entry) |
 | `catcher` | C |
-| `jugadorcatcher` | E. ALFONZO |
+| `jugadorcatcher` | F.RODRIGUEZ |
 | `lanzador` | L |
-| `jugadorlanzador` | E.COLINA |
+| `jugadorlanzador` | F.RODRIGUEZ |
 | `primerabase` | 1B |
-| `jugadorprimerabase` | R.NUÑEZ |
+| `jugadorprimerabase` | F.RODRIGUEZ |
 | `segundabase` | 2B |
-| `jugadorsegundabase` | R. ODOR |
+| `jugadorsegundabase` | F.RODRIGUEZ |
 | `tercerabase` | 3B |
-| `jugadortercerabase` | L.SIUSBEL |
+| `jugadortercerabase` | F.RODRIGUEZ |
 | `shortstop` | SS |
-| `jugadorshortstop` | D. VELÁSQUEZ |
+| `jugadorshortstop` | F.RODRIGUEZ |
 | `leftfield` | LF |
-| `jugadorleftfield` | T. MARCANO |
+| `jugadorleftfield` | F.RODRIGUEZ |
 | `centerfield` | CF |
-| `jugadorcenterfield` | C. RDODRÍGUEZ |
+| `jugadorcenterfield` | F.RODRIGUEZ |
 | `rightfield` | RF |
-| `jugadorrightfield` | D RINCONES |
-| `lineaparainformacion` | MAGALLANES 26-27: DEBUTAN 3 NOVATOS TODOS CON PROYECCION MLB |
+| `jugadorrightfield` | F.RODRIGUEZ |
+| `lineaparainformacion` | LINEA PARA INFORMACION |
 
 ## Opacity layers
 
@@ -125,11 +125,11 @@ longest team name (`NAVEGANTES DEL MAGALLANES`) fits.
 
 | Name | Start (tm) | Duration (dr) | Payload |
 |------|-----------|--------------|---------|
-| `play` | 0 | 104 | stage `pause`, order 1, `stop: "salida"` |
-| `salida` | 104 | -104 | — (the entry played backwards) |
+| `play` | 0 | 78 | stage `pause`, order 1, `stop: "salida"` |
+| `salida` | 78 | -78 | — (the entry played backwards) |
 | `stop` | 120.0000048877 | 1 | — |
 
-`play` enters and pauses on frame 104. No update animation: data sent while on air replaces
-silently. The exit is the entry in reverse: `stop` plays `salida` (frame 104 → 0, 3.5 s) and
+`play` enters and pauses on frame 78. No update animation: data sent while on air replaces
+silently. The exit is the entry in reverse: `stop` plays `salida` (frame 78 → 0, 2.6 s) and
 releases the layer when it ends. The `play` stage is active from frame 0, so a `stop` that
 arrives mid-entry also plays `salida`: it jumps to the full graphic and exits from there.

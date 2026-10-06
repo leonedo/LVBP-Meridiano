@@ -4,13 +4,14 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Seis gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Siete gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
 |---|---|---|---|
 | `score/` | Pizarra: escudos, carreras, inning, conteo, outs, bases y barra de bateador/lanzador | `play` (0–106) → stages `marcador` → `jugadores` → `sinjugadores`, los tres `pause` | `salida`: la entrada al revés (3,5 s); desde `jugadores`, `salida_jugadores` baja antes la barra (4,5 s) |
-| `defensiva/` | Campo con las 9 posiciones, escudo y nombre del equipo, línea de información | stage `play` pause (0–104) | `salida`: la entrada al revés (3,5 s) |
+| `defensiva/` | Campo con las 9 posiciones, escudo y nombre del equipo, línea de información. Grande, al centro: el cambio que pidió el canal | stage `play` pause (0–104) | `salida`: la entrada al revés (3,5 s) |
+| `defensiva_lateral/` | La defensiva original: el mismo gráfico, más chico y a la derecha. El canal quiere tener las dos; mismas claves que `defensiva` | stage `play` pause (0–78) | `salida`: la entrada al revés (2,6 s) |
 | `lanzador/` | Tabla del lanzador: escudo, nombre, mano, temporada y 6 estadísticas | stage `play` pause (0–35) | `salida`: la entrada al revés (1,2 s) |
 | `bateador/` | Barra baja del bateador: escudo, número, posición, nombre, 4 estadísticas y temporada | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
 | `bateador_informacion/` | La misma barra con una línea de texto libre (`texto`) en lugar de las estadísticas; el uso todavía no está definido | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
@@ -18,7 +19,8 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
-los 56 cruces `visita_vs_local`). Son de v0.0.7 (las de `ofensiva`, de v0.0.9): si un gráfico
+los 56 cruces `visita_vs_local`). Son de v0.0.7 (las de `ofensiva`, de v0.0.9; las de `defensiva_lateral`, del
+2026-10-06): si un gráfico
 cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -34,7 +36,7 @@ de Gatorade). Pendiente con el diseñador: en lanzador y bateador el video es ot
 (encabezado del lanzador corrido, "TEMPORADA" espaciado, nombre del bateador más grande y sin el
 triángulo amarillo). En `ofensiva` la línea de información va centrada, como en el video.
 
-Escudos: en `defensiva`, `ofensiva`, `lanzador` y las dos barras de bateador son
+Escudos: en las dos defensivas, `ofensiva`, `lanzador` y las dos barras de bateador son
 `AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y arrancan ocultos por CSS en `index.html`
 (en `ofensiva` cada escudo trae el color del encabezado); en `score` son `<SIGLAS>LOCAL_opacidad` y
 `<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los que no van.
@@ -83,6 +85,11 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   el ancho de `nombrejugador` (260, no 275.4); en `ofensiva`, `informacion` centrada en la barra y
   con `lh` 26.4 (el export trae 0.01), `jugadorN` a 183 y `valorN` a 40.6 (el export trae 222 en
   las dos columnas, una encima de la otra). Los anchos de nombre dejan el mismo aire a los dos lados.
+- **`defensiva_lateral`** no está en `prep.js`: es el export del 2026-09-26 ya preparado
+  (`git show 0fd3d66:defensiva/`), con el All Caps prendido y `play`/`salida` en el 78 (ahí termina
+  la entrada; el export la pausaba en el 90). Si el diseñador la vuelve a exportar, es la receta
+  de `defensiva` tal cual (mismas clases; el arreglo de la barra de LF ahí no cambia nada) con
+  `play`/`salida` al último keyframe real.
 
 ### QA
 
