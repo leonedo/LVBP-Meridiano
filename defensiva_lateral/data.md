@@ -10,6 +10,7 @@
 > **Image layers** — send a web-accessible path to swap the displayed image. Accepted formats:
 > a full URL (`https://...`) or a relative path from the template's web root (`images/logo.png`).
 > Local filesystem paths (e.g. `C:/...`) will not work — the path must be resolvable by the browser rendering the template.
+> A path that doesn't load leaves the image empty instead of showing a broken-image icon.
 > **Markers** — `play` and `stop` control playback.
 
 **This is the original, compact layout, on the right side of the screen.** `defensiva` is the same

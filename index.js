@@ -353,6 +353,13 @@ webcg.on('data', function (data) {
                             const image = group ? group.querySelector('image') : null;
 
                             if (image) {
+                                // Una ruta que no carga (mal escrita, o el archivo no está)
+                                // muestra al aire el ícono de imagen rota del navegador: si
+                                // falla, la imagen queda vacía. El href vacío también tira
+                                // error, pero ese ya no muestra nada.
+                                image.onerror = () => {
+                                    if (image.getAttribute('href')) image.removeAttribute('href');
+                                };
                                 image.setAttribute('href', newPath);
                             }
                         } catch (err) {

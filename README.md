@@ -120,7 +120,7 @@ El `CG UPDATE` desde CasparCG (evento `data`) dispara el reemplazo. Convenciones
 | **Texto** | key del data == nombre de capa de texto en el Lottie | `updateDocumentData` sobre la capa |
 | **Color** | key contiene `"color"` (case-insensitive) | `style.fill` del CSS `.{key}` |
 | **Opacidad** | key contiene `"opacidad"` (case-insensitive) | `style.opacity` del CSS `.{key}` |
-| **Imagen** | capa con `refId` que incluya `"image"` | reemplaza `href` del `<image>` SVG |
+| **Imagen** | capa con `refId` que incluya `"image"` | reemplaza `href` del `<image>` SVG; si la ruta no carga, queda vacía (sin el ícono de imagen rota) |
 
 Ejemplo:
 

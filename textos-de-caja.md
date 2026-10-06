@@ -133,3 +133,9 @@ línea divisoria) y `valorN` a 40.6 (hasta el borde del panel), con el aire de l
 `informacion` centrada en la barra y con `lh` corregido. Idéntico en 10 frames salvo
 `informacion`, que se movió a propósito. 72 nombres probados: hasta 18 caracteres quedan a 31–32
 (el diseño es 32), con 21 bajan a 25.
+
+`LVBP-Meridiano/3enlinea` (2026-10-06): las cajas del diseñador tal cual (el nombre ya deja el mismo
+aire a los dos lados y el valor llega hasta la publicidad), sólo con `lh` 30 en vez de 0.01.
+Idéntico en 13 frames de la entrada salvo lo que cambió a propósito (la tilde del título y la
+publicidad transparente). Hasta 25 caracteres quedan al tamaño del diseño (25); con 27 bajan a 21
+y con 32, a 20, en una sola línea.

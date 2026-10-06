@@ -34,6 +34,8 @@ for g in GRAFICOS:
         if l.get('ty') == 5 and not l.get('cl'): p(g, f'texto sin clase {nm!r}')
         # index.js pasa a mayúsculas el texto del UPDATE sólo en capas con All Caps (ca 1)
         if l.get('ty') == 5 and any(k['s'].get('ca') != 1 for k in l['t']['d']['k']): p(g, f'{nm!r} sin All Caps (ca 1)')
+        # y Lottie no aplica el All Caps al texto por defecto: tiene que venir en mayúsculas
+        if l.get('ty') == 5 and any(k['s']['t'] != k['s']['t'].upper() for k in l['t']['d']['k']): p(g, f'{nm!r}: texto por defecto en minúsculas')
     # markers contra el contrato de index.js
     ms = {}
     for m in d['markers']:

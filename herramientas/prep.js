@@ -4,7 +4,8 @@
 //
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
-//      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/.
+//      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
+//      "3 en linea"/.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -41,8 +42,12 @@ const FONT = 'font/LeagueGothic-Regular.otf';
 // El diseño va todo en mayúsculas: All Caps (ca: 1) en todas las capas de texto, que es lo que
 // index.js mira para pasar a mayúsculas el texto del UPDATE. Hay exports que lo traen apagado
 // en alguna capa (en ofensiva, nombres, valores e información; en defensiva y lanzador, titulo).
+// Lottie tampoco lo aplica al texto por defecto, que se pasa acá (3 en línea trae "3 EN LíNEA").
 function allCaps(d) {
-    for (const l of d.layers) if (l.ty === 5) for (const k of l.t.d.k) k.s.ca = 1;
+    for (const l of d.layers) if (l.ty === 5) for (const k of l.t.d.k) {
+        k.s.ca = 1;
+        k.s.t = k.s.t.toUpperCase();
+    }
 }
 
 // Último keyframe visible de la animación: el de cada capa dentro de su [ip, op], con los
@@ -329,5 +334,50 @@ const ENTRADA_OF = 41; // la fila del noveno bate termina de aparecer en el 40
     allCaps(d);
     avisarEntrada(d, 'ofensiva');
     save(path.join(REPO, 'ofensiva/data.json'), d);
+}
+
+// ---------------------------------------------------------------- 3 en línea
+const ENTRADA_3L = 59; // el título de la pestaña roja termina de aparecer en el 58
+{
+    const d = load(path.join(SRC, '3 en linea/data.json'));
+
+    rename(d, '3 EN L\u00edNEA', 'titulo');
+    rename(d, '3 en linea', 'titulo_entrada').t.d.k[0].s.t = '3 EN LÍNEA'; // llega sin la tilde
+    // Una fila por bateador: jugadorN y valorN, como en ofensiva (las capas llegan con los
+    // nombres de PREVENIDO). Las cajas quedan como las trae el export: el nombre deja el mismo
+    // aire a los dos lados y el valor ya llega hasta la publicidad. El export trae lh 0.01, con
+    // el que un nombre largo parte en dos líneas encimadas en vez de encoger (textos-de-caja.md).
+    for (let i = 1; i <= 3; i++) {
+        for (const l of [rename(d, `.PREVENIDO${i}`, `jugador${i}`), rename(d, `.AVERAGE${i}`, `valor${i}`)]) {
+            const s = l.t.d.k[0].s;
+            s.lh = s.s * 1.2;
+        }
+    }
+
+    // La publicidad llega como un PNG verde de relleno (107×110). En el repo va
+    // images/publicidad.png, transparente y del mismo tamaño: si el cliente no manda logo no sale
+    // nada, y el verde del export no se usa aunque alguien copie su images/. pr meet: Lottie por
+    // defecto recorta (slice) una imagen de otra proporción; así el logo entra entero y centrado.
+    const pub = rename(d, 'PUBLICIDAD 3 EN LINEA.png', 'publicidad');
+    const asset = d.assets.find(a => a.id === pub.refId);
+    asset.p = 'publicidad.png';
+    asset.pr = 'xMidYMid meet';
+
+    // El texto de la versión del video (los tres nombres y sus averages en una sola capa, con la
+    // clase inválida "300 256 167") quedó en la comp tapado por su máscara: no se ve. Sale con ella.
+    const vieja = d.layers.filter(l => l.cl === '300 256 167');
+    if (vieja.length !== 1) throw new Error(`texto viejo de 3 en línea: ${vieja.length} coincidencias`);
+    const fuera = [vieja[0], layer(d, 'mask6')];
+    d.layers = d.layers.filter(l => !fuera.includes(l));
+
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_3L, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_3L, cm: 'salida', dr: -ENTRADA_3L }
+    ];
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, '3 en línea');
+    save(path.join(REPO, '3enlinea/data.json'), d);
 }
 console.log('ok');
