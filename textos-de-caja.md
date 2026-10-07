@@ -145,3 +145,11 @@ los dos lados de la columna, entre la línea divisoria y la publicidad; idéntic
 inicial y apellido entran unos 17 caracteres al tamaño del diseño (38); `EDUARDO RODRÍGUEZ` baja a
 33. El `inning` (texto de punto, centrado) sin el tracking de 1600: con un dígito queda idéntico y
 un 10 queda centrado en el mismo lugar.
+
+`LVBP-Meridiano/prevenido` (2026-10-07): `valor` con `W` 52 en vez de 57.5: la caja entraba 1,6 px en
+la publicidad, y un valor más ancho que `.300` (`1.000`, `10.80`) llegaba a tocar el logo; a 52
+termina donde termina el `.300` del diseño, y lo que es más ancho encoge. El nombre, con la caja
+del diseñador: con inicial y apellido entran unos 15 caracteres al tamaño del diseño (43);
+`EDUARDO RODRÍGUEZ` baja a 38 y desde unos 27 puede partirse en dos líneas. El `titulo` (texto de
+punto) pasó de centrado a alineado a la izquierda, corrido medio ancho de `PREVENIDO`. Idéntico en
+15 frames de la entrada salvo la publicidad transparente.

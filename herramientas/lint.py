@@ -21,6 +21,8 @@ for g in GRAFICOS:
             if l.get('td') and (i + 1 >= len(layers) or not layers[i+1].get('tt')): p(g, f'{where}: matte {l["nm"]!r} sin capa mateada debajo')
             if l.get('ty') == 0 and l.get('refId') not in comps: p(g, f'{where}: precomp {l["nm"]!r} sin asset')
             if l.get('ty') == 2 and not any(a['id'] == l.get('refId') for a in d['assets']): p(g, f'{where}: imagen {l["nm"]!r} sin asset')
+    # con glifos exportados Lottie no usa la fuente: sólo salen las letras del diseño
+    if d.get('chars'): p(g, f'trae glifos (chars: {len(d["chars"])}): sólo salen esas letras')
     check_layers(d['layers'], 'main')
     for cid, c in comps.items(): check_layers(c['layers'], cid)
     cls = [l['cl'] for l in d['layers'] if l.get('cl')]

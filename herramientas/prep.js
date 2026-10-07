@@ -5,7 +5,7 @@
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
-//      "3 en linea"/, "score parcial"/.
+//      "3 en linea"/, "score parcial"/, prevenido/.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -434,5 +434,45 @@ const ENTRADA_PAR = 32; // el panel termina de abrirse en el 31
     allCaps(d);
     avisarEntrada(d, 'parcial');
     save(path.join(REPO, 'parcial/data.json'), d);
+}
+
+// ---------------------------------------------------------------- prevenido
+const ENTRADA_PRE = 48; // el título de la pestaña roja termina de aparecer en el 47
+{
+    const d = load(path.join(SRC, 'prevenido/data.json'));
+
+    // El mismo armado que 3 en línea, con una sola fila. PREVENIDO llega en dos capas con el mismo
+    // nombre y sin clase: la cortina de entrada (va primero) y el título de la pestaña roja (el
+    // que aparece con la opacidad).
+    const [entrada, titulo] = d.layers.filter(l => l.nm === 'prevenido');
+    if (!titulo || titulo.ks.o.a !== 1) throw new Error('prevenido: no encuentro las dos capas del título');
+    Object.assign(entrada, { nm: '.titulo_entrada', cl: 'titulo_entrada' });
+    Object.assign(titulo, { nm: '.titulo', cl: 'titulo' });
+    // El de la pestaña llega centrado en x 1415, no en el centro de la pestaña: uno más largo que
+    // PREVENIDO se salía por la izquierda. Alineado a la izquierda donde empieza PREVENIDO (92.58 px
+    // de ancho con la fuente real) queda igual y crece hacia la derecha, como en 3 en línea.
+    titulo.t.d.k[0].s.j = 0;
+    titulo.ks.p.k[0] -= 92.57859375 / 2;
+    rename(d, '.nombreprevenido', 'jugador');
+    // La caja del valor llegaba 1.6 px adentro de la publicidad: uno más ancho que .300 (1.000,
+    // 10.80) tocaba el logo. A 52 termina donde termina el .300 del diseño, 4 px antes del logo.
+    rename(d, '.avergaeprevenido', 'valor').t.d.k[0].s.sz[0] = 52;
+    publicidad(d, 'PULBLICIDAD PREVENIDO.png'); // 81×65
+    // Llegó exportado con los glifos (chars): Lottie dibuja con ellos en vez de la fuente, y sólo
+    // trae las letras del diseño ("V.BERICOTTO .300 PREVENIDO"). Cualquier otra no sale.
+    delete d.chars;
+
+    // Llegó sin markers y con la comp de 32 s: queda en 3 s como los demás, con el stop global en
+    // el mismo lugar (después del play no se usa: el stage manda a salida).
+    d.op = 90.0000036657751;
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_PRE, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_PRE, cm: 'salida', dr: -ENTRADA_PRE }
+    ];
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, 'prevenido');
+    save(path.join(REPO, 'prevenido/data.json'), d);
 }
 console.log('ok');
