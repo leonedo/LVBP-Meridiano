@@ -17,7 +17,7 @@ page.on('console', m => {
     const t = m.text();
     // index.js loguea esto para cada clave _opacidad (capa de forma, sin texto): es inocuo
     if (/canResizeFont is not a function|^\s+at http/.test(t)) return;
-    if (m.type() === 'error' || m.type() === 'warning' || /error/i.test(t)) errors.push(t);
+    if (m.type() === 'error' || m.type() === 'warning' || /\berror\b/i.test(t)) errors.push(t);
 });
 page.on('pageerror', e => errors.push('PAGEERROR ' + e.message));
 // JSON=<ruta> sirve otro data.json (para comparar contra la versión publicada)

@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Ocho gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Nueve gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -17,12 +17,14 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `bateador_informacion/` | La misma barra con una línea de texto libre (`texto`) en lugar de las estadísticas; el uso todavía no está definido | stage `play` pause (0–36) | `salida`: la entrada al revés (1,2 s) |
 | `ofensiva/` | Lineup: escudo y nombre del equipo, 9 filas (posición, jugador, valor) y línea de información. Va arriba del score, en la misma columna | stage `play` pause (0–41) | `salida`: la entrada al revés (1,4 s) |
 | `3enlinea/` | Los próximos tres bateadores (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). Va arriba del score, en el mismo lugar que `ofensiva` | stage `play` pause (0–59) | `salida`: la entrada al revés (2 s) |
+| `parcial/` | Score de fin de inning: escudos, C H E de los dos equipos, inning con su flecha, los tres bateadores del próximo inning y la publicidad (`publicidad`, una imagen). Abajo al centro, a la izquierda del score | stage `play` pause (0–32) | `salida`: la entrada al revés (1,1 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
-los 56 cruces `visita_vs_local`; `3enlinea` no tiene equipos: `3enlinea_publicidad.png` muestra la
+los 56 cruces `visita_vs_local`, igual que en `parcial`; `3enlinea` no tiene equipos: `3enlinea_publicidad.png` muestra la
 publicidad vacía, con logos de distintas proporciones y con una ruta que no carga). Son de v0.0.7
-(las de `ofensiva`, de v0.0.9; las de `defensiva_lateral` y `3enlinea`, del 2026-10-06): si un
+(las de `ofensiva`, de v0.0.9; las de `defensiva_lateral` y `3enlinea`, del 2026-10-06; las de
+`parcial`, del 2026-10-07): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -33,16 +35,19 @@ Lottie). En `ofensiva` los nombres van como `NOMBRE APELLIDO` hasta 18 caractere
 Video de referencia del diseñador: `GRAPHICS FINAL LISTO.mp4` (2026-10-04, 23,976 fps, en Descargas
 del usuario), con todos los gráficos al aire. Ahí score y defensiva son la versión **original**: una
 diferencia con lo nuestro puede ser un cambio decidido después, no un error. Lo que confirmó: todas las
-salidas son la entrada al revés (score incluido). Muestra cuatro gráficos que todavía no llegaron:
-JUEGO DE HOY, PREVENIDO, PARCIAL y LINESCORE / SCORE FINAL (los tres últimos con logo de Gatorade,
-como `3enlinea`). Pendiente con el diseñador: en lanzador y bateador el video es otra revisión
+salidas son la entrada al revés (score incluido). Muestra tres gráficos que todavía no llegaron:
+JUEGO DE HOY, PREVENIDO y LINESCORE / SCORE FINAL (los dos últimos con logo de Gatorade, como
+`3enlinea` y `parcial`). El PARCIAL del video es una versión anterior: sin la columna de los
+próximos bateadores y con la flecha del inning amarilla. Pendiente con el diseñador: en lanzador y bateador el video es otra revisión
 (encabezado del lanzador corrido, "TEMPORADA" espaciado, nombre del bateador más grande y sin el
 triángulo amarillo). En `ofensiva` la línea de información va centrada, como en el video.
 
 Escudos: en las dos defensivas, `ofensiva`, `lanzador` y las dos barras de bateador son
 `AGUI/ANZ/BRAVOS/CARD/LEO/MAGA/TIBUS/TIGRES_opacidad` y arrancan ocultos por CSS en `index.html`
-(en `ofensiva` cada escudo trae el color del encabezado); en `score` son `<SIGLAS>LOCAL_opacidad` y
-`<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los que no van.
+(en `ofensiva` cada escudo trae el color del encabezado); en `score` y `parcial` son
+`<SIGLAS>LOCAL_opacidad` y `<SIGLAS>VISITA_opacidad`, arrancan visibles y el controlador apaga los
+que no van. `parcial` usa a propósito las mismas claves que `score` (escudos, `inning`, flechas y
+carreras), y arranca igual: el controlador puede mandarle la misma data.
 
 Estadísticas: en `lanzador` y `bateador` los casilleros son genéricos, `etiquetaN` (rótulo) y
 `valorN` (número), para poner cualquier estadística en cualquiera. Todas las cajas de rótulo tienen
@@ -50,15 +55,16 @@ el mismo ancho, y las de valor también, para que cualquier texto entre en cualq
 `ofensiva` y `3enlinea`, `valorN` es la columna sin rótulo de cada fila (el diseño muestra el
 average).
 
-Publicidad: en `3enlinea` el cuadro de la derecha es la capa de imagen `publicidad` (107 × 110). El
-cliente manda la ruta del logo y entra entero, de cualquier proporción (ver *Reemplazo de
+Publicidad: en `3enlinea` y `parcial` el cuadro de la derecha es la capa de imagen `publicidad`
+(107 × 110 y 217 × 168). El cliente manda la ruta del logo y entra entero, de cualquier proporción (ver *Reemplazo de
 imágenes*). Por defecto es `images/publicidad.png`, transparente: sin logo no sale nada. El
 diseñador la mandó primero como un rectángulo verde de forma y después como un PNG verde: si otro
 gráfico con Gatorade llega con el rectángulo, se puede convertir en `prep.js` en una capa de imagen
 como esta, sin pedírselo.
 
-⚠ Las dos barras de bateador llevan la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
-de entrada, y así una sola clave cambia el título (`AL BATE`, `PREVENIDO`…). El audit del editor lo
+⚠ Las dos barras de bateador y `parcial` llevan la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
+de entrada (en `parcial`, la cortina antes y después de que se abra el panel), y así una sola clave
+cambia el título (`AL BATE`, `PREVENIDO`…). El audit del editor lo
 marca como clase duplicada: es esperado, no "arreglarlo".
 
 ### Cuando llega un export nuevo del diseñador
@@ -83,7 +89,14 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   y se le pone) y la imagen `PUBLICIDAD 3 EN LINEA.png` (clase `png`) a `publicidad`, con el asset
   en `images/publicidad.png` (transparente: el `img_0.png` del export es el relleno verde y no se
   copia) y `pr` meet. Sale el texto de la versión del video (`JOSÉ RONDÓN…`, clase `300 256 167`),
-  tapado por su máscara `mask6`.
+  tapado por su máscara `mask6`. En `parcial` (el zip es `score parcial`), las claves de `score`
+  donde dicen lo mismo: `numeroinning` a `inning`, `inningarriba`/`inningabajo` a
+  `INNINGarriba_opacidad`/`INNINGabajo_opacidad`, `carrerasvisita`/`carreraslocal` a
+  `CARRERASVISITA`/`CARRERASLOCAL` (hits y errores, en el mismo estilo) y los escudos `TIBU` a
+  `TIBUS`, `AGUIDEFENSIVA` a `AGUIVISITA` y `LEEO` a `LEO`. `parcial` y `parcial 2` pasan los dos a
+  `titulo`; `a.monasterios`/`c.rodriguez`/`j.martinez` (clases `monasterios`…) a `jugador1–3`; y
+  `3enlineaproxinning` (clase inválida) a `titulo_jugadores`, sin la tilde: el acento se sale de la
+  barra. La publicidad, como en `3enlinea` (`publicidad()` en `prep.js`).
 - **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
   naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
   copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
@@ -103,7 +116,8 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   el ancho de `nombrejugador` (260, no 275.4); en `ofensiva`, `informacion` centrada en la barra y
   con `lh` 26.4 (el export trae 0.01), `jugadorN` a 183 y `valorN` a 40.6 (el export trae 222 en
   las dos columnas, una encima de la otra); en `3enlinea`, las cajas del export tal cual, con `lh`
-  30 (traen 0.01). Los anchos de nombre dejan el mismo aire a los dos lados.
+  30 (traen 0.01); en `parcial`, `jugadorN` a 191 (no 202) y el `inning` sin tracking (traía el
+  1600 del "C H E": un 10 se abría en dos). Los anchos de nombre dejan el mismo aire a los dos lados.
 - **`defensiva_lateral`** no está en `prep.js`: es el export del 2026-09-26 ya preparado
   (`git show 0fd3d66:defensiva/`), con el All Caps prendido y `play`/`salida` en el 78 (ahí termina
   la entrada; el export la pausaba en el 90). Si el diseñador la vuelve a exportar, es la receta

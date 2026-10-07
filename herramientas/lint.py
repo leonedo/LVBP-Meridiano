@@ -25,8 +25,8 @@ for g in GRAFICOS:
     for cid, c in comps.items(): check_layers(c['layers'], cid)
     cls = [l['cl'] for l in d['layers'] if l.get('cl')]
     for c in set(cls):
-        # titulo en las barras de bateador: dos capas a propósito (ver CLAUDE.md)
-        if cls.count(c) > 1 and not (g.startswith('bateador') and c == 'titulo'): p(g, f'clase duplicada {c}')
+        # titulo en las barras de bateador y en parcial: dos capas a propósito (ver CLAUDE.md)
+        if cls.count(c) > 1 and not ((g.startswith('bateador') or g == 'parcial') and c == 'titulo'): p(g, f'clase duplicada {c}')
         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]*', c): p(g, f'clase inválida {c!r}')
     for l in d['layers']:
         nm = l.get('nm', '')

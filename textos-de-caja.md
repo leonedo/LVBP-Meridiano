@@ -139,3 +139,9 @@ aire a los dos lados y el valor llega hasta la publicidad), sólo con `lh` 30 en
 Idéntico en 13 frames de la entrada salvo lo que cambió a propósito (la tilde del título y la
 publicidad transparente). Hasta 25 caracteres quedan al tamaño del diseño (25); con 27 bajan a 21
 y con 32, a 20, en una sola línea.
+
+`LVBP-Meridiano/parcial` (2026-10-07): `jugadorN` con `W` 191 en vez de 202, el mismo aire (17 px) a
+los dos lados de la columna, entre la línea divisoria y la publicidad; idéntico en 12 frames. Con
+inicial y apellido entran unos 17 caracteres al tamaño del diseño (38); `EDUARDO RODRÍGUEZ` baja a
+33. El `inning` (texto de punto, centrado) sin el tracking de 1600: con un dígito queda idéntico y
+un 10 queda centrado en el mismo lugar.

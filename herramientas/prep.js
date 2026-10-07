@@ -5,7 +5,7 @@
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
-//      "3 en linea"/.
+//      "3 en linea"/, "score parcial"/.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -336,6 +336,15 @@ const ENTRADA_OF = 41; // la fila del noveno bate termina de aparecer en el 40
     save(path.join(REPO, 'ofensiva/data.json'), d);
 }
 
+// La publicidad llega como un PNG verde de relleno. En el repo va images/publicidad.png,
+// transparente y del mismo tamaño: si el cliente no manda logo no sale nada, y el verde del export
+// no se usa aunque alguien copie su images/. pr meet: Lottie por defecto recorta (slice) una
+// imagen de otra proporción; así el logo entra entero y centrado.
+function publicidad(d, nm) {
+    const l = rename(d, nm, 'publicidad');
+    Object.assign(d.assets.find(a => a.id === l.refId), { p: 'publicidad.png', pr: 'xMidYMid meet' });
+}
+
 // ---------------------------------------------------------------- 3 en línea
 const ENTRADA_3L = 59; // el título de la pestaña roja termina de aparecer en el 58
 {
@@ -354,14 +363,7 @@ const ENTRADA_3L = 59; // el título de la pestaña roja termina de aparecer en 
         }
     }
 
-    // La publicidad llega como un PNG verde de relleno (107×110). En el repo va
-    // images/publicidad.png, transparente y del mismo tamaño: si el cliente no manda logo no sale
-    // nada, y el verde del export no se usa aunque alguien copie su images/. pr meet: Lottie por
-    // defecto recorta (slice) una imagen de otra proporción; así el logo entra entero y centrado.
-    const pub = rename(d, 'PUBLICIDAD 3 EN LINEA.png', 'publicidad');
-    const asset = d.assets.find(a => a.id === pub.refId);
-    asset.p = 'publicidad.png';
-    asset.pr = 'xMidYMid meet';
+    publicidad(d, 'PUBLICIDAD 3 EN LINEA.png'); // 107×110
 
     // El texto de la versión del video (los tres nombres y sus averages en una sola capa, con la
     // clase inválida "300 256 167") quedó en la comp tapado por su máscara: no se ve. Sale con ella.
@@ -379,5 +381,58 @@ const ENTRADA_3L = 59; // el título de la pestaña roja termina de aparecer en 
     allCaps(d);
     avisarEntrada(d, '3 en línea');
     save(path.join(REPO, '3enlinea/data.json'), d);
+}
+
+// ---------------------------------------------------------------- parcial
+const ENTRADA_PAR = 32; // el panel termina de abrirse en el 31
+{
+    const d = load(path.join(SRC, 'score parcial/data.json'));
+
+    // PARCIAL, la cortina de entrada, son dos capas (antes y después de que se abra el panel):
+    // las dos con la clase titulo, como el "al bate" de las barras de bateador.
+    rename(d, 'parcial', 'titulo');
+    rename(d, 'parcial 2', 'titulo');
+    // Las mismas claves que score donde dicen lo mismo (inning, flechas, carreras y escudos), para
+    // que el controlador mande la misma data a los dos; hits y errores, en el estilo de CARRERAS.
+    // El inning traía el tracking del "C H E" (1600): un 10 se abría en dos y el 1 caía sobre las
+    // flechas. Con un dígito, sin tracking queda idéntico.
+    rename(d, '.numeroinning', 'inning').t.d.k[0].s.tr = 0;
+    rename(d, '.inningarriba', 'INNINGarriba_opacidad');
+    rename(d, '.inningabajo', 'INNINGabajo_opacidad');
+    for (const eq of ['visita', 'local']) {
+        for (const dato of ['carreras', 'hits', 'errores']) rename(d, `.${dato}${eq}`, `${dato}${eq}`.toUpperCase());
+    }
+    // Escudos: VISITA arriba y LOCAL abajo. El export trae TIBU (en score es TIBUS),
+    // AGUIDEFENSIVA, LEEO y dos nm con un espacio al final.
+    for (const [nm, cl] of [
+        ['.TIBULOCAL_opacidad', 'TIBUSLOCAL_opacidad'], ['.TIBUVISITA_opacidad', 'TIBUSVISITA_opacidad'],
+        ['.AGUIDEFENSIVA_opacidad', 'AGUIVISITA_opacidad'], ['.LEEOVISITA_opacidad', 'LEOVISITA_opacidad'],
+        ['.AGUILOCAL_opacidad', 'AGUILOCAL_opacidad']
+    ]) rename(d, nm, cl);
+    const escudos = d.layers.map(l => l.cl || '').filter(c => /(LOCAL|VISITA)_opacidad$/.test(c)).sort().join();
+    const deScore = ['AGUI', 'ANZ', 'BRAVOS', 'CARD', 'LEO', 'MAGA', 'TIBUS', 'TIGRES']
+        .flatMap(s => [s + 'LOCAL_opacidad', s + 'VISITA_opacidad']).sort().join();
+    if (escudos !== deScore) throw new Error(`parcial: escudos distintos a los de score: ${escudos}`);
+
+    // Los tres bateadores del próximo inning, de arriba abajo: jugadorN, como en 3enlinea. Su
+    // título traía una clase inválida (empieza con un dígito). Queda sin la tilde, como llega: la
+    // barra roja es más baja que el texto y el acento de la Í se sale 3 px por arriba. Cajas de
+    // nombre a 191 y no 202: el nombre arranca 17 px después de la línea divisoria y uno largo
+    // llegaba a 6 px de la publicidad; así queda el mismo aire de los dos lados.
+    ['a.monasterios', 'c.rodriguez', 'j.martinez'].forEach((nm, i) => {
+        rename(d, nm, `jugador${i + 1}`).t.d.k[0].s.sz[0] = 191;
+    });
+    rename(d, '.3enlineaproxinning', 'titulo_jugadores');
+    publicidad(d, 'PUBLICIDAD PARCIAL.png'); // 217×168
+
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_PAR, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_PAR, cm: 'salida', dr: -ENTRADA_PAR }
+    ];
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, 'parcial');
+    save(path.join(REPO, 'parcial/data.json'), d);
 }
 console.log('ok');
