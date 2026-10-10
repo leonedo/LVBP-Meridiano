@@ -5,7 +5,7 @@
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
-//      "3 en linea"/, "score parcial"/, prevenido/.
+//      "3 en linea"/, "score parcial"/, prevenido/, "score final"/.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -384,6 +384,19 @@ const ENTRADA_3L = 59; // el título de la pestaña roja termina de aparecer en 
 }
 
 // ---------------------------------------------------------------- parcial
+// Escudos con las claves de score: VISITA arriba y LOCAL abajo. Los exports de parcial y final
+// traen TIBU (en score es TIBUS), AGUIDEFENSIVA, LEEO y dos nm con un espacio al final.
+function escudosDeScore(d, nombre) {
+    for (const [nm, cl] of [
+        ['.TIBULOCAL_opacidad', 'TIBUSLOCAL_opacidad'], ['.TIBUVISITA_opacidad', 'TIBUSVISITA_opacidad'],
+        ['.AGUIDEFENSIVA_opacidad', 'AGUIVISITA_opacidad'], ['.LEEOVISITA_opacidad', 'LEOVISITA_opacidad'],
+        ['.AGUILOCAL_opacidad', 'AGUILOCAL_opacidad']
+    ]) rename(d, nm, cl);
+    const escudos = d.layers.map(l => l.cl || '').filter(c => /(LOCAL|VISITA)_opacidad$/.test(c)).sort().join();
+    const deScore = ['AGUI', 'ANZ', 'BRAVOS', 'CARD', 'LEO', 'MAGA', 'TIBUS', 'TIGRES']
+        .flatMap(s => [s + 'LOCAL_opacidad', s + 'VISITA_opacidad']).sort().join();
+    if (escudos !== deScore) throw new Error(`${nombre}: escudos distintos a los de score: ${escudos}`);
+}
 const ENTRADA_PAR = 32; // el panel termina de abrirse en el 31
 {
     const d = load(path.join(SRC, 'score parcial/data.json'));
@@ -402,17 +415,7 @@ const ENTRADA_PAR = 32; // el panel termina de abrirse en el 31
     for (const eq of ['visita', 'local']) {
         for (const dato of ['carreras', 'hits', 'errores']) rename(d, `.${dato}${eq}`, `${dato}${eq}`.toUpperCase());
     }
-    // Escudos: VISITA arriba y LOCAL abajo. El export trae TIBU (en score es TIBUS),
-    // AGUIDEFENSIVA, LEEO y dos nm con un espacio al final.
-    for (const [nm, cl] of [
-        ['.TIBULOCAL_opacidad', 'TIBUSLOCAL_opacidad'], ['.TIBUVISITA_opacidad', 'TIBUSVISITA_opacidad'],
-        ['.AGUIDEFENSIVA_opacidad', 'AGUIVISITA_opacidad'], ['.LEEOVISITA_opacidad', 'LEOVISITA_opacidad'],
-        ['.AGUILOCAL_opacidad', 'AGUILOCAL_opacidad']
-    ]) rename(d, nm, cl);
-    const escudos = d.layers.map(l => l.cl || '').filter(c => /(LOCAL|VISITA)_opacidad$/.test(c)).sort().join();
-    const deScore = ['AGUI', 'ANZ', 'BRAVOS', 'CARD', 'LEO', 'MAGA', 'TIBUS', 'TIGRES']
-        .flatMap(s => [s + 'LOCAL_opacidad', s + 'VISITA_opacidad']).sort().join();
-    if (escudos !== deScore) throw new Error(`parcial: escudos distintos a los de score: ${escudos}`);
+    escudosDeScore(d, 'parcial');
 
     // Los tres bateadores del próximo inning, de arriba abajo: jugadorN, como en 3enlinea. Su
     // título traía una clase inválida (empieza con un dígito). Queda sin la tilde, como llega: la
@@ -474,5 +477,94 @@ const ENTRADA_PRE = 48; // el título de la pestaña roja termina de aparecer en
     allCaps(d);
     avisarEntrada(d, 'prevenido');
     save(path.join(REPO, 'prevenido/data.json'), d);
+}
+
+// ---------------------------------------------------------------- final
+// Un rectángulo de la cortina (capa de forma del precomp) como máscara de otra capa, en sus
+// coordenadas: el mismo tamaño en cada keyframe, con la curva del ancho.
+function mascaraDeRect(forma, capa, mode) {
+    const it = forma.shapes[0].it, rc = it.find(i => i.ty === 'rc'), tr = it.find(i => i.ty === 'tr');
+    const k = forma.ks, [sx, sy] = k.s.k.map(v => v / 100);
+    if (rc.p.k.some(v => v) || tr.a.k.some(v => v) || tr.s.k.some(v => v !== 100)) throw new Error(`${forma.nm}: rectángulo inesperado`);
+    const cx = k.p.k[0] + (tr.p.k[0] - k.a.k[0]) * sx - capa.ks.p.k[0] + capa.ks.a.k[0];
+    const cy = k.p.k[1] + (tr.p.k[1] - k.a.k[1]) * sy - capa.ks.p.k[1] + capa.ks.a.k[1];
+    const cero = [[0, 0], [0, 0], [0, 0], [0, 0]];
+    const rect = ([w, h]) => {
+        const [x, y] = [w * sx / 2, h * sy / 2];
+        return [{ c: true, i: cero, o: cero, v: [[cx - x, cy - y], [cx + x, cy - y], [cx + x, cy + y], [cx - x, cy + y]] }];
+    };
+    const pt = rc.s.k.map(kf => kf.i
+        ? { t: kf.t, s: rect(kf.s), i: { x: kf.i.x[0], y: kf.i.y[0] }, o: { x: kf.o.x[0], y: kf.o.y[0] } }
+        : { t: kf.t, s: rect(kf.s) });
+    return { inv: false, mode, pt: { a: 1, k: pt }, o: { a: 0, k: 100 }, x: { a: 0, k: 0 }, nm: forma.nm };
+}
+// "20" con League Gothic a 53.1, medido con la fuente cargada (lineWidths[0])
+const ANCHO_20 = 37.759077039957056;
+const ENTRADA_FIN = 33; // la cortina termina de abrirse en el 32
+{
+    const d = load(path.join(SRC, 'score final/data.json'));
+
+    // SCORE FINAL, la cortina: el texto tiene de mate el precomp de la cortina, que adentro tiene
+    // su propio mate invertido (el hueco que se abre desde el centro). Lottie no dibuja un mate
+    // anidado en la fuente de otro: el texto quedaba entero encima del panel. Sale el mate y van
+    // las dos formas del precomp como máscaras de la capa: suma el rojo que crece (0–16) y resta
+    // el hueco (16–32). El precomp que se ve queda igual.
+    const entrada = rename(d, 'score final', 'titulo_entrada');
+    const mate = d.layers[d.layers.indexOf(entrada) - 1];
+    const cortina = d.assets.find(a => a.id === mate.refId);
+    if (!mate.td || !cortina || mate.ks.p.k.some((v, i) => v !== mate.ks.a.k[i]) || mate.ks.s.k.some(v => v !== 100)) {
+        throw new Error('final: el mate de la cortina no es el esperado');
+    }
+    const forma = nm => cortina.layers.find(l => l.nm === nm);
+    entrada.hasMask = true;
+    entrada.masksProperties = [mascaraDeRect(forma('Shape Layer 1'), entrada, 'a'), mascaraDeRect(forma('Shape Layer 2'), entrada, 's')];
+    delete entrada.tt;
+    d.layers = d.layers.filter(l => l !== mate);
+
+    // FINAL, arriba a la izquierda: llega centrado, y uno más largo tapaba el triángulo. Alineado a
+    // la izquierda donde empieza FINAL (42.09 px con la fuente real) queda igual y crece a la derecha.
+    const titulo = rename(d, 'FINAL', 'titulo');
+    titulo.t.d.k[0].s.j = 0;
+    titulo.ks.p.k[0] -= 42.09392246752974 / 2;
+    // Los rótulos fijos, sin clase en el export: llevan una, como los de score (no hace falta mandarlos).
+    rename(d, 'innnings', 'innings');
+    rename(d, 'CHE', 'carrerashitserrores');
+    // La columna 9 es la del último inning: su rótulo (X en el diseño) cambia con los extra innings.
+    // Traía lh 0.01: un texto largo partiría en líneas encimadas en vez de encoger.
+    const ultimo = rename(d, '.ultimoinning', 'ultimoinning').t.d.k[0].s;
+    ultimo.lh = ultimo.s * 1.2;
+
+    // Carreras por inning, hits y errores: las claves de score y parcial (CARRERAS…, en mayúsculas),
+    // INNING… en el mismo estilo; el export trae "inninlocal". Llegan alineados a la izquierda y
+    // corridos a ojo: un dígito quedaba sobre el borde izquierdo de su columna. Centrados sobre el
+    // eje del "20" del diseño (receta de textos-de-caja.md), el 20 no se mueve.
+    const numeros = [];
+    for (let i = 1; i <= 9; i++) {
+        numeros.push(rename(d, `.inningvisita${i}`, `INNINGVISITA${i}`), rename(d, `.inninlocal${i}`, `INNINGLOCAL${i}`));
+    }
+    for (const eq of ['visita', 'local']) {
+        for (const dato of ['carreras', 'hits', 'errores']) numeros.push(rename(d, `.${dato}${eq}`, `${dato}${eq}`.toUpperCase()));
+    }
+    for (const l of numeros) {
+        const s = l.t.d.k[0].s;
+        if (s.j !== 0 || s.t !== '20' || Math.abs(s.s - 53.1) > 0.01) throw new Error(`final: ${l.cl} no es el 20 a 53.1`);
+        s.j = 2;
+        s.ps[0] += (ANCHO_20 - s.sz[0]) / 2;
+    }
+    escudosDeScore(d, 'final');
+
+    // JG, JP y MVP: rótulo y nombre. El rótulo de JP llegó "JP:H:" en una caja para tres letras:
+    // la "H:" partía a una segunda línea, debajo de la barra.
+    layer(d, '.juegoperdido').t.d.k[0].s.t = 'JP:';
+
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_FIN, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_FIN, cm: 'salida', dr: -ENTRADA_FIN }
+    ];
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, 'final');
+    save(path.join(REPO, 'final/data.json'), d);
 }
 console.log('ok');

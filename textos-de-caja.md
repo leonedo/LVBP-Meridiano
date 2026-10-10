@@ -153,3 +153,10 @@ del diseñador: con inicial y apellido entran unos 15 caracteres al tamaño del 
 `EDUARDO RODRÍGUEZ` baja a 38 y desde unos 27 puede partirse en dos líneas. El `titulo` (texto de
 punto) pasó de centrado a alineado a la izquierda, corrido medio ancho de `PREVENIDO`. Idéntico en
 15 frames de la entrada salvo la publicidad transparente.
+
+`LVBP-Meridiano/final` (2026-10-10): los 24 números (carreras por inning y C H E), cajas de `W` 42.1
+con `j: 0` y el `20` del diseño corrido a ojo hacia el centro: un dígito quedaba sobre el borde
+izquierdo de su columna. Pasaron a `j: 2` con la variante del texto centrado a ojo
+(`ps[0] += (Lw − W) / 2`, `Lw` 37.759 del `20` a 53.1): idéntico en 3 frames, y cualquier número se
+centra en el eje del `20`. `ultimoinning`, de caja con `lh` 0.01, pasó a 1.2 del cuerpo. Los nombres,
+con la caja del diseñador: con inicial y apellido entran al tamaño del diseño (37.1).
