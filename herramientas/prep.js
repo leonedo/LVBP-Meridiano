@@ -498,6 +498,34 @@ function mascaraDeRect(forma, capa, mode) {
         : { t: kf.t, s: rect(kf.s) });
     return { inv: false, mode, pt: { a: 1, k: pt }, o: { a: 0, k: 100 }, x: { a: 0, k: 0 }, nm: forma.nm };
 }
+// La barra de abajo (JG, JP y MVP) se apaga con barra_opacidad, para usar el gráfico a mitad de
+// juego. El fondo del panel (el rectángulo con degradado) seguía por debajo de la barra y al
+// apagarla quedaba una franja gris: el rectángulo termina en el borde de arriba de la barra y la
+// franja pasa a una capa propia con la misma clase, 1 px más alta para que no quede costura. Mismo
+// degradado (opaco) en las mismas coordenadas: con la barra prendida se ve igual que antes.
+function barraApagable(d) {
+    const barra = rename(d, 'Layer 19 Outlines', 'barra_opacidad');
+    const fondo = layer(d, 'Layer 6 Outlines');
+    const grupo = fondo.shapes.find(g => g.it.some(i => i.ty === 'gf'));
+    const rectDe = g => g.it.find(i => i.ty === 'sh').ks.k;
+    const trY = g => g.it.find(i => i.ty === 'tr').p.k[1];
+    const gf = grupo.it.find(i => i.ty === 'gf');
+    const plano = r => r.c && r.v.length === 4 && [...r.i, ...r.o].every(([x, y]) => !x && !y);
+    const forma = barra.shapes[0];
+    if (!plano(rectDe(grupo)) || !plano(rectDe(forma)) || gf.g.k.k.length !== gf.g.p * 4 || gf.o.k !== 100) {
+        throw new Error('final: la barra o el fondo no son los rectángulos esperados');
+    }
+    // Borde de arriba de la barra, en las coordenadas del rectángulo del fondo
+    const arriba = barra.ks.p.k[1] - barra.ks.a.k[1] + trY(forma) + Math.min(...rectDe(forma).v.map(v => v[1]));
+    const corte = arriba - (fondo.ks.p.k[1] - fondo.ks.a.k[1] + trY(grupo));
+    const franja = clone(fondo);
+    Object.assign(franja, { nm: '.barra_opacidad', cl: 'barra_opacidad', ind: freeInd(d, Math.max(...d.layers.map(l => l.ind)) + 1) });
+    franja.shapes = [clone(grupo)];
+    const yMax = Math.max(...rectDe(grupo).v.map(v => v[1])), yMin = Math.min(...rectDe(grupo).v.map(v => v[1]));
+    for (const v of rectDe(grupo).v) if (v[1] === yMax) v[1] = corte;
+    for (const v of rectDe(franja.shapes[0]).v) if (v[1] === yMin) v[1] = corte - 1;
+    insertAfter(d, 'Layer 6 Outlines', franja);
+}
 // "20" con League Gothic a 53.1, medido con la fuente cargada (lineWidths[0])
 const ANCHO_20 = 37.759077039957056;
 const ENTRADA_FIN = 33; // la cortina termina de abrirse en el 32
@@ -556,6 +584,7 @@ const ENTRADA_FIN = 33; // la cortina termina de abrirse en el 32
     // JG, JP y MVP: rótulo y nombre. El rótulo de JP llegó "JP:H:" en una caja para tres letras:
     // la "H:" partía a una segunda línea, debajo de la barra.
     layer(d, '.juegoperdido').t.d.k[0].s.t = 'JP:';
+    barraApagable(d);
 
     d.markers = [
         { tm: 0, cm: 'play', dr: ENTRADA_FIN, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },

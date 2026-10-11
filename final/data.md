@@ -35,11 +35,13 @@ in its column; two digits keep the design size, three shrink. Send `X` for a hal
 **Bottom bar:** `lanzadorganador`, `lanzadorperdedor` and `jugadormvp`, after their labels
 `juegoganado` (`JG:`), `juegoperdido` (`JP:`) and `masvalioso` (`MVP:`). Name format: initial and
 surname (`J. SANTANA`): up to about 16 characters keep the design size; longer shrinks, and its
-baseline rises a little.
+baseline rises a little. A label stays even with no name: send `""` to the label too to leave
+that place empty. `barra_opacidad` turns the whole bar off (`0`) or back on (`1`, the default),
+to use the graphic mid-game: off, the panel ends right below the innings rows, with no gray strip.
 
 **Title:** `titulo` is the label at the top left, after the ►: `FINAL`. It grows to the right and
-fits about 9 characters (`FINAL (12)`). `titulo_entrada` is the curtain of the entry
-(`SCORE FINAL`).
+fits about 9 characters (`FINAL (12)`; mid-game, the inning: `7 ALTA`). `titulo_entrada` is the
+curtain of the entry (`SCORE FINAL`).
 
 **Placement:** bottom center of the screen, where `parcial` goes. It overlaps the score's column
 on the right: they don't go on air together (in the designer's video it goes on air alone).
@@ -139,6 +141,10 @@ All innings default to 20.
 | Navegantes del Magallanes | `MAGAVISITA_opacidad` | `MAGALOCAL_opacidad` | 1 |
 | Tiburones de La Guaira | `TIBUSVISITA_opacidad` | `TIBUSLOCAL_opacidad` | 1 |
 | Tigres de Aragua | `TIGRESVISITA_opacidad` | `TIGRESLOCAL_opacidad` | 1 |
+
+| Layer | Class | Default opacity |
+|-------|-------|----------------|
+| The bottom bar (JG, JP and MVP) and the strip of the panel under it | `barra_opacidad` (two layers) | 1 |
 
 ## Markers
 

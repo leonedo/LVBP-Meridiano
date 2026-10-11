@@ -19,7 +19,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `3enlinea/` | Los próximos tres bateadores (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). Va arriba del score, en el mismo lugar que `ofensiva` | stage `play` pause (0–59) | `salida`: la entrada al revés (2 s) |
 | `parcial/` | Score de fin de inning: escudos, C H E de los dos equipos, inning con su flecha, los tres bateadores del próximo inning y la publicidad (`publicidad`, una imagen). Abajo al centro, a la izquierda del score | stage `play` pause (0–32) | `salida`: la entrada al revés (1,1 s) |
 | `prevenido/` | El bateador en el círculo: una fila (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). El mismo armado que `3enlinea`, en el mismo lugar | stage `play` pause (0–48) | `salida`: la entrada al revés (1,6 s) |
-| `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
+| `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
@@ -69,8 +69,9 @@ como esta, sin pedírselo.
 
 ⚠ Las dos barras de bateador y `parcial` llevan la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
 de entrada (en `parcial`, la cortina antes y después de que se abra el panel), y así una sola clave
-cambia el título (`AL BATE`, `PREVENIDO`…). El audit del editor lo
-marca como clase duplicada: es esperado, no "arreglarlo".
+cambia el título (`AL BATE`, `PREVENIDO`…). En `final`, `barra_opacidad` también va en dos capas:
+la barra de JG, JP y MVP y la franja del fondo del panel que queda debajo (ver *Barra apagable*).
+El audit del editor lo marca como clase duplicada: es esperado, no "arreglarlo".
 
 ### Cuando llega un export nuevo del diseñador
 
@@ -125,6 +126,13 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   adentro tiene su propio mate invertido. Lottie no dibuja un mate anidado en la fuente de otro: el
   texto quedaba entero encima del panel. `prep.js` saca ese mate y le pone al texto las dos formas
   del precomp como máscaras de capa (suma y resta); la entrada queda igual que la cortina.
+- **Barra apagable:** en `final`, la barra de abajo (`Layer 19 Outlines`) pasa a `barra_opacidad`.
+  El fondo del panel (`Layer 6 Outlines`, un rectángulo con degradado) seguía por debajo y al
+  apagarla quedaba una franja gris: `barraApagable()` en `prep.js` corta el rectángulo en el borde
+  de arriba de la barra y pasa la franja a una capa propia con la misma clase, 1 px más alta para
+  que no quede costura. Mismo degradado opaco en las mismas coordenadas: con la barra prendida se ve
+  igual (medido contra v0.0.15 en CasparCG 2.3.2: sólo el borde exterior antialiaseado difiere, ≤ 4
+  niveles salvo 2 px de 17 en la unión).
 - **Capas ocultas en AE** no se exportan (quedan `ind` salteados): `TIBUSVISITA` y su máscara en
   `score`, `AGUI` y su máscara en `lanzador`. Se trasplantan de la versión publicada.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
