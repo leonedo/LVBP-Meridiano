@@ -5,7 +5,8 @@
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
-//      "3 en linea"/, "score parcial"/, prevenido/, "score final"/.
+//      "3 en linea"/, "score parcial"/, prevenido/, "score final"/, "placa de juego"/. Los que no
+//      estén se saltean: alcanza con el zip que llegó.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -18,6 +19,12 @@ const [SRC, CUR, REPO] = process.argv.slice(2);
 const load = p => JSON.parse(fs.readFileSync(p, 'utf8'));
 const save = (p, d) => fs.writeFileSync(p, JSON.stringify(d, null, 2)); // igual que lottie_save
 const clone = o => JSON.parse(JSON.stringify(o));
+// Cada receta corre sólo si su export está en SRC: el diseñador manda los zips de a uno.
+const hay = zip => {
+    const ok = fs.existsSync(path.join(SRC, zip, 'data.json'));
+    if (!ok) console.log(`· ${zip}: no está en ${SRC}, se saltea`);
+    return ok;
+};
 
 function layer(d, nm) {
     const hits = d.layers.filter(l => (l.nm || '').trim() === nm);
@@ -80,7 +87,7 @@ function avisarEntrada(d, nombre) {
 }
 
 // ---------------------------------------------------------------- score
-{
+if (hay('score')) {
     const d = load(path.join(SRC, 'score/data.json'));
     const cur = load(path.join(CUR, 'score.json')); // versión publicada
 
@@ -142,7 +149,7 @@ function renameCrests(d) {
 
 // ---------------------------------------------------------------- defensiva
 const ENTRADA_DEF = 104; // la última animación de la entrada (barra del catcher) termina en el 103
-{
+if (hay('defensiva')) {
     const d = load(path.join(SRC, 'defensiva/data.json'));
 
     rename(d, '.lanzador 2', 'catcher');
@@ -171,7 +178,7 @@ const ENTRADA_DEF = 104; // la última animación de la entrada (barra del catch
 }
 
 // ---------------------------------------------------------------- lanzador
-{
+if (hay('tabla lanzador')) {
     const d = load(path.join(SRC, 'tabla lanzador/data.json'));
     const pub = load(path.join(CUR, 'lanzador.json')); // versión publicada
 
@@ -274,7 +281,7 @@ function prepBateador(d) {
     allCaps(d);
     avisarEntrada(d, 'bateador');
 }
-{
+if (hay('lowbar bateador')) {
     const d = load(path.join(SRC, 'lowbar bateador/data.json'));
     prepBateador(d);
     // de izquierda a derecha: AVG, HR, CI, OBP
@@ -284,7 +291,7 @@ function prepBateador(d) {
     ]);
     save(path.join(REPO, 'bateador/data.json'), d);
 }
-{
+if (hay('lowbar bateador informacion')) {
     // Misma barra, con una línea de texto libre en lugar de las estadísticas
     const d = load(path.join(SRC, 'lowbar bateador informacion/data.json'));
     prepBateador(d);
@@ -294,7 +301,7 @@ function prepBateador(d) {
 
 // ---------------------------------------------------------------- ofensiva
 const ENTRADA_OF = 41; // la fila del noveno bate termina de aparecer en el 40
-{
+if (hay('ofensiva')) {
     const d = load(path.join(SRC, 'ofensiva/data.json'));
 
     rename(d, 'ofensiva 4', 'titulo');
@@ -347,7 +354,7 @@ function publicidad(d, nm) {
 
 // ---------------------------------------------------------------- 3 en línea
 const ENTRADA_3L = 59; // el título de la pestaña roja termina de aparecer en el 58
-{
+if (hay('3 en linea')) {
     const d = load(path.join(SRC, '3 en linea/data.json'));
 
     rename(d, '3 EN L\u00edNEA', 'titulo');
@@ -398,7 +405,7 @@ function escudosDeScore(d, nombre) {
     if (escudos !== deScore) throw new Error(`${nombre}: escudos distintos a los de score: ${escudos}`);
 }
 const ENTRADA_PAR = 32; // el panel termina de abrirse en el 31
-{
+if (hay('score parcial')) {
     const d = load(path.join(SRC, 'score parcial/data.json'));
 
     // PARCIAL, la cortina de entrada, son dos capas (antes y después de que se abra el panel):
@@ -441,7 +448,7 @@ const ENTRADA_PAR = 32; // el panel termina de abrirse en el 31
 
 // ---------------------------------------------------------------- prevenido
 const ENTRADA_PRE = 48; // el título de la pestaña roja termina de aparecer en el 47
-{
+if (hay('prevenido')) {
     const d = load(path.join(SRC, 'prevenido/data.json'));
 
     // El mismo armado que 3 en línea, con una sola fila. PREVENIDO llega en dos capas con el mismo
@@ -529,7 +536,7 @@ function barraApagable(d) {
 // "20" con League Gothic a 53.1, medido con la fuente cargada (lineWidths[0])
 const ANCHO_20 = 37.759077039957056;
 const ENTRADA_FIN = 33; // la cortina termina de abrirse en el 32
-{
+if (hay('score final')) {
     const d = load(path.join(SRC, 'score final/data.json'));
 
     // SCORE FINAL, la cortina: el texto tiene de mate el precomp de la cortina, que adentro tiene
@@ -595,5 +602,65 @@ const ENTRADA_FIN = 33; // la cortina termina de abrirse en el 32
     allCaps(d);
     avisarEntrada(d, 'final');
     save(path.join(REPO, 'final/data.json'), d);
+}
+
+// ---------------------------------------------------------------- placa de juego
+// Versión preliminar (2026-10-13), con MAGALLANES y TIBURONES en el diseño: los equipos del juego
+// de ese día. El "VS" termina de asentarse en el 73; BASE Outlines tiene un keyframe en el 75 con
+// el mismo valor que el del 38, que no mueve nada.
+const ENTRADA_PLACA = 74;
+if (hay('placa de juego')) {
+    const d = load(path.join(SRC, 'placa de juego/data.json'));
+
+    // Magallanes a la izquierda y Tiburones a la derecha, como visita y local en score.
+    const caja = nm => {
+        const s = rename(d, nm, nm === 'TIBURONES DE LA GUAIRA' ? 'equipolocal' : 'equipovisita').t.d.k[0].s;
+        // Traen lh 0.01: un nombre más largo partiría en líneas encimadas en vez de encoger.
+        s.lh = s.s * 1.2;
+    };
+    caja('NAVEGANTES DEL MAGALLANES 2');
+    caja('TIBURONES DE LA GUAIRA');
+    rename(d, 'MAGALLANES.png', 'escudovisita');
+    rename(d, 'TIBURONES.png', 'escudolocal');
+    rename(d, 'liga venezolana de beisbol profesional', 'liga');
+    rename(d, 'estadio universitario -ucv, caracas', 'estadio');
+    rename(d, 'vs', 'vs');
+
+    // Al logo de Meridiano y al JUEGO DE HOY les faltan los mattes: eran capas ocultas en AE, que no
+    // se exportan (ind 18 y 21 vacíos). Van recortados por la caja, como la base roja (su matte
+    // `mask` es el área fija del panel): confirmado con el video del diseñador.
+    const enLaCaja = (capa, ind) => {
+        const area = Object.assign(clone(layer(d, 'mask')), { nm: `mask ${capa.cl}`, ind: freeInd(d, ind), ip: capa.ip, op: capa.op, td: 1 });
+        d.layers.splice(d.layers.indexOf(capa), 0, area);
+        capa.tt = 1;
+    };
+    // El logo llega en dos capas (clase png). El que sube con la base blanca (0–32) tiene de matte al
+    // otro, que no existe hasta el 31: no se ve nunca. Y con el otro mateado sería un mate anidado,
+    // que Lottie no dibuja. Sale.
+    const logos = d.layers.filter(l => l.nm === '2024-Logo-MeridianoTV-original (6).png');
+    const [logo, logoBase] = logos;
+    if (logos.length !== 2 || logo.ind !== 19 || !logoBase.tt || d.layers[d.layers.indexOf(logoBase) - 1] !== logo) {
+        throw new Error('placa: los logos de Meridiano no son los esperados');
+    }
+    d.layers = d.layers.filter(l => l !== logoBase);
+    // El que queda entra a la caja, sube y sale por arriba (36–40): sin matte quedaba cortado contra
+    // el borde de la pantalla durante toda la pausa.
+    Object.assign(logo, { nm: '.logomeridiano', cl: 'logomeridiano' });
+    enLaCaja(logo, 18);
+    // JUEGO DE HOY sube con su caja roja (10–38): la caja sale recortada por el borde de arriba y el
+    // texto seguía de largo sobre el fondo (18–30).
+    enLaCaja(rename(d, 'juego de hoy', 'titulo'), 21);
+
+    // El export trae start (0–30) y un stop del 90 al 121 sin animación.
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_PLACA, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 90.0000036657751, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_PLACA, cm: 'salida', dr: -ENTRADA_PLACA }
+    ];
+    // Llega con la carpeta (PLACA DE JUEGO\font), no con el archivo: salía la fuente de reserva.
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, 'placa de juego');
+    save(path.join(REPO, 'placa_juego/data.json'), d);
 }
 console.log('ok');

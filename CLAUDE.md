@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Once gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Doce gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -20,13 +20,16 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `parcial/` | Score de fin de inning: escudos, C H E de los dos equipos, inning con su flecha, los tres bateadores del próximo inning y la publicidad (`publicidad`, una imagen). Abajo al centro, a la izquierda del score | stage `play` pause (0–32) | `salida`: la entrada al revés (1,1 s) |
 | `prevenido/` | El bateador en el círculo: una fila (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). El mismo armado que `3enlinea`, en el mismo lugar | stage `play` pause (0–48) | `salida`: la entrada al revés (1,6 s) |
 | `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
+| `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` sólo están esos dos: los otros seis los tiene que mandar el diseñador | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
 los 56 cruces `visita_vs_local`, igual que en `parcial` y `final`; `3enlinea` y `prevenido` no tienen equipos: `<gráfico>_publicidad.png` muestra la
-publicidad vacía, con logos de distintas proporciones y con una ruta que no carga). Son de v0.0.7
+publicidad vacía, con logos de distintas proporciones y con una ruta que no carga; `placa_juego`
+tiene los dos del diseño, y sólo la pantalla completa). Son de v0.0.7
 (las de `ofensiva`, de v0.0.9; las de `defensiva_lateral` y `3enlinea`, del 2026-10-06; las de
-`parcial` y `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10): si un
+`parcial` y `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; la de `placa_juego`, del
+2026-10-13): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -38,8 +41,10 @@ nombre es más grande: `N. APELLIDO` entra al tamaño del diseño hasta unos 15 
 Video de referencia del diseñador: `GRAPHICS FINAL LISTO.mp4` (2026-10-04, 23,976 fps, en Descargas
 del usuario), con todos los gráficos al aire. Ahí score y defensiva son la versión **original**: una
 diferencia con lo nuestro puede ser un cambio decidido después, no un error. Lo que confirmó: todas las
-salidas son la entrada al revés (score incluido). Muestra un gráfico que todavía no llegó: JUEGO
-DE HOY. El PARCIAL del video es una versión anterior: con el logo de Gatorade, sin la columna de
+salidas son la entrada al revés (score incluido). Muestra JUEGO DE HOY, que llegó después como
+versión preliminar (`placa_juego`): ahí el logo de Meridiano sale recortado por la caja; el video es
+otra revisión (sin la línea de la liga arriba, y el logo termina más abajo: queda una punta adentro
+de la caja). El PARCIAL del video es una versión anterior: con el logo de Gatorade, sin la columna de
 los próximos bateadores y con la flecha del inning amarilla. El SCORE FINAL del video (LINESCORE)
 no tiene la barra de ganador, perdedor y MVP, y su columna 9 dice 9 (el export trae X). Pendiente con el diseñador: en lanzador y bateador el video es otra revisión
 (encabezado del lanzador corrido, "TEMPORADA" espaciado, nombre del bateador más grande y sin el
@@ -110,7 +115,11 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   errores en mayúsculas como allá, `inningvisitaN`/`inninlocalN` a `INNINGVISITAN`/`INNINGLOCALN`,
   `score final` y `FINAL` (sin clase) a `titulo_entrada`/`titulo`, y los rótulos fijos `innnings` y
   `CHE` a `innings`/`carrerashitserrores`. El rótulo `juegoperdido` llegó `JP:H:`: la `H:` partía
-  a una segunda línea debajo de la barra, queda `JP:`.
+  a una segunda línea debajo de la barra, queda `JP:`. En `placa_juego` (el zip es `placa de
+  juego`), todo llega sin clase: `NAVEGANTES DEL MAGALLANES 2`/`TIBURONES DE LA GUAIRA` a
+  `equipovisita`/`equipolocal`, `MAGALLANES.png`/`TIBURONES.png` a `escudovisita`/`escudolocal`,
+  `juego de hoy` a `titulo`, y la liga, el estadio y el `vs` a `liga`/`estadio`/`vs`. El logo llega
+  en dos capas: queda una sola (ver *Capas ocultas*).
 - **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
   naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
   copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
@@ -135,10 +144,20 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   niveles salvo 2 px de 17 en la unión).
 - **Capas ocultas en AE** no se exportan (quedan `ind` salteados): `TIBUSVISITA` y su máscara en
   `score`, `AGUI` y su máscara en `lanzador`. Se trasplantan de la versión publicada.
+  ⚠ Si la oculta era el **matte** de otra capa, esa capa llega sin matte y se ve entera. En
+  `placa_juego` faltan los `ind` 18 y 21: el logo de Meridiano quedaba cortado contra el borde de
+  la pantalla durante toda la pausa, y el JUEGO DE HOY seguía de largo sobre el fondo cuando su
+  caja roja salía recortada. Los dos van recortados por la caja (confirmado con el video del
+  diseñador): `enLaCaja()` en `prep.js` les pone una copia de `mask`, el área fija del panel que
+  ya recorta la base roja. El otro logo (`ind` 20) tenía de matte al primero, que no existe hasta
+  el frame 31: no se veía nunca, y sale. Pista para reconocerlo: un `ind` salteado justo arriba
+  de una capa que se ve donde no debería.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
   arriba. Si cambia la duración de la entrada, `play` y `salida` van al último keyframe real, no
   al `start` del diseñador. `prevenido` llegó sin markers y con la comp de 32 s: queda en 90 frames
-  como los demás.
+  como los demás. En `placa_juego` la entrada termina en el 73 (el VS); el aviso de `prep.js` por
+  el 75 es falso: `BASE Outlines` repite ahí el valor del 38 y no mueve nada (73, 74 y 75 dan
+  los mismos píxeles).
 - **Textos de caja propios** ([textos-de-caja.md](textos-de-caja.md)): en `lanzador`,
   `informacionbarranegra` (centrada en la barra), el ancho de `nombrelanzador` (222, no 230) y las
   cajas de estadísticas igualadas (rótulos 71.75, valores 87.5); en las dos barras de bateador,
@@ -150,7 +169,8 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   en la publicidad) y `titulo` alineado a la izquierda (llegaba centrado en x 1415, y uno más largo
   se salía de la pestaña por la izquierda); en `final`, los números (innings y C H E) centrados en
   su columna sobre el eje del `20` del diseño (llegaban a la izquierda), `ultimoinning` con `lh` 1.2
-  (traía 0.01) y `titulo` alineado a la izquierda (tapaba el ►). Los anchos de nombre dejan el mismo aire a los dos lados.
+  (traía 0.01) y `titulo` alineado a la izquierda (tapaba el ►); en `placa_juego`, los nombres de
+  los equipos con las cajas del export y `lh` 1.2 del cuerpo (traían 0.01). Los anchos de nombre dejan el mismo aire a los dos lados.
 - **`defensiva_lateral`** no está en `prep.js`: es el export del 2026-09-26 ya preparado
   (`git show 0fd3d66:defensiva/`), con el All Caps prendido y `play`/`salida` en el 78 (ahí termina
   la entrada; el export la pausaba en el 90). Si el diseñador la vuelve a exportar, es la receta
