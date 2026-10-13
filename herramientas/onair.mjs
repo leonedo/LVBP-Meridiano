@@ -18,7 +18,6 @@ const log = [];
 const ms = () => String(Date.now() - t0).padStart(6) + 'ms';
 page.on('console', m => {
     const t = m.text();
-    if (/canResizeFont is not a function|^\s+at http/.test(t)) return;
     if (m.type() === 'error' || m.type() === 'warning' || /released|ignorado|no next|no active/i.test(t)) log.push(`${ms()} [${m.type()}] ${t}`);
 });
 page.on('pageerror', e => log.push(`${ms()} PAGEERROR ${e.message}`));

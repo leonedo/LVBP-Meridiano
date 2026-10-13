@@ -193,7 +193,10 @@ renderizar los mismos momentos con `shot.mjs`.
 
 El root contiene los **archivos compartidos** que todos los gráficos consumen vía `../`:
 
-- [index.js](index.js) — lógica principal de todos los gráficos (NO se modifica salvo bug fix general)
+- [index.js](index.js) — lógica principal de todos los gráficos (NO se modifica salvo bug fix general).
+  Es el de `HTML-templates` tal cual, idéntico al de `LVBP-Venevision` (copiado el 2026-10-13).
+  Un arreglo general va a la plantilla y de ahí se copia: antes de tocarlo, comparar con el
+  `origin/main` de la plantilla, que puede tenerlo ya
 - [lottie.js](lottie.js) — librería Lottie
 - [webcg-framework.umd.js](webcg-framework.umd.js) — runtime de CasparCG webcg
 - [webcg-devtools.umd.js](webcg-devtools.umd.js) — devtools para testear localmente con UI gráfica
@@ -207,6 +210,8 @@ Cada gráfico vive en una **subcarpeta hermana** con su `MiAnim.json` y un `inde
 El nombre de la capa en AE → clase CSS del SVG renderizado. Es el contrato entre el Lottie y el `index.js`.
 
 **Capas de texto reemplazables:** la key del data de CasparCG debe matchear el nombre de la capa.
+El valor puede ser texto o número: un `0` (carreras, outs) sale `0`, no vacío. Lo que no es texto
+ni número (`null`, un booleano) deja la capa vacía.
 
 **Texto que puede no entrar** (una fecha, un número, un nombre): pasarlo a **texto de caja**
 —`sz` + `ps` en `t.d.k[i].s`— para que encoja en vez de salirse. `index.js` ya llama a
@@ -218,6 +223,24 @@ que llega en minúsculas saldría en minúsculas aunque en AE la capa se vea en 
 `index.js` pasa a mayúsculas el texto del UPDATE en las capas que lo tienen; en las que no, lo deja
 como llega.
 
+**Fuentes:** las `origin: 0` (archivo aparte, como la League Gothic de este repo) y las
+`origin: 3` (URL o base64 en el JSON) las registra `index.js` y las **espera antes** de
+`lottie.loadAnimation` (`cargarFuentes()`), porque Lottie mide cada letra una sola vez y una
+fuente que llega tarde deja medidas de la de reserva para siempre. Tope `FONT_WAIT_MS` (2,5 s):
+una fuente más lenta que eso, o rota, sale con la de reserva y deja un `[fuentes]` en la
+consola. Las `origin: 1/2` (CSS de Google o Typekit) las registra y espera Lottie (hasta 5 s).
+
+Cada `@font-face` declara el peso y el estilo que Lottie pide en el `<text>`, con su misma
+tabla (`propiedadesDeFuente()`), así conviven varios pesos de una familia. Dos cosas que eso le
+pide al Lottie:
+
+- ⚠ La tabla de Lottie sólo distingue Bold, Black, Medium, Regular/Normal, Light/Thin e
+  Italic, como **palabras sueltas** del `fStyle`. Dos estilos de la **misma familia** que no
+  distingue (SemiBold, ExtraBold, Book, Heavy, `BoldItalic` junto) se pintan los dos con el
+  último. Arreglo: darle a cada cara su propio `fFamily` en el JSON (p. ej. su `fName`).
+- ⚠ El `fStyle` tiene que decir la verdad sobre el archivo: se pinta el archivo tal cual, sin
+  la negrita ni la oblicua sintéticas con que Chrome compensaba antes.
+
 **Capas reservadas (clase obligatoria):**
 - `time` → reloj automático
 - `date` → fecha automática
@@ -225,6 +248,11 @@ como llega.
 **Keys reservadas en data (matching por substring, case-insensitive):**
 - cualquier key que contenga `color` → cambia el `fill` CSS de `.{key}`
 - cualquier key que contenga `opacidad` → cambia el `opacity` CSS de `.{key}`
+
+Esas keys son **sólo CSS**: el contenido de la capa no se toca. Una capa de imagen o de texto con
+clase `*_opacidad` se prende y se apaga, pero no cambia su imagen ni su texto. Una capa de forma
+(los escudos, las bases, `barra_opacidad`) tampoco pasa por el reemplazo de texto: antes cada
+clave `_opacidad` dejaba un `TypeError: canResizeFont` en el log con cada UPDATE.
 
 ⚠ **El nombre de la capa tiene que ser un identificador CSS válido.** Se interpola en un
 selector de clase, así que no puede tener espacios ni arrancar con dígito. `Logo induveca 4`
@@ -315,7 +343,7 @@ Un mismo update marker puede ser referenciado por múltiples stages, o servir co
 
 Cuando llega el evento `stop` desde CasparCG:
 1. Si el stage actual tiene `stop: "<name>"` y existe ese marker → reproduce solo el segmento `tm → tm+dr` con `playSegments` (queda en el último frame, sin pasar al resto del timeline)
-2. Si no → reproduce el marker global `stop` con `goToAndPlay` (comportamiento de toda la vida, plays forward hasta `op`)
+2. Si no → reproduce el marker global `stop` con `goToAndPlay`. Con `dr > 0` es también sólo `tm → tm+dr`: Lottie 5.13 convierte `goToAndPlay` sobre un marker con duración en `playSegments`. Con `dr: 0` no anima: suelta el layer al instante
 
 Útil para gráficos donde la salida visual depende del estado actual (ej. cada stage tiene su propia animación de cierre).
 
@@ -360,11 +388,32 @@ Cómo se cumple:
 | `webcg.on('stop')` | Levanta `exiting` y arma el respaldo de `EXIT_FALLBACK_MS` (5 s) |
 | `completeHandler()` | Primera rama: si `exiting`, suelta el layer. Va primero a propósito |
 | `releaseLayer()` | Llama a `window.remove()` si existe; fuera de CasparCG deja un `console.info` |
-| `cancelExit()` | `play` / `next` / `goto` cancelan la salida: volver al aire antes de que termine la animación **no** suelta el layer |
+| `cancelExit()` | Sólo `play` cancela la salida: volver al aire antes de que termine la animación **no** suelta el layer. `next` / `goto` / `playAnimation` / el global de un stage se **ignoran** durante una salida |
 
-⚠ El respaldo de 5 s existe porque **sin marcador `stop` el evento `complete` no llega
-nunca**, y sin él el layer se quedaría ocupado para siempre. Es una red para un gráfico
-roto, no un plazo para uno que funciona.
+⚠ **Los 5 s de `EXIT_FALLBACK_MS` son contrato con los controladores, no un detalle de
+`index.js`.** Un controlador puede asumir que un gráfico que cumple el contrato suelta el
+layer, como mucho, 5 s después de que su salida **empieza**, y de ahí saca su margen tras
+una salida (cue-qs-beisbol: `SALIDA_MAXIMA_TEMPLATE_MS`). Dos consecuencias:
+
+- **La salida dura ≤ 4,5 s**: el `dr / fr` del marker `stop` y de cada `stop` custom de
+  stage. Una más larga **la corta el respaldo**: suelta el layer a mitad de la animación y al
+  aire se ve el corte. Con 5 s justos compiten `complete` y el respaldo.
+  ⚠ En este repo la más larga es `salida_jugadores` de `score` (136 frames, 4,54 s): medida
+  el 2026-10-13, suelta el layer a los 4,56 s por `complete`, con 0,44 s de margen. Si el
+  diseñador la alarga, la corta el respaldo.
+- **Sin marker `stop` o con `dr: 0` no hay animación de salida.** Sin marker, el layer se
+  suelta al terminar el segmento en curso (al instante si estaba en pausa). Con `dr: 0`, al
+  instante siempre: corta lo que se esté viendo, también una entrada a medias.
+- **Cambiar `EXIT_FALLBACK_MS` es cambiar el contrato con todos los controladores**, no
+  ajustar un gráfico. Un gráfico que necesita una salida más larga no cabe en esta plantilla.
+
+Los 5 s cuentan desde que la salida **corre**, no desde el `CG STOP`. Un `stop` que llega
+con el gráfico todavía cargando espera la carga (JSON y fuentes) y entonces tiene sus 5 s:
+hasta ~10 s desde el `CG STOP`. Si la carga pasa de 5 s, el respaldo que se armó al llegar
+el `stop` suelta el layer sin animar.
+
+El respaldo además es la red de un gráfico roto: si el JSON no carga no hay animación que
+termine, y sin él el layer se quedaría ocupado para siempre.
 
 ⚠ **`remove` es nombre global reservado.** Un gráfico que declare su propia
 `function remove()` pisa la que inyecta CasparCG: deja de soltarse el layer **y** se rompe
@@ -390,6 +439,7 @@ Reglas:
 - Nombres que no son identificadores JS válidos (espacios, guiones, empieza con dígito) se saltean con warning — usar `goto('<name>')` en ese caso.
 - Si el nombre colisiona con un global existente (ej. un stage llamado `anim`), se saltea con warning.
 - Los `()` son obligatorios — `INVOKE 1 "intro"` solo lee la referencia, no la ejecuta.
+- ⚠ El global no existe hasta que cargan el JSON **y sus fuentes** (hasta `FONT_WAIT_MS` más). Un `INVOKE 1 "intro()"` justo después del `CG ADD` se pierde con un `ReferenceError`; `goto('intro')` existe desde el principio y espera a la carga. Un controlador que manda el stage pegado al ADD usa `goto`.
 
 ## Reemplazo de imágenes
 
@@ -476,6 +526,7 @@ git archive --worktree-attributes --format=zip -o /tmp/t.zip HEAD && unzip -l /t
 - No cambiar nombres de markers/clases reservados (`play`, `stop`, `time`, `date`, `bola1..6`) — rompen el contrato con CasparCG y el index.js.
 - **No declarar una `function remove()` global** — pisa la `window.remove()` que inyecta CasparCG y con ella el contrato de salida (ver *Eventos de CasparCG*).
 - No llamar a `window.remove()` desde un gráfico: lo hace `index.js` al terminar la animación de salida. Llamarla antes corta la salida en seco.
+- No cambiar `EXIT_FALLBACK_MS` ni hacer una salida de más de 4,5 s: los 5 s son el contrato con los controladores (ver *Eventos de CasparCG*).
 - No reusar nombres de stages — cada `payload.name` debe ser único.
 - No repetir `order` entre stages.
 - No tocar `lottie.js` ni `webcg-framework.umd.js` (son vendors).

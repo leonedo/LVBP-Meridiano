@@ -15,8 +15,6 @@ const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
 page.on('console', m => {
     const t = m.text();
-    // index.js loguea esto para cada clave _opacidad (capa de forma, sin texto): es inocuo
-    if (/canResizeFont is not a function|^\s+at http/.test(t)) return;
     if (m.type() === 'error' || m.type() === 'warning' || /\berror\b/i.test(t)) errors.push(t);
 });
 page.on('pageerror', e => errors.push('PAGEERROR ' + e.message));

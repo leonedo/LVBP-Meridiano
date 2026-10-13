@@ -4,7 +4,6 @@
 
 let isOn = false;
 let framesMilliseconds;
-let fontsLoaded = false;
 let animLoaded = false;
 let animElementsLength;
 let markers = {};
@@ -23,23 +22,108 @@ let exiting = false;
 let exitFallbackTimer = null;
 
 // Longest a stop animation is allowed to take before the layer is released
-// regardless. Generous on purpose: this is a safety net for a broken graphic,
-// not a deadline for a working one.
+// regardless — counted from when the exit starts running, not from CG STOP.
+//
+// ⚠ This is a CONTRACT with the controllers, not a tuning knob. A controller
+// assumes a graphic that honours the exit contract frees its layer within this
+// time, and sizes its post-exit margin on it. Changing it changes the contract
+// with every controller; a stop animation longer than this gets cut by it (keep
+// exits ≤ 4.5 s). It is also the safety net for a graphic whose JSON never
+// loads: there is no animation to complete, so nothing else would free the layer.
 const EXIT_FALLBACK_MS = 5000;
+
+// Lo más que se espera a las fuentes antes de cargar la animación — ver
+// cargarFuentes(). Una fuente rota falla en milisegundos y no llega a esto; el
+// tope es para una carga que se queda colgada, que sin él dejaría el gráfico
+// sin salir nunca.
+const FONT_WAIT_MS = 2500;
 
 let animContainer = document.getElementById('bm');
 let anim = null;
 
-const addFont = (fam, path) => {
+// El peso y el estilo con que Lottie pide cada fuente en el <text>: la misma
+// tabla que getFontProperties() de lottie.js, que no se exporta. Si se actualiza
+// lottie.js, comprobar que la tabla siga igual.
+//
+// ⚠ La @font-face tiene que declarar exactamente eso. Sin peso ni estilo, todas
+// las caras de una familia (Prometo-Medium, Prometo-Regular) quedan con los
+// mismos descriptores y el navegador usa la última para todo. Lo que importa es
+// coincidir con Lottie, no el peso real de la fuente: por eso un estilo que la
+// tabla no conoce (SemiBold, ExtraBold, Book) queda en `normal` en los dos lados.
+const PESOS = { bold: '700', black: '900', medium: '500', regular: '400', normal: '400', light: '200', thin: '200' };
+const propiedadesDeFuente = f => {
+    const partes = (f.fStyle || '').toLowerCase().split(' ');
+    return {
+        estilo: partes.includes('italic') ? 'italic' : 'normal',
+        peso: f.fWeight || partes.reduce((peso, p) => PESOS[p] || peso, 'normal'),
+    };
+};
+
+const addFont = f => {
+    const { estilo, peso } = propiedadesDeFuente(f);
     const newFont = document.createElement('style');
     newFont.appendChild(document.createTextNode(`\
     @font-face {\
-        font-family: ${fam};\
-        src: url('${path}');\
+        font-family: ${f.fFamily};\
+        font-style: ${estilo};\
+        font-weight: ${peso};\
+        src: url('${f.fPath}');\
     }\
     `));
     document.head.appendChild(newFont);
 };
+
+// Registra las fuentes del JSON y las espera ANTES de lottie.loadAnimation.
+//
+// ⚠ El orden es el arreglo. Lottie da por cargada una fuente `origin: 0` sin
+// esperarla (checkLoadedFonts) y mide cada letra UNA vez: guarda el ancho y no
+// lo vuelve a medir. Si la fuente no llegó, mide con la de reserva, y un texto
+// de caja se parte en dos líneas en vez de encoger — aunque después se pinte con
+// la buena. Antes el @font-face se añadía después de loadAnimation; con la
+// fuente en un archivo aparte, era una carrera que casi siempre ganaba la fuente.
+//
+// ⚠ Cada fuente la registra y la espera UNO solo. Este archivo se queda con las
+// origin 0 (archivo aparte) y las origin 3 (URL o base64 en el JSON); Lottie, con
+// las 1/2 (CSS de Google o Typekit, que traen sus propias @font-face). Si los dos
+// registraban la misma, las esperas se sumaban con una fuente colgada (+2,5 s al
+// aire) y Lottie podía medir con un peso y pintar con otro.
+//
+// Las origin 3 eran de Lottie, pero las registra mal: UNA @font-face por familia
+// (la de la primera fuente de la lista), sin peso y con `font-style: normal`. Con
+// Prometo-Medium y Prometo-Regular todo se pintaba en Medium, y a una cursiva
+// Chrome le podía sumar una oblicua sintética. Pasarlas a origin 0 hace que
+// Lottie no las registre ni las espere —una origin 0 la da por cargada— y
+// quedan aquí.
+//
+// Cada carga lleva su catch: una fuente rota (404) rechaza en milisegundos y no
+// tiene que frenar al resto ni al gráfico — sale con la de reserva, como antes.
+function cargarFuentes(json) {
+    const fuentes = ((json.fonts && json.fonts.list) || []).filter(f => f.fPath && !(
+        f.origin === 1 || f.origin === 2 || f.fOrigin === 'g' || f.fOrigin === 't'));
+    fuentes.forEach(f => {
+        if (f.origin === 3 || f.fOrigin === 'p') { f.origin = 0; f.fOrigin = 'n'; }
+        addFont(f);
+    });
+    if (!fuentes.length || !document.fonts) return Promise.resolve();
+
+    // Con el peso y el estilo de cada una: sin ellos load() pide la cara 400
+    // normal, y una Medium no se esperaría nunca.
+    const cargas = fuentes.map(f => {
+        const { estilo, peso } = propiedadesDeFuente(f);
+        return Promise.resolve()
+            .then(() => document.fonts.load(`${estilo} ${peso} 16px "${f.fFamily}"`))
+            .catch(err => console.warn(`[fuentes] ${f.fName || f.fFamily} no cargó, se mide con la de reserva:`, err && err.message));
+    });
+
+    let tope;
+    const tiempo = new Promise(resolve => {
+        tope = setTimeout(() => {
+            console.warn(`[fuentes] sin respuesta tras ${FONT_WAIT_MS} ms — se carga la animación igual`);
+            resolve();
+        }, FONT_WAIT_MS);
+    });
+    return Promise.race([Promise.all(cargas), tiempo]).then(() => clearTimeout(tope));
+}
 
 // Lee el JSON con XMLHttpRequest, no con fetch: CasparCG abre los templates como
 // file:// y el Chromium de CasparCG 2.3.x rechaza fetch() sobre ese esquema
@@ -82,7 +166,9 @@ const animPromise = new Promise((resolve, reject) => {
                     }
                 });
             }
-
+            return cargarFuentes(json).then(() => json);
+        })
+        .then(json => {
             // Match the path resolution Lottie used to do internally with `path:`,
             // so external image assets in the Lottie keep resolving correctly.
             const assetsPath = data_file.substring(0, data_file.lastIndexOf('/') + 1);
@@ -99,7 +185,7 @@ const animPromise = new Promise((resolve, reject) => {
             // With animationData, config_ready fires synchronously inside loadAnimation
             // (no fetch to wait for), so we'd miss it if we attached a listener now.
             // Run the setup explicitly instead — all the data is already available.
-            setupStagesAndFonts();
+            setupStages();
             attachAnimListeners();
 
             anim.addEventListener('DOMLoaded', () => {
@@ -117,7 +203,7 @@ const animPromise = new Promise((resolve, reject) => {
         });
 });
 
-function setupStagesAndFonts() {
+function setupStages() {
     framesMilliseconds = 1000 / anim.renderer.data.fr;
 
     if (anim.markers) {
@@ -145,16 +231,6 @@ function setupStagesAndFonts() {
     multiStageMode = stages.length > 0;
 
     exposeStagesAsGlobals();
-
-    if (!fontsLoaded && anim.renderer.data.fonts) {
-        const fonts = anim.renderer.data.fonts.list;
-        for (const font in fonts) {
-            const family = fonts[font].fFamily;
-            const fontPath = fonts[font].fPath;
-            if (fontPath !== '') addFont(family, fontPath);
-        }
-        fontsLoaded = true;
-    }
 }
 
 // Commands that arrive before the JSON has loaded.
@@ -342,6 +418,12 @@ webcg.on('data', function (data) {
                     let cl = animElement.data.cl;
                     let newPath;
 
+                    // Las claves de color y de opacidad son sólo CSS (arriba): no son
+                    // un texto ni una ruta. Antes una capa de imagen con clave
+                    // `_opacidad` perdía la imagen —el 1 o el 0 se escribía como su
+                    // href— y una de texto mostraba el número.
+                    if (/color|opacidad/i.test(cl)) continue;
+
                     if (animElement.data.hasOwnProperty('refId') && animElement.data.refId.includes('image')) {
                         // Antes esto quedaba fuera de cualquier try: un `cl` con espacios
                         // tiraba acá y cortaba el for, dejando sin actualizar todas las
@@ -365,15 +447,23 @@ webcg.on('data', function (data) {
                         } catch (err) {
                             console.warn('[update] no se pudo actualizar la imagen', cl, err.message);
                         }
-                    } else {
+                    } else if (typeof animElement.updateDocumentData === 'function') {
+                        // Sólo las capas de texto tienen estos métodos. Una key puede nombrar
+                        // una capa de forma —la convención `*_opacidad` lo hace siempre— y antes
+                        // llegaba aquí y escribía un TypeError en el log en cada UPDATE.
+                        // String() y no `valor || ''`: un 0 es un texto válido (carreras,
+                        // outs), y Lottie no pinta un número — recorre `t` con `.length`.
+                        // Lo que no es texto ni número (null, un booleano, un objeto) se
+                        // vacía, como antes, en vez de pintar "false" u "[object Object]".
+                        const valor = normalizeValue(data[cl]);
+                        let texto = (typeof valor === 'string' || typeof valor === 'number') ? String(valor) : '';
+                        // Lottie no aplica el All Caps de After Effects (ca: 1 en el
+                        // documento de texto): sin esto, un texto que llega en minúsculas
+                        // sale en minúsculas aunque en AE la capa se vea en mayúsculas.
+                        if (animElement.data.t.d.k[0].s.ca === 1) texto = texto.toUpperCase();
                         try {
                             animElement.canResizeFont(true);
-                            let text = data[cl] ? data[cl].text || data[cl] : '';
-                            // Lottie no aplica el All Caps de After Effects (ca: 1 en el
-                            // documento de texto): sin esto, un texto que llega en minúsculas
-                            // sale en minúsculas aunque en AE la capa se vea en mayúsculas.
-                            if (animElement.data.t.d.k[0].s.ca === 1) text = String(text).toUpperCase();
-                            animElement.updateDocumentData({ t: text }, 0);
+                            animElement.updateDocumentData({ t: texto }, 0);
                         } catch (err) {
                             console.log(err);
                         }

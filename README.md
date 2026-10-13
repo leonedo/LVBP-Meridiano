@@ -76,10 +76,21 @@ donde varios gráficos comparten un layer, eso deja al operador sin saber qué h
 | `webcg.on('stop')` | Levanta `exiting` y arma el respaldo de `EXIT_FALLBACK_MS` (5 s) |
 | `completeHandler()` | Primera rama: si `exiting`, suelta el layer |
 | `releaseLayer()` | Llama a `window.remove()` si existe; fuera de CasparCG, `console.info` |
-| `cancelExit()` | `play` / `next` / `goto` cancelan la salida — volver al aire antes de que acabe la animación **no** suelta el layer |
+| `cancelExit()` | Sólo `play` cancela la salida — volver al aire antes de que acabe la animación **no** suelta el layer. `next` / `goto` durante una salida se ignoran |
 
-⚠ El respaldo de 5 s existe porque **sin marcador `stop` el evento `complete` no llega
-nunca**. Es una red para un gráfico roto, no un plazo para uno que funciona.
+⚠ **Los 5 s de `EXIT_FALLBACK_MS` son contrato con los controladores.** Un controlador
+puede asumir que un gráfico que cumple el contrato suelta el layer, como mucho, 5 s después
+de que su salida empieza, y de ahí saca su margen tras una salida. Por eso:
+
+- **La salida dura ≤ 4,5 s** (`dr / fr` del marker `stop` y de cada `stop` custom). Una más
+  larga la corta el respaldo y al aire se ve el corte. Sin marker `stop`, o con `dr: 0`, no
+  hay animación de salida (con `dr: 0` el layer se suelta al instante, corte incluido).
+- **Cambiar `EXIT_FALLBACK_MS` es cambiar el contrato con todos los controladores.**
+
+Los 5 s cuentan desde que la salida corre: un `stop` que llega con el gráfico todavía
+cargando espera la carga y entonces tiene sus 5 s. El respaldo es además la red de un
+gráfico roto: si el JSON no carga no hay animación que termine, y sin él el layer no se
+soltaría nunca.
 
 ⚠ **`remove` es nombre global reservado.** Un gráfico que declare su propia
 `function remove()` pisa la que inyecta CasparCG: deja de soltarse el layer **y** se rompe
@@ -121,6 +132,12 @@ El `CG UPDATE` desde CasparCG (evento `data`) dispara el reemplazo. Convenciones
 | **Color** | key contiene `"color"` (case-insensitive) | `style.fill` del CSS `.{key}` |
 | **Opacidad** | key contiene `"opacidad"` (case-insensitive) | `style.opacity` del CSS `.{key}` |
 | **Imagen** | capa con `refId` que incluya `"image"` | reemplaza `href` del `<image>` SVG; si la ruta no carga, queda vacía (sin el ícono de imagen rota) |
+
+Las keys de color y de opacidad son sólo CSS: una capa de imagen o de texto con clase `*_opacidad`
+se prende y se apaga sin que cambie su imagen ni su texto.
+
+Un número en el data (un payload JSON) se pinta como texto: un `0` en carreras u outs sale `0`, no
+vacío. Lo que no es texto ni número (`null`, un booleano) deja la capa vacía.
 
 Ejemplo:
 

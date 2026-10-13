@@ -85,8 +85,16 @@ altura supera `H`, baja `finalSize` en 1 y vuelve a probar, hasta que entra en u
 - **Sólo encoge si alguien llama a `canResizeFont(true)`.** `index.js` lo hace; otro
   reproductor o un render estático (`lottie_render` del editor) no: ahí un texto que no
   entra **parte en dos líneas** en vez de encoger.
-- **El ancho se mide con la fuente cargada** (`measureText`). Con la fuente embebida en el
-  JSON no hay carrera; con una fuente externa que tarda en cargar, la medida puede salir mal.
+- **El ancho se mide una vez por letra, y con la fuente que haya en ese momento.** Lottie
+  guarda el ancho y no lo vuelve a medir. Con una fuente externa (`origin: 0`, archivo
+  aparte, como la League Gothic de este repo) eso era una carrera: si la fuente no había
+  llegado, medía con la de reserva y el texto **partía en dos líneas** en vez de encoger.
+  `index.js` ya registra y **espera** las fuentes `origin: 0` y `3` antes de cargar la
+  animación (`cargarFuentes()`), con un tope de `FONT_WAIT_MS` (2,5 s) para que una carga
+  colgada no deje el gráfico sin salir. Lo que sigue pudiendo salir mal: una fuente que tarda
+  **más** que el tope, o que no existe (404) — en los dos casos se mide con la de reserva,
+  como antes, y queda un `[fuentes]` en la consola. Con la fuente embebida en el JSON
+  (`origin: 3`) no hay carrera.
 - **`H` sólo impide dos líneas al cuerpo del diseño.** Al encoger, el interlineado también se
   achica: con cuerpo `f`, dos líneas entran si `f × (lh / s + ascentDeLaFuente / 100) ≤ H`. Un
   texto muy largo puede quedar en dos líneas más chicas en vez de seguir encogiendo; cuanto más
