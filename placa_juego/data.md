@@ -23,10 +23,23 @@ so with nothing sent it goes on air as designed. The final version may change th
 
 **Teams:** `equipovisita` / `equipolocal` are the names written vertically along the left and right
 edges (box text: the eight league names keep the design size). The crests are images
-(`escudovisita` / `escudolocal`, 463 × 418 and 465 × 419 px), and each one is the whole half of the
-card: the team's color background, the watermark letters and the crest. Only Magallanes and
-Tiburones are in `images/`: another team needs its own half-card PNG from the designer, at that
-size, copied there first.
+(`escudovisita` / `escudolocal`), and each one is the whole half of the card: the team's color
+background, the watermark letters and the crest. The eight teams are in `images/`, named after the
+team in lowercase, and any of them works on either side:
+
+| Team | Path |
+|------|------|
+| Águilas del Zulia | `images/aguilas.png` |
+| Bravos de Margarita | `images/bravos.png` |
+| Cardenales de Lara | `images/cardenales.png` |
+| Caribes de Anzoátegui | `images/caribes.png` |
+| Leones del Caracas | `images/leones.png` |
+| Navegantes del Magallanes | `images/magallanes.png` |
+| Tiburones de La Guaira | `images/tiburones.png` |
+| Tigres de Aragua | `images/tigres.png` |
+
+`images/img_1.png` (Magallanes) and `images/img_0.png` (Tiburones), the paths of v0.0.17, still
+work: they are copies.
 
 **Placement:** centered, almost the full screen (x 331–1585, y 143–820). It is a standalone card:
 nothing else goes on air with it.
@@ -38,8 +51,8 @@ nothing else goes on air with it.
   "estadio": "ESTADIO UNIVERSITARIO -UCV, CARACAS",
   "liga": "LIGA VENEZOLANA DE BEISBOL PROFESIONAL",
   "titulo": "JUEGO DE HOY",
-  "escudovisita": "images/img_1.png",
-  "escudolocal": "images/img_0.png"
+  "escudovisita": "images/magallanes.png",
+  "escudolocal": "images/tiburones.png"
 }
 ```
 
@@ -71,8 +84,8 @@ text in the width of the card; longer overflows it.
 
 | Class | Ref ID | Size | Default |
 |-------|--------|------|---------|
-| `escudovisita` | `image_1` | 463 × 418 px | `images/img_1.png` (Magallanes) |
-| `escudolocal` | `image_0` | 465 × 419 px | `images/img_0.png` (Tiburones) |
+| `escudovisita` | `image_1` | 463 × 418 px | `images/magallanes.png` |
+| `escudolocal` | `image_0` | 465 × 419 px | `images/tiburones.png` |
 | `logomeridiano` | `image_2` | 2000 × 1282 px | `images/img_2.png` (Meridiano's logo, only during the entry, frames 31–37; no need to send it) |
 
 ## Markers

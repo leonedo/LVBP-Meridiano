@@ -20,16 +20,16 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `parcial/` | Score de fin de inning: escudos, C H E de los dos equipos, inning con su flecha, los tres bateadores del próximo inning y la publicidad (`publicidad`, una imagen). Abajo al centro, a la izquierda del score | stage `play` pause (0–32) | `salida`: la entrada al revés (1,1 s) |
 | `prevenido/` | El bateador en el círculo: una fila (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). El mismo armado que `3enlinea`, en el mismo lugar | stage `play` pause (0–48) | `salida`: la entrada al revés (1,6 s) |
 | `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
-| `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` sólo están esos dos: los otros seis los tiene que mandar el diseñador | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
+| `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
 los 56 cruces `visita_vs_local`, igual que en `parcial` y `final`; `3enlinea` y `prevenido` no tienen equipos: `<gráfico>_publicidad.png` muestra la
 publicidad vacía, con logos de distintas proporciones y con una ruta que no carga; `placa_juego`
-tiene los dos del diseño, y sólo la pantalla completa). Son de v0.0.7
+muestra los ocho de visita y de local, en cruces de a uno). Son de v0.0.7
 (las de `ofensiva`, de v0.0.9; las de `defensiva_lateral` y `3enlinea`, del 2026-10-06; las de
-`parcial` y `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; la de `placa_juego`, del
-2026-10-13): si un
+`parcial` y `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
+2026-10-14): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -117,9 +117,17 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   `CHE` a `innings`/`carrerashitserrores`. El rótulo `juegoperdido` llegó `JP:H:`: la `H:` partía
   a una segunda línea debajo de la barra, queda `JP:`. En `placa_juego` (el zip es `placa de
   juego`), todo llega sin clase: `NAVEGANTES DEL MAGALLANES 2`/`TIBURONES DE LA GUAIRA` a
-  `equipovisita`/`equipolocal`, `MAGALLANES.png`/`TIBURONES.png` a `escudovisita`/`escudolocal`,
-  `juego de hoy` a `titulo`, y la liga, el estadio y el `vs` a `liga`/`estadio`/`vs`. El logo llega
-  en dos capas: queda una sola (ver *Capas ocultas*).
+  `equipovisita`/`equipolocal`, `MAGALLANES.png`/`TIBURONES.png` a `escudovisita`/`escudolocal`
+  (con los assets de `img_1`/`img_0` a `magallanes.png`/`tiburones.png`), `juego de hoy` a
+  `titulo`, y la liga, el estadio y el `vs` a `liga`/`estadio`/`vs`. El logo llega en dos capas:
+  queda una sola (ver *Capas ocultas*).
+- **Escudos de la placa:** el diseñador los manda aparte, un PNG por equipo (`AGUILAS.png`…, ~880
+  × 795), con el mismo encuadre pero cada uno con su borde de 1 a 5 px transparente o a medias, y
+  alguna raya suelta. Los mates de las dos mitades (`Shape Layer 1` y `2`) llegaban más grandes que
+  la imagen, así que ese borde hacía de marco: disparejo (de 1,5 a 6 px) y distinto con cada equipo.
+  `herramientas/mediaplaca.py` deja el área opaca de cada uno, a 872 × 787 y sin alfa (y las copias
+  `img_0`/`img_1`), y `mitades()` en `prep.js` achica los mates a la caja menos un marco de 4 px y
+  una línea de 2 px en el centro, como en el video del diseñador. Se ve igual con todos los equipos.
 - **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
   naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
   copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
@@ -198,6 +206,7 @@ en la raíz del repo (`python3 -m http.server 5510`) y el Playwright del Lottie 
 | Script | Para qué |
 |---|---|
 | `prep.js` | La receta de arriba, ejecutable: prepara los exports del diseñador. Instrucciones en su encabezado |
+| `mediaplaca.py` | Los escudos de `placa_juego` (ver *Escudos de la placa*): `python3 herramientas/mediaplaca.py <carpeta con los PNG> placa_juego/images`. Necesita ImageMagick |
 | `shot.mjs` | Frames de un gráfico con data: `node herramientas/shot.mjs <url> <salida> '<json>' <frames> [x,y,w,h]`; `JSON=<archivo>` sirve otro data.json para comparar versiones |
 | `matrix.mjs` | Muchas variantes de data en una carga (todos los equipos…), con reporte de textos y consola |
 | `onair.mjs` | Un flujo al aire (update, play, next, stop) con capturas en cada paso |

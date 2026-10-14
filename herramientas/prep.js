@@ -11,7 +11,8 @@
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
 //   4. git diff, herramientas/lint.py y QA con el runtime real (CLAUDE.md).
-// Las fuentes, las imágenes y los index.html no los toca: se copian a mano la primera vez.
+// Las fuentes, las imágenes y los index.html no los toca: se copian a mano la primera vez. Los
+// escudos de la placa de juego llegan aparte y los prepara herramientas/mediaplaca.py.
 const fs = require('fs');
 const path = require('path');
 
@@ -609,6 +610,54 @@ if (hay('score final')) {
 // de ese día. El "VS" termina de asentarse en el 73; BASE Outlines tiene un keyframe en el 75 con
 // el mismo valor que el del 38, que no mueve nada.
 const ENTRADA_PLACA = 74;
+// Un punto de la capa en la pantalla, subiendo por los padres (transforms fijos, sin rotación).
+function aPantalla(d, capa, [x, y]) {
+    for (let l = capa; l; l = l.parent && d.layers.find(p => p.ind === l.parent)) {
+        const { p, a, s, r } = l.ks;
+        if (p.a || a.a || s.a || (r && (r.a || r.k))) throw new Error(`${l.nm}: transform animado`);
+        x = p.k[0] + (x - a.k[0]) * s.k[0] / 100;
+        y = p.k[1] + (y - a.k[1]) * s.k[1] / 100;
+    }
+    return [x, y];
+}
+// Las dos mitades. Cada escudo (media placa: fondo, marca de agua y escudo) tiene de mate un
+// rectángulo fijo (Shape Layer 1 y 2) más grande que la imagen, así que el borde lo hacía el PNG:
+// con el marco claro de la caja disparejo (de 1,5 a 5 px) y la línea del centro sólo donde el PNG
+// traía borde transparente, distinto con cada equipo. Los mates pasan a ser la caja menos un marco
+// parejo y la línea del centro, como en el video del diseñador. Los PNG van opacos y más grandes
+// que su mate (herramientas/mediaplaca.py).
+const MARCO_PLACA = 4, LINEA_PLACA = 2; // px de pantalla
+function mitades(d) {
+    const caja = layer(d, 'mask');
+    const g = caja.shapes.find(g => g.it.some(i => i.ty === 'fl'));
+    const sh = g.it.find(i => i.ty === 'sh').ks.k, tr = g.it.find(i => i.ty === 'tr');
+    if (tr.a.k.some(v => v) || tr.s.k.some(v => v !== 100)) throw new Error('placa: la caja no es la esperada');
+    const xs = sh.v.map(v => v[0] + tr.p.k[0]), ys = sh.v.map(v => v[1] + tr.p.k[1]);
+    const [x0, y0] = aPantalla(d, caja, [Math.min(...xs), Math.min(...ys)]);
+    const [x1, y1] = aPantalla(d, caja, [Math.max(...xs), Math.max(...ys)]);
+    const centro = (x0 + x1) / 2, arriba = y0 + MARCO_PLACA, abajo = y1 - MARCO_PLACA;
+    const zonas = {
+        escudovisita: [x0 + MARCO_PLACA, centro - LINEA_PLACA / 2],
+        escudolocal: [centro + LINEA_PLACA / 2, x1 - MARCO_PLACA]
+    };
+    for (const [cl, [izq, der]] of Object.entries(zonas)) {
+        const img = layer(d, '.' + cl), mate = d.layers[d.layers.indexOf(img) - 1];
+        const rc = mate.shapes[0].it.find(i => i.ty === 'rc'), t = mate.shapes[0].it.find(i => i.ty === 'tr');
+        const st = mate.shapes[0].it.find(i => i.ty === 'st');
+        if (!mate.td || img.tt !== 1 || mate.parent || img.parent || rc.p.k.some(v => v) || t.a.k.some(v => v)
+            || t.s.k.some(v => v !== 100) || (st && st.w.k) || aPantalla(d, mate, [0, 0]).some((v, i) => v !== mate.ks.p.k[i])) {
+            throw new Error(`placa: el mate de ${cl} no es el esperado`);
+        }
+        // La imagen donde termina de entrar: tiene que cubrir su mitad entera
+        const asset = d.assets.find(a => a.id === img.refId), sc = img.ks.s.k[0] / 100, [px, py] = img.ks.p.k.at(-1).s;
+        const ix = px - img.ks.a.k[0] * sc, iy = py - img.ks.a.k[1] * sc;
+        if (img.ks.s.a || ix > izq || ix + asset.w * sc < der || iy > arriba || iy + asset.h * sc < abajo) {
+            throw new Error(`placa: ${cl} no cubre su mitad`);
+        }
+        rc.s.k = [der - izq, abajo - arriba];
+        t.p.k = [(izq + der) / 2 - mate.ks.p.k[0], (arriba + abajo) / 2 - mate.ks.p.k[1]];
+    }
+}
 if (hay('placa de juego')) {
     const d = load(path.join(SRC, 'placa de juego/data.json'));
 
@@ -620,8 +669,13 @@ if (hay('placa de juego')) {
     };
     caja('NAVEGANTES DEL MAGALLANES 2');
     caja('TIBURONES DE LA GUAIRA');
-    rename(d, 'MAGALLANES.png', 'escudovisita');
-    rename(d, 'TIBURONES.png', 'escudolocal');
+    // Los escudos, en images/ con el nombre del equipo (los de LVBP-Stats): el export los trae como
+    // img_0/img_1. Esos dos quedan como copia, porque los manda el LVBP-Stats de v0.0.17.
+    for (const [nm, cl, archivo] of [['MAGALLANES.png', 'escudovisita', 'magallanes.png'], ['TIBURONES.png', 'escudolocal', 'tiburones.png']]) {
+        const { refId } = rename(d, nm, cl);
+        d.assets.find(a => a.id === refId).p = archivo;
+    }
+    mitades(d);
     rename(d, 'liga venezolana de beisbol profesional', 'liga');
     rename(d, 'estadio universitario -ucv, caracas', 'estadio');
     rename(d, 'vs', 'vs');
