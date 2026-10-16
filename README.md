@@ -234,8 +234,9 @@ Tags semver con [release.sh](release.sh):
 - `./release.sh minor` / `major`
 - `./release.sh patch pre` → pre-release
 
-Antes, `git fetch --tags`: `gh release create` crea el tag sólo en GitHub y `release.sh` calcula la
-versión con los tags locales.
+`release.sh` calcula la versión siguiente y pushea `main` a la rama `release/<versión>`; GitHub
+Actions ([.github/workflows/release.yml](.github/workflows/release.yml)) crea ahí el tag y el
+release, y borra la rama.
 
 Tasks de VSCode en `.vscode/tasks.json` cubren Mac y Windows (Git Bash).
 
@@ -243,7 +244,7 @@ Tasks de VSCode en `.vscode/tasks.json` cubren Mac y Windows (Git Bash).
 
 ## Qué entra al zip de un Release
 
-`release.sh` no arma el zip: taggea y llama `gh release create`. El **"Source code (zip)"** lo genera
+`release.sh` no arma el zip: el tag y el release los crea GitHub Actions. El **"Source code (zip)"** lo genera
 GitHub desde el tag, y ese zip es el artefacto de deploy que se descomprime en el server de playout.
 Lo único que controla su contenido es [.gitattributes](.gitattributes) con `export-ignore`.
 
@@ -253,7 +254,7 @@ Este repo es la plantilla base, así que su `.gitattributes` se hereda en todos 
 
 | Categoría | Rutas |
 |---|---|
-| Herramientas de desarrollo | `/release.sh`, `/.vscode`, `/.claude`, `/webcg-devtools.umd.js`, `/samples` |
+| Herramientas de desarrollo | `/release.sh`, `/.github`, `/.vscode`, `/.claude`, `/webcg-devtools.umd.js`, `/samples` |
 | Documentación | `*.md` — menos `/README.md`, que se queda |
 
 `webcg-devtools.umd.js` **sí está referenciado**, pero sólo por caminos de desarrollo: `index.html`
