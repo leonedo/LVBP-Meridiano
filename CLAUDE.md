@@ -500,29 +500,59 @@ Cada clip se dispara una vez al cruzar su `inframe`; todos los flags se resetean
 
 Cada `<gráfico>/index.html` carga `../webcg-devtools.umd.js` —una UI de control en el browser— cuando se abre en el puerto 5500, el de Live Server de VSCode, o en cualquier puerto con `?debug=true` en la URL (ej. `python3 -m http.server 5510` y `http://localhost:5510/lanzador/index.html?debug=true`). El panel acepta el payload en modo JSON. Sin panel, desde la consola: `play()`, `update('{"clave":"valor"}')`, `next()`, `stop()`.
 
+## Cómo llegan los cambios a `main`
+
+Por pull request (Leon, 2026-10-16). Cada sesión trabaja en una rama `claude/<tema>`, la pushea y
+abre un PR hacia `main`; lo mergea Leon en GitHub, o la sesión cuando Leon se lo pide (con
+*rebase*, para que `main` siga lineal: desde la nube, mergear un PR sí se puede). GitHub borra la
+rama al mergear (*Automatically delete head branches*, en Settings → General). No pushear directo
+a `main`. Para publicar, después del merge: volver a `main`, `git pull` y `release.sh` (ver
+*Releases*).
+
 ## Releases
 
-Tags semver gestionados con [release.sh](release.sh) + `gh release create`:
+Tags semver gestionados con [release.sh](release.sh):
 - `./release.sh` → patch estable
 - `./release.sh minor` / `major`
 - `./release.sh patch pre` → pre-release `vX.Y.Z-pre.N`
 
 Tasks de VSCode en [.vscode/tasks.json](.vscode/tasks.json) cubren Mac y Windows (Git Bash).
 
-**No correr `release.sh` sin pedir confirmación** — crea release público en GitHub.
+**No correr `release.sh` sin pedir confirmación** — crea un release público en GitHub.
 
-Antes de `release.sh`, `git fetch --tags`: `gh release create` crea el tag sólo en GitHub y
-`release.sh` calcula la versión con los tags locales, así que sin traerlos repite una que ya existe.
+`release.sh` trae los tags de GitHub (`git fetch --tags`, para no repetir una versión), calcula la
+siguiente y pushea `main` a la rama `release/<versión>`; exige estar en `main`, sin cambios sin
+commitear y con `main` igual a `origin/main`. GitHub Actions
+([.github/workflows/release.yml](.github/workflows/release.yml)) crea en ese commit el tag y el
+release (título el tag, notas generadas, pre-release si es `-pre.N`) y borra la rama, en unos
+segundos. Después `release.sh` espera a que el release aparezca (si hay `gh`). El workflow
+también corre con un tag `v*` pusheado a mano, y si el release ya existe no lo toca. Es el
+`release.sh` y el workflow de `HTML-templates` tal cual (2026-10-16).
+
+Va por una rama para poder publicar desde una sesión de Claude Code en la nube: su proxy de GitHub
+deja pushear ramas, pero rechaza pushear tags (`HTTP 403` en el `git push`) y crear releases
+(`Creating, editing, or deleting releases is not permitted for this session type`), y no deja leer
+la API de Actions ni GraphQL (`gh release view`): el release se comprueba por REST (`gh api
+repos/{owner}/{repo}/releases/tags/<versión>`), que sí pasa. Probado en LVBP-Venevision (v0.0.5,
+2026-10-16). Si el workflow falla, la rama `release/<versión>` queda en GitHub y el próximo
+`release.sh` no puede pushearla: ver la pestaña Actions y borrar la rama. El workflow (`/.github`)
+no entra al zip.
+
+Desde una sesión en la nube tampoco se pueden borrar ramas en GitHub (ni por `git push --delete` ni
+por la API): las ramas de trabajo las borra GitHub al mergear su PR (ver *Cómo llegan los cambios a
+`main`*), y las `release/<versión>`, el workflow. Una que llegó a `main` sin PR hay que borrarla a
+mano, en GitHub, *Branches*.
 
 ## Deploy: qué entra al zip del release
 
-El artefacto que se copia al server de playout es el **"Source code (zip)"** que GitHub genera del tag — `release.sh` no empaqueta nada, sólo taggea. Lo único que controla el contenido de ese zip es [.gitattributes](.gitattributes) con `export-ignore`. El porqué de cada línea, las cinco trampas del mecanismo y los ejemplos están en el README, sección "Qué entra al zip de un Release". Acá van las reglas de uso.
+El artefacto que se copia al server de playout es el **"Source code (zip)"** que GitHub genera del tag — `release.sh` no empaqueta nada: el tag y el release los crea el workflow (ver *Releases*). Lo único que controla el contenido de ese zip es [.gitattributes](.gitattributes) con `export-ignore`. El porqué de cada línea, las cinco trampas del mecanismo y los ejemplos están en el README, sección "Qué entra al zip de un Release". Acá van las reglas de uso.
 
 ### Este repo es la plantilla: el `.gitattributes` viaja a cada paquete derivado
 
-- El bloque genérico (`*.md` menos README, `/.vscode`, `/.claude`, `/release.sh`, `/webcg-devtools.umd.js`, `/samples`) es interno en **cualquier** repo de gráficos. No se toca ni acá ni en el derivado.
+- El bloque genérico (`*.md` menos README, `/.vscode`, `/.claude`, `/.github`, `/release.sh`, `/webcg-devtools.umd.js`, `/samples`) es interno en **cualquier** repo de gráficos. No se toca ni acá ni en el derivado.
 - Lo interno de UN proyecto va **sólo** en la sección marcada del final, y en el repo derivado — nunca subirlo al bloque genérico de la plantilla. Si dudás de si algo es genérico o específico, es específico.
 - Al arrancar un paquete nuevo desde esta plantilla, la única línea a revisar es `/samples`: si ese repo usa `samples/` para gráficos reales y no para ejemplos, hay que borrarla. Es la única del bloque genérico que puede morder.
+- Y en GitHub, en el repo nuevo (desde una sesión en la nube no se puede, lo hace Leon): Actions habilitadas (Settings → Actions → General), para que el workflow de release corra, y *Automatically delete head branches* prendido (Settings → General → Pull Requests), para que las ramas de los PR se borren al mergear.
 
 ### Antes de agregar una exclusión
 
