@@ -28,8 +28,9 @@ los 56 cruces `visita_vs_local`, igual que en `parcial` y `final`; `3enlinea` y 
 publicidad vacía, con logos de distintas proporciones y con una ruta que no carga; `placa_juego`
 muestra los ocho de visita y de local, en cruces de a uno). Son de v0.0.7
 (las de `ofensiva`, de v0.0.9; las de `defensiva_lateral` y `3enlinea`, del 2026-10-06; las de
-`parcial` y `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
-2026-10-14): si un
+`prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
+2026-10-14; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
+con la publicidad por defecto): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -67,7 +68,9 @@ el mismo ancho, y las de valor también, para que cualquier texto entre en cualq
 
 Publicidad: en `3enlinea`, `parcial` y `prevenido` el cuadro de la derecha es la capa de imagen
 `publicidad` (107 × 110, 217 × 168 y 81 × 65). El cliente manda la ruta del logo y entra entero, de cualquier proporción (ver *Reemplazo de
-imágenes*). Por defecto es `images/publicidad.png`, transparente: sin logo no sale nada. El
+imágenes*). Por defecto es `images/publicidad.png`, transparente: sin logo no sale nada. En
+`parcial` no: el default es Pepsi (`images/pepsi.png`, del tamaño exacto del cuadro; pedido de
+Leon, 2026-10-21), y su `publicidad.png` transparente queda en la carpeta sin usar. El
 diseñador la mandó primero como un rectángulo verde de forma y después como un PNG verde: si otro
 gráfico con Gatorade llega con el rectángulo, se puede convertir en `prep.js` en una capa de imagen
 como esta, sin pedírselo.
