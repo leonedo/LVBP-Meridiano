@@ -347,10 +347,10 @@ if (hay('ofensiva')) {
 // La publicidad llega como un PNG verde de relleno. En el repo va images/publicidad.png,
 // transparente y del mismo tamaño: si el cliente no manda logo no sale nada, y el verde del export
 // no se usa aunque alguien copie su images/. pr meet: Lottie por defecto recorta (slice) una
-// imagen de otra proporción; así el logo entra entero y centrado.
-function publicidad(d, nm) {
+// imagen de otra proporción; así el logo entra entero y centrado. p: otro default (parcial, Pepsi).
+function publicidad(d, nm, p = 'publicidad.png') {
     const l = rename(d, nm, 'publicidad');
-    Object.assign(d.assets.find(a => a.id === l.refId), { p: 'publicidad.png', pr: 'xMidYMid meet' });
+    Object.assign(d.assets.find(a => a.id === l.refId), { p, pr: 'xMidYMid meet' });
 }
 
 // ---------------------------------------------------------------- 3 en línea
@@ -434,7 +434,7 @@ if (hay('score parcial')) {
         rename(d, nm, `jugador${i + 1}`).t.d.k[0].s.sz[0] = 191;
     });
     rename(d, '.3enlineaproxinning', 'titulo_jugadores');
-    publicidad(d, 'PUBLICIDAD PARCIAL.png'); // 217×168
+    publicidad(d, 'PUBLICIDAD PARCIAL.png', 'pepsi.png'); // 217×168; por defecto sale Pepsi
 
     d.markers = [
         { tm: 0, cm: 'play', dr: ENTRADA_PAR, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },

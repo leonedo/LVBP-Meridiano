@@ -39,8 +39,9 @@ size. A full name shrinks to fit (`EDUARDO RODRÍGUEZ`, 17 characters, goes abou
 **Sponsor (`publicidad`):** the box on the right of the panel, 217 × 168 px. Send the path to the
 sponsor's logo: relative to this graphic's folder (`images/gatorade.png` is
 `parcial/images/gatorade.png`, so the file has to be there) or a full URL. A logo of any proportion
-fits whole, centered in the box. By default the box is empty (`images/publicidad.png` is
-transparent): if you send nothing, no logo shows. Send `""` to take the logo off.
+fits whole, centered in the box. By default it shows Pepsi (`images/pepsi.png`, the exact size of
+the box): if you send nothing, Pepsi shows. Send `""` to take the logo off, and
+`images/pepsi.png` to put Pepsi back after another logo.
 
 **Placement:** bottom center of the screen. Its right edge ends 1 px before the score's column:
 on air together they sit side by side without overlapping (in the designer's video it goes on air
@@ -137,7 +138,7 @@ changes both. `titulo_jugadores` sits in a red bar shorter than an accented capi
 
 | Class | Ref ID | Size | Default |
 |-------|--------|------|---------|
-| `publicidad` | `image_0` | 217 × 168 px | `images/publicidad.png` (transparent) |
+| `publicidad` | `image_0` | 217 × 168 px | `images/pepsi.png` |
 
 ## Markers
 
