@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Doce gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Trece gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -21,16 +21,20 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `prevenido/` | El bateador en el círculo: una fila (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). El mismo armado que `3enlinea`, en el mismo lugar | stage `play` pause (0–48) | `salida`: la entrada al revés (1,6 s) |
 | `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
 | `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
+| `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), la barra de los nombres y abajo la tabla de 5 estadísticas (visita a la izquierda, local a la derecha). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
 los 56 cruces `visita_vs_local`, igual que en `parcial` y `final`; `3enlinea` y `prevenido` no tienen equipos: `<gráfico>_publicidad.png` muestra la
 publicidad vacía, con logos de distintas proporciones y con una ruta que no carga; `placa_juego`
-muestra los ocho de visita y de local, en cruces de a uno). Son de v0.0.7
-(las de `ofensiva`, de v0.0.9; las de `defensiva_lateral` y `3enlinea`, del 2026-10-06; las de
+y `duelo_lanzadores` muestran los ocho de visita y de local, en cruces de a uno). Son de v0.0.7
+(las de `ofensiva`, de v0.0.9; las de `defensiva_lateral`, del 2026-10-06; las de `3enlinea`,
+`3enlinea_publicidad.png` del 2026-10-06 y `3enlinea.png` del 2026-10-24, con la publicidad por
+defecto; las de
 `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
 2026-10-14; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
-con la publicidad por defecto): si un
+con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
+`duelo_lanzadores.png`): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -58,19 +62,31 @@ Escudos: en las dos defensivas, `ofensiva`, `lanzador` y las dos barras de batea
 que no van. `parcial` usa a propósito las mismas claves que `score` (escudos, `inning`, flechas y
 carreras), y arranca igual: el controlador puede mandarle la misma data. `final`, las de `parcial`
 (escudos, carreras, hits y errores), y las carreras de cada inning en el mismo estilo
-(`INNINGVISITA1–9`, `INNINGLOCAL1–9`).
+(`INNINGVISITA1–9`, `INNINGLOCAL1–9`). En `placa_juego` y `duelo_lanzadores` son imágenes
+(`escudovisita`/`escudolocal`, la media placa de cada equipo) y los dos gráficos traen los mismos
+ocho PNG en su `images/`.
 
 Estadísticas: en `lanzador` y `bateador` los casilleros son genéricos, `etiquetaN` (rótulo) y
 `valorN` (número), para poner cualquier estadística en cualquiera. Todas las cajas de rótulo tienen
 el mismo ancho, y las de valor también, para que cualquier texto entre en cualquier casillero. En
 `ofensiva` y `3enlinea`, `valorN` es la columna sin rótulo de cada fila, y en `prevenido`, `valor`
-(el diseño muestra el average).
+(el diseño muestra el average). En `duelo_lanzadores`, cada fila es `etiquetaN` (la columna del
+centro) y los valores de los dos lanzadores, `valorvisitaN` y `valorlocalN`.
+
+Fotos: en `duelo_lanzadores`, `fotolanzadorvisita`/`fotolanzadorlocal`, delante de la media placa
+de su equipo. Las dos capas comparten el asset (600 × 436, `pr` `xMidYMax meet`): una foto de
+cualquier proporción entra entera, centrada en su mitad y apoyada en la barra de los nombres. Por
+defecto es `images/foto.png`, transparente: sin foto queda el escudo solo. La del diseño (un recorte
+sin fondo, un jugador con gorra de Cleveland) queda en `images/foto_ejemplo.png` para probar.
 
 Publicidad: en `3enlinea`, `parcial` y `prevenido` el cuadro de la derecha es la capa de imagen
 `publicidad` (107 × 110, 217 × 168 y 81 × 65). El cliente manda la ruta del logo y entra entero, de cualquier proporción (ver *Reemplazo de
-imágenes*). Por defecto es `images/publicidad.png`, transparente: sin logo no sale nada. En
-`parcial` no: el default es Pepsi (`images/pepsi.png`, del tamaño exacto del cuadro; pedido de
-Leon, 2026-10-21), y su `publicidad.png` transparente queda en la carpeta sin usar. El
+imágenes*). En `prevenido`, por defecto es `images/publicidad.png`, transparente: sin logo no sale
+nada. En `parcial` y `3enlinea` sale un logo: Pepsi en `parcial` (`images/pepsi.png`; pedido de
+Leon, 2026-10-21) y Speed Stick en `3enlinea` (`images/speedstick.png`, 2026-10-24, de la imagen que
+mandó Leon, de 106 × 112: llevada a 107 × 110 sin deformarla, recortando 1,5 px arriba y abajo del
+fondo azul), los dos del tamaño exacto del cuadro; la `publicidad.png` transparente queda en la
+carpeta sin usar. El
 diseñador la mandó primero como un rectángulo verde de forma y después como un PNG verde: si otro
 gráfico con Gatorade llega con el rectángulo, se puede convertir en `prep.js` en una capa de imagen
 como esta, sin pedírselo.
@@ -123,7 +139,19 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   `equipovisita`/`equipolocal`, `MAGALLANES.png`/`TIBURONES.png` a `escudovisita`/`escudolocal`
   (con los assets de `img_1`/`img_0` a `magallanes.png`/`tiburones.png`), `juego de hoy` a
   `titulo`, y la liga, el estadio y el `vs` a `liga`/`estadio`/`vs`. El logo llega en dos capas:
-  queda una sola (ver *Capas ocultas*).
+  queda una sola (ver *Capas ocultas*). En `duelo_lanzadores` (el zip es `duelo de lanzadores`),
+  lo de la placa (`el duelo` a `titulo`, `vs`, el logo y `MAGALLANES.png`/`TIBURONES.png` a
+  `escudovisita`/`escudolocal` con los PNG de la placa); las fotos y los nombres llegan con clases
+  que sirven (`fotolanzadorvisita`/`local`, `lanzadorvisita`/`local`) y quedan; las estadísticas,
+  de arriba abajo, a `etiqueta1–5` (`ganadosyperdidos`, `ponches`, `basexbolas`, `whip`,
+  `efectividad`) y `valorvisita1–5`/`valorlocal1–5` (`recordvisitante`/`recordlocal`,
+  `ponchesvisitante`, `basesxbolasvisita`…).
+- **Mate corrido:** en `duelo_lanzadores` la tabla (`BASE Outlines 3`, el panel que baja con las
+  estadísticas) llegó entre el fondo oscuro de la caja (`BASE Outlines`, con `tt`) y su mate
+  (`BASE Outlines 2`). Lottie toma de mate la capa de arriba: el fondo se recortaba con la tabla,
+  que no existe hasta el 44, y la caja quedaba vacía (se veía el fondo de la pantalla entre el
+  título y los escudos). `prep.js` sube la tabla arriba del mate; lo que se ve queda en el mismo
+  orden. Pista: un `td` sin `tt` debajo y un `tt` sin `td` arriba (el lint lo marca).
 - **Escudos de la placa:** el diseñador los manda aparte, un PNG por equipo (`AGUILAS.png`…, ~880
   × 795), con el mismo encuadre pero cada uno con su borde de 1 a 5 px transparente o a medias, y
   alguna raya suelta. Los mates de las dos mitades (`Shape Layer 1` y `2`) llegaban más grandes que
@@ -162,13 +190,15 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   diseñador): `enLaCaja()` en `prep.js` les pone una copia de `mask`, el área fija del panel que
   ya recorta la base roja. El otro logo (`ind` 20) tenía de matte al primero, que no existe hasta
   el frame 31: no se veía nunca, y sale. Pista para reconocerlo: un `ind` salteado justo arriba
-  de una capa que se ve donde no debería.
+  de una capa que se ve donde no debería. En `duelo_lanzadores`, lo mismo con los `ind` 55 y 58
+  (el logo y EL DUELO): `unLogo()` y `enLaCaja()`.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
   arriba. Si cambia la duración de la entrada, `play` y `salida` van al último keyframe real, no
   al `start` del diseñador. `prevenido` llegó sin markers y con la comp de 32 s: queda en 90 frames
   como los demás. En `placa_juego` la entrada termina en el 73 (el VS); el aviso de `prep.js` por
   el 75 es falso: `BASE Outlines` repite ahí el valor del 38 y no mueve nada (73, 74 y 75 dan
-  los mismos píxeles).
+  los mismos píxeles). En `duelo_lanzadores` la entrada termina en el 74 (el tinte de los
+  escudos), y el aviso por el 75 es el mismo falso.
 - **Textos de caja propios** ([textos-de-caja.md](textos-de-caja.md)): en `lanzador`,
   `informacionbarranegra` (centrada en la barra), el ancho de `nombrelanzador` (222, no 230) y las
   cajas de estadísticas igualadas (rótulos 71.75, valores 87.5); en las dos barras de bateador,
@@ -181,7 +211,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   se salía de la pestaña por la izquierda); en `final`, los números (innings y C H E) centrados en
   su columna sobre el eje del `20` del diseño (llegaban a la izquierda), `ultimoinning` con `lh` 1.2
   (traía 0.01) y `titulo` alineado a la izquierda (tapaba el ►); en `placa_juego`, los nombres de
-  los equipos con las cajas del export y `lh` 1.2 del cuerpo (traían 0.01). Los anchos de nombre dejan el mismo aire a los dos lados.
+  los equipos con las cajas del export y `lh` 1.2 del cuerpo (traían 0.01); en `duelo_lanzadores`,
+  los nombres y los valores con las cajas del export, y los rótulos (de punto) a cajas de 228, 10
+  px de aire a cada lado en la columna del centro. Los anchos de nombre dejan el mismo aire a los dos lados.
 - **`defensiva_lateral`** no está en `prep.js`: es el export del 2026-09-26 ya preparado
   (`git show 0fd3d66:defensiva/`), con el All Caps prendido y `play`/`salida` en el 78 (ahí termina
   la entrada; el export la pausaba en el 90). Si el diseñador la vuelve a exportar, es la receta
@@ -209,7 +241,7 @@ en la raíz del repo (`python3 -m http.server 5510`) y el Playwright del Lottie 
 | Script | Para qué |
 |---|---|
 | `prep.js` | La receta de arriba, ejecutable: prepara los exports del diseñador. Instrucciones en su encabezado |
-| `mediaplaca.py` | Los escudos de `placa_juego` (ver *Escudos de la placa*): `python3 herramientas/mediaplaca.py <carpeta con los PNG> placa_juego/images`. Necesita ImageMagick |
+| `mediaplaca.py` | Los escudos de `placa_juego` (ver *Escudos de la placa*): `python3 herramientas/mediaplaca.py <carpeta con los PNG> placa_juego/images`, y los ocho `<equipo>.png` se copian a `duelo_lanzadores/images` (las copias `img_*` no). Necesita ImageMagick |
 | `shot.mjs` | Frames de un gráfico con data: `node herramientas/shot.mjs <url> <salida> '<json>' <frames> [x,y,w,h]`; `JSON=<archivo>` sirve otro data.json para comparar versiones |
 | `matrix.mjs` | Muchas variantes de data en una carga (todos los equipos…), con reporte de textos y consola |
 | `onair.mjs` | Un flujo al aire (update, play, next, stop) con capturas en cada paso |

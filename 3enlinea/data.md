@@ -28,8 +28,9 @@ size: the row fits about 25 characters before a name starts to shrink.
 the sponsor's logo: relative to this graphic's folder (`images/gatorade.png` is
 `3enlinea/images/gatorade.png`, so the file has to be there) or a full URL. A logo of any
 proportion fits whole, centered in the square; a PNG with a transparent background at that size
-or double (214 × 220) fills it. By default the square is empty (`images/publicidad.png` is
-transparent): if you send nothing, no logo shows. Send `""` to take the logo off.
+or double (214 × 220) fills it. By default it shows Speed Stick (`images/speedstick.png`, the
+exact size of the square): if you send nothing, Speed Stick shows. Send `""` to take the logo off,
+and `images/speedstick.png` to put Speed Stick back after another logo.
 
 **Placement:** right above the score, in the same column, as in the designer's video. `ofensiva`
 uses that same place, so they don't go on air together.
@@ -82,7 +83,7 @@ The three rows have different defaults in the design: `ANDREW MONASTERIOS`, `MAR
 
 | Class | Ref ID | Size | Default |
 |-------|--------|------|---------|
-| `publicidad` | `image_0` | 107 × 110 px | `images/publicidad.png` (transparent) |
+| `publicidad` | `image_0` | 107 × 110 px | `images/speedstick.png` |
 
 ## Markers
 

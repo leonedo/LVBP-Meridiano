@@ -168,3 +168,10 @@ izquierdo de su columna. Pasaron a `j: 2` con la variante del texto centrado a o
 (`ps[0] += (Lw − W) / 2`, `Lw` 37.759 del `20` a 53.1): idéntico en 3 frames, y cualquier número se
 centra en el eje del `20`. `ultimoinning`, de caja con `lh` 0.01, pasó a 1.2 del cuerpo. Los nombres,
 con la caja del diseñador: con inicial y apellido entran al tamaño del diseño (37.1).
+
+`LVBP-Meridiano/duelo_lanzadores` (2026-10-24): los cinco rótulos de la columna del centro (`etiquetaN`,
+de punto y centrados) pasaron a cajas de `W` 228, que deja 10 px a cada lado en la columna (254 px);
+idéntico en 6 frames (56 a 90). Entran unos 12 caracteres al tamaño del diseño (55): `INNINGS
+LANZADOS` baja a 43 y `JUEGOS GANADOS-PERDIDOS`, a 30. Los nombres y los valores, con las cajas del
+diseñador: un nombre entra hasta unos 21 caracteres (`FRANCISCO RODRÍGUEZ HERNÁNDEZ` baja a 40) y un
+valor hasta unos 6.
