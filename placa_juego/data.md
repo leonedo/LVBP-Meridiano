@@ -78,7 +78,7 @@ text in the width of the card; longer overflows it.
 | `estadio` | ESTADIO UNIVERSITARIO -UCV, CARACAS (the red bar below the card) |
 | `equipovisita` | NAVEGANTES DEL MAGALLANES (vertical, left edge) |
 | `equipolocal` | TIBURONES DE LA GUAIRA (vertical, right edge) |
-| `vs` | VS (between the crests; no need to send it) |
+| `vs` | VS (in a small red box between the crests; no need to send it) |
 
 ## Image layers
 
