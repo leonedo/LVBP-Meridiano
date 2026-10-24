@@ -5,8 +5,8 @@
 // Uso, desde la raíz del repo:
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
-//      "3 en linea"/, "score parcial"/, prevenido/, "score final"/, "placa de juego"/. Los que no
-//      estén se saltean: alcanza con el zip que llegó.
+//      "3 en linea"/, "score parcial"/, prevenido/, "score final"/, "placa de juego"/,
+//      "duelo de lanzadores"/. Los que no estén se saltean: alcanza con el zip que llegó.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -347,7 +347,8 @@ if (hay('ofensiva')) {
 // La publicidad llega como un PNG verde de relleno. En el repo va images/publicidad.png,
 // transparente y del mismo tamaño: si el cliente no manda logo no sale nada, y el verde del export
 // no se usa aunque alguien copie su images/. pr meet: Lottie por defecto recorta (slice) una
-// imagen de otra proporción; así el logo entra entero y centrado. p: otro default (parcial, Pepsi).
+// imagen de otra proporción; así el logo entra entero y centrado. p: otro default (3 en línea, Speed
+// Stick; parcial, Pepsi).
 function publicidad(d, nm, p = 'publicidad.png') {
     const l = rename(d, nm, 'publicidad');
     Object.assign(d.assets.find(a => a.id === l.refId), { p, pr: 'xMidYMid meet' });
@@ -371,7 +372,7 @@ if (hay('3 en linea')) {
         }
     }
 
-    publicidad(d, 'PUBLICIDAD 3 EN LINEA.png'); // 107×110
+    publicidad(d, 'PUBLICIDAD 3 EN LINEA.png', 'speedstick.png'); // 107×110; por defecto sale Speed Stick
 
     // El texto de la versión del video (los tres nombres y sus averages en una sola capa, con la
     // clase inválida "300 256 167") quedó en la comp tapado por su máscara: no se ve. Sale con ella.
@@ -611,14 +612,51 @@ if (hay('score final')) {
 // el mismo valor que el del 38, que no mueve nada.
 const ENTRADA_PLACA = 74;
 // Un punto de la capa en la pantalla, subiendo por los padres (transforms fijos, sin rotación).
-function aPantalla(d, capa, [x, y]) {
+// alFinal: los transforms animados valen lo del último keyframe (donde termina la entrada).
+function aPantalla(d, capa, [x, y], alFinal = false) {
     for (let l = capa; l; l = l.parent && d.layers.find(p => p.ind === l.parent)) {
         const { p, a, s, r } = l.ks;
-        if (p.a || a.a || s.a || (r && (r.a || r.k))) throw new Error(`${l.nm}: transform animado`);
-        x = p.k[0] + (x - a.k[0]) * s.k[0] / 100;
-        y = p.k[1] + (y - a.k[1]) * s.k[1] / 100;
+        if ((!alFinal && (p.a || a.a || s.a)) || (r && (r.a || r.k))) throw new Error(`${l.nm}: transform animado`);
+        const [P, A, S] = [p, a, s].map(v => v.a ? v.k.at(-1).s : v.k);
+        x = P[0] + (x - A[0]) * S[0] / 100;
+        y = P[1] + (y - A[1]) * S[1] / 100;
     }
     return [x, y];
+}
+// Una capa recortada por la caja: de mate, una copia de `mask`, el área fija del panel (la que ya
+// recorta la base roja). Para las que perdieron el mate porque en AE era una capa oculta.
+function enLaCaja(d, capa, ind) {
+    const area = Object.assign(clone(layer(d, 'mask')), { nm: `mask ${capa.cl}`, ind: freeInd(d, ind), ip: capa.ip, op: capa.op, td: 1 });
+    d.layers.splice(d.layers.indexOf(capa), 0, area);
+    capa.tt = 1;
+}
+// El logo de Meridiano llega en dos capas (clase png). El que sube con la base (0–32) tiene de matte
+// al otro, que no existe hasta el 31: no se ve nunca. Y con el otro mateado sería un mate anidado,
+// que Lottie no dibuja. Sale. El que queda entra a la caja, sube y sale por arriba (36–40): sin su
+// matte (oculto en AE: ind vacío justo arriba) quedaba cortado contra el borde de la pantalla
+// durante toda la pausa.
+function unLogo(d, nombre, ind) {
+    const logos = d.layers.filter(l => l.nm === '2024-Logo-MeridianoTV-original (6).png');
+    const [logo, logoBase] = logos;
+    if (logos.length !== 2 || logo.ind !== ind + 1 || !logoBase.tt || d.layers[d.layers.indexOf(logoBase) - 1] !== logo) {
+        throw new Error(`${nombre}: los logos de Meridiano no son los esperados`);
+    }
+    d.layers = d.layers.filter(l => l !== logoBase);
+    Object.assign(logo, { nm: '.logomeridiano', cl: 'logomeridiano' });
+    enLaCaja(d, logo, ind);
+}
+// El rectángulo (rc) de una capa de forma con un solo grupo, en la pantalla: [x0, y0, x1, y1]
+function rectDeForma(capa) {
+    const g = capa.shapes[0], rc = g.it.find(i => i.ty === 'rc'), tr = g.it.find(i => i.ty === 'tr');
+    if (capa.shapes.length !== 1 || !rc || rc.p.a || rc.s.a || tr.a.k.some(v => v) || tr.s.k.some(v => v !== 100)) {
+        throw new Error(`${capa.nm}: rectángulo inesperado`);
+    }
+    return { rc, tr };
+}
+function rectEnPantalla(d, capa) {
+    const { rc, tr } = rectDeForma(capa);
+    const [cx, cy] = [tr.p.k[0] + rc.p.k[0], tr.p.k[1] + rc.p.k[1]], [w, h] = rc.s.k;
+    return [...aPantalla(d, capa, [cx - w / 2, cy - h / 2]), ...aPantalla(d, capa, [cx + w / 2, cy + h / 2])];
 }
 // Las dos mitades. Cada escudo (media placa: fondo, marca de agua y escudo) tiene de mate un
 // rectángulo fijo (Shape Layer 1 y 2) más grande que la imagen, así que el borde lo hacía el PNG:
@@ -627,14 +665,17 @@ function aPantalla(d, capa, [x, y]) {
 // parejo y la línea del centro, como en el video del diseñador. Los PNG van opacos y más grandes
 // que su mate (herramientas/mediaplaca.py).
 const MARCO_PLACA = 4, LINEA_PLACA = 2; // px de pantalla
-function mitades(d) {
+// La caja (`mask`, el área fija del panel) en la pantalla: [x0, y0, x1, y1]
+function cajaEnPantalla(d, nombre) {
     const caja = layer(d, 'mask');
     const g = caja.shapes.find(g => g.it.some(i => i.ty === 'fl'));
     const sh = g.it.find(i => i.ty === 'sh').ks.k, tr = g.it.find(i => i.ty === 'tr');
-    if (tr.a.k.some(v => v) || tr.s.k.some(v => v !== 100)) throw new Error('placa: la caja no es la esperada');
+    if (tr.a.k.some(v => v) || tr.s.k.some(v => v !== 100)) throw new Error(`${nombre}: la caja no es la esperada`);
     const xs = sh.v.map(v => v[0] + tr.p.k[0]), ys = sh.v.map(v => v[1] + tr.p.k[1]);
-    const [x0, y0] = aPantalla(d, caja, [Math.min(...xs), Math.min(...ys)]);
-    const [x1, y1] = aPantalla(d, caja, [Math.max(...xs), Math.max(...ys)]);
+    return [...aPantalla(d, caja, [Math.min(...xs), Math.min(...ys)]), ...aPantalla(d, caja, [Math.max(...xs), Math.max(...ys)])];
+}
+function mitades(d) {
+    const [x0, y0, x1, y1] = cajaEnPantalla(d, 'placa');
     const centro = (x0 + x1) / 2, arriba = y0 + MARCO_PLACA, abajo = y1 - MARCO_PLACA;
     const zonas = {
         escudovisita: [x0 + MARCO_PLACA, centro - LINEA_PLACA / 2],
@@ -683,27 +724,10 @@ if (hay('placa de juego')) {
     // Al logo de Meridiano y al JUEGO DE HOY les faltan los mattes: eran capas ocultas en AE, que no
     // se exportan (ind 18 y 21 vacíos). Van recortados por la caja, como la base roja (su matte
     // `mask` es el área fija del panel): confirmado con el video del diseñador.
-    const enLaCaja = (capa, ind) => {
-        const area = Object.assign(clone(layer(d, 'mask')), { nm: `mask ${capa.cl}`, ind: freeInd(d, ind), ip: capa.ip, op: capa.op, td: 1 });
-        d.layers.splice(d.layers.indexOf(capa), 0, area);
-        capa.tt = 1;
-    };
-    // El logo llega en dos capas (clase png). El que sube con la base blanca (0–32) tiene de matte al
-    // otro, que no existe hasta el 31: no se ve nunca. Y con el otro mateado sería un mate anidado,
-    // que Lottie no dibuja. Sale.
-    const logos = d.layers.filter(l => l.nm === '2024-Logo-MeridianoTV-original (6).png');
-    const [logo, logoBase] = logos;
-    if (logos.length !== 2 || logo.ind !== 19 || !logoBase.tt || d.layers[d.layers.indexOf(logoBase) - 1] !== logo) {
-        throw new Error('placa: los logos de Meridiano no son los esperados');
-    }
-    d.layers = d.layers.filter(l => l !== logoBase);
-    // El que queda entra a la caja, sube y sale por arriba (36–40): sin matte quedaba cortado contra
-    // el borde de la pantalla durante toda la pausa.
-    Object.assign(logo, { nm: '.logomeridiano', cl: 'logomeridiano' });
-    enLaCaja(logo, 18);
+    unLogo(d, 'placa', 18);
     // JUEGO DE HOY sube con su caja roja (10–38): la caja sale recortada por el borde de arriba y el
     // texto seguía de largo sobre el fondo (18–30).
-    enLaCaja(rename(d, 'juego de hoy', 'titulo'), 21);
+    enLaCaja(d, rename(d, 'juego de hoy', 'titulo'), 21);
 
     // El export trae start (0–30) y un stop del 90 al 121 sin animación.
     d.markers = [
@@ -716,5 +740,112 @@ if (hay('placa de juego')) {
     allCaps(d);
     avisarEntrada(d, 'placa de juego');
     save(path.join(REPO, 'placa_juego/data.json'), d);
+}
+
+// ---------------------------------------------------------------- duelo de lanzadores
+// Armado sobre la placa de juego (la caja, el título que sube, el logo y las medias placas de los
+// equipos), con la foto de cada lanzador delante de su escudo, la barra de los nombres y la tabla
+// de estadísticas que baja desde atrás de la caja. La entrada termina en el 74 (el tinte de los
+// escudos; el VS se asienta en el 73). El aviso por el 75 es falso, como en la placa: BASE Outlines
+// repite ahí el valor del 38 y no mueve nada.
+const ENTRADA_DUELO = 75;
+// Las fotos, cada una recortada por un rectángulo (Shape Layer 3 y 4) delante de su media placa. La
+// del diseño es un recorte sin fondo de 600 × 436, y las dos capas comparten el asset. Por defecto
+// va images/foto.png, transparente: sin foto queda el escudo solo. pr xMidYMax meet: una foto de
+// cualquier proporción entra entera, centrada y apoyada en la barra de los nombres (Lottie por
+// defecto recorta, y a un recorte vertical le cortaba la cabeza). La imagen se centra en su mitad:
+// el diseño la corrió a ojo para centrar ese recorte, que no está centrado en su PNG (con otra
+// foto quedaba 6–8 px a la derecha). Y el rectángulo termina en el borde de la caja: el de visita
+// se salía 4,5 px por la izquierda.
+function fotos(d) {
+    const [cx0, cy0, cx1, cy1] = cajaEnPantalla(d, 'duelo');
+    const refs = new Set();
+    for (const [cl, nmMate] of [['fotolanzadorvisita', 'Shape Layer 3'], ['fotolanzadorlocal', 'Shape Layer 4']]) {
+        const img = layer(d, '.' + cl), mate = d.layers[d.layers.indexOf(img) - 1];
+        const { p, a, s } = mate.ks, { rc, tr } = rectDeForma(mate);
+        if (mate.nm !== nmMate || !mate.td || img.tt !== 1 || mate.parent || p.a || a.a || s.a) throw new Error(`duelo: el mate de ${cl} no es el esperado`);
+        const [x0, y0, x1, y1] = rectEnPantalla(d, mate);
+        const r = [Math.max(x0, cx0), Math.max(y0, cy0), Math.min(x1, cx1), Math.min(y1, cy1)];
+        const local = (v, i) => a.k[i] + (v - p.k[i]) * 100 / s.k[i];
+        const [lx0, ly0, lx1, ly1] = r.map((v, i) => local(v, i % 2));
+        rc.s.k = [lx1 - lx0, ly1 - ly0];
+        tr.p.k = [(lx0 + lx1) / 2 - rc.p.k[0], (ly0 + ly1) / 2 - rc.p.k[1]];
+
+        const asset = d.assets.find(x => x.id === img.refId), ks = img.ks, sc = ks.s.k[0] / 100;
+        if (img.parent || ks.a.a || ks.s.a || ks.s.k[0] !== ks.s.k[1] || !ks.p.a || ks.p.k.some(k => k.s[0] !== ks.p.k[0].s[0])) {
+            throw new Error(`duelo: ${cl} no entra como se esperaba`);
+        }
+        ks.a.k[0] = asset.w / 2 - ((r[0] + r[2]) / 2 - ks.p.k[0].s[0]) / sc;
+        Object.assign(asset, { p: 'foto.png', pr: 'xMidYMax meet' });
+        refs.add(img.refId);
+    }
+    if (refs.size !== 1) throw new Error('duelo: las fotos ya no comparten el asset');
+}
+if (hay('duelo de lanzadores')) {
+    const d = load(path.join(SRC, 'duelo de lanzadores/data.json'));
+
+    // La tabla (BASE Outlines 3, el panel que baja con las estadísticas) quedó entre el fondo oscuro de
+    // la caja (BASE Outlines) y su mate (BASE Outlines 2). Lottie toma de mate la capa de arriba: el
+    // fondo se recortaba con la tabla, que no existe hasta el 44, y no se veía nunca. La tabla pasa
+    // arriba del mate: lo que se ve queda en el mismo orden.
+    const fondo = layer(d, 'BASE Outlines'), i = d.layers.indexOf(fondo);
+    const [mateFondo, tabla] = d.layers.slice(i - 2, i);
+    if (!fondo.tt || mateFondo.nm !== 'BASE Outlines 2' || !mateFondo.td || tabla.nm !== 'BASE Outlines 3' || tabla.td || tabla.tt) {
+        throw new Error('duelo: el fondo de la caja y su mate no son los esperados');
+    }
+    d.layers.splice(i - 2, 2, tabla, mateFondo);
+
+    // El logo y el título (EL DUELO), como en la placa de juego: les faltan los mattes (ind 55 y 58
+    // vacíos) y van recortados por la caja.
+    unLogo(d, 'duelo', 55);
+    enLaCaja(d, rename(d, 'el duelo', 'titulo'), 58);
+    rename(d, 'vs', 'vs');
+
+    // Los escudos son las medias placas de la placa de juego (fondo, marca de agua y escudo), con un
+    // tinte azul que las oscurece detrás de las fotos. Van con las mismas claves y los mismos PNG
+    // (images/<equipo>.png, de herramientas/mediaplaca.py). Acá los mates son más chicos que la
+    // imagen (9–11 px por lado): el borde del PNG no se ve y no hace falta lo de mitades().
+    for (const [nm, cl, archivo] of [['MAGALLANES.png', 'escudovisita', 'magallanes.png'], ['TIBURONES.png', 'escudolocal', 'tiburones.png']]) {
+        const img = rename(d, nm, cl), mate = d.layers[d.layers.indexOf(img) - 1];
+        const asset = d.assets.find(a => a.id === img.refId);
+        asset.p = archivo;
+        const [ix0, iy0] = aPantalla(d, img, [0, 0], true), [ix1, iy1] = aPantalla(d, img, [asset.w, asset.h], true);
+        const [mx0, my0, mx1, my1] = rectEnPantalla(d, mate);
+        if (!mate.td || img.tt !== 1 || ix0 > mx0 || iy0 > my0 || ix1 < mx1 || iy1 < my1) throw new Error(`duelo: ${cl} no cubre su mate`);
+    }
+    fotos(d);
+
+    // Las estadísticas, de arriba abajo (RECORD, K, BB, WHIP y ERA), con casilleros genéricos como en
+    // lanzador: etiquetaN, el rótulo de la columna del centro, y valorvisitaN / valorlocalN, los
+    // números de cada lado. Los valores ya llegan en cajas iguales (140.79, centradas en su lado).
+    // Los rótulos son de punto: pasan a caja (textos-de-caja.md), todos de 228, que deja 10 px a cada
+    // lado en la columna del centro (254 px, de 831.5 a 1085.5: RECORD y K están centrados en 961.45
+    // y los otros en 958.9). La capa se ve a escala 1.
+    const ETIQUETA = [228, 47];
+    [
+        ['ganadosyperdidos', 'recordvisitante', 'recordlocal'], ['ponches', 'ponchesvisitante', 'poncheslocal'],
+        ['basexbolas', 'basesxbolasvisita', 'basesxbolaslocal'], ['whip', 'whipvisita', 'whiplocal'],
+        ['efectividad', 'efectividadvisita', 'efectividadlocal']
+    ].forEach(([etiqueta, visita, local], n) => {
+        const l = rename(d, '.' + etiqueta, `etiqueta${n + 1}`), s = l.t.d.k[0].s;
+        const [ox] = aPantalla(d, l, [0, 0], true), [ux] = aPantalla(d, l, [1, 0], true);
+        if (s.sz || s.j !== 2 || Math.abs(ux - ox - 1) > 1e-3) throw new Error(`duelo: el rótulo ${etiqueta} no es de punto, centrado y a escala 1`);
+        s.sz = ETIQUETA.slice();
+        s.ps = [-ETIQUETA[0] / 2, -(d.fonts.list[0].ascent * s.s / 100)];
+        rename(d, '.' + visita, `valorvisita${n + 1}`);
+        rename(d, '.' + local, `valorlocal${n + 1}`);
+    });
+
+    // El export trae start (0–30) y un stop del 90 al 121 sin animación.
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_DUELO, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 90.0000036657751, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_DUELO, cm: 'salida', dr: -ENTRADA_DUELO }
+    ];
+    // Llega con la carpeta (DUELO DE LANZADORES\font), no con el archivo
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, 'duelo de lanzadores');
+    save(path.join(REPO, 'duelo_lanzadores/data.json'), d);
 }
 console.log('ok');
