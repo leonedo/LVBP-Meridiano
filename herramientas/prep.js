@@ -781,6 +781,72 @@ function fotos(d) {
     }
     if (refs.size !== 1) throw new Error('duelo: las fotos ya no comparten el asset');
 }
+// base animada 6 y 7 son copias de base animada (la caja roja de EL DUELO) y llegan sin el trazado de
+// su grupo (np 3, pero sólo el degradado y el transform): en AE seguramente lo toman de la original
+// con una expresión, que el export no lleva. La 7 es la caja del VS (en la comp de AE se ve); la 6,
+// el mate de base animada 5, la caja roja que sube con el logo (30–44): con el mate vacío no se
+// veía. Las dos quedan con el trazado de base animada.
+function trazadoDeLaCaja(d, nm) {
+    const grupo = l => l.shapes.find(g => g.nm === 'Group 2');
+    const fuente = grupo(layer(d, 'base animada')), g = grupo(layer(d, nm));
+    const tr = gr => JSON.stringify(['p', 'a', 's'].map(k => gr.it.find(i => i.ty === 'tr')[k].k));
+    if (!g || g.np !== 3 || g.it.some(i => i.ty === 'sh') || tr(g) !== tr(fuente)) throw new Error(`duelo: ${nm} no es la copia esperada`);
+    g.it.unshift(clone(fuente.it.find(i => i.ty === 'sh')));
+}
+// Los colores de la comp de AE (la captura que mandó Leon el 2026-10-24: así se tiene que ver). El
+// export trae la tabla roja, con los números gris oscuro casi sin leerse, y la columna del centro y
+// la barra de los nombres en un rojo oscuro vertical. En AE la tabla es la caja blanca de la placa
+// de juego (medido: 254 arriba, 198 abajo), y la columna y la barra son un rojo vivo en diagonal,
+// el mismo en las dos medido en el rectángulo de cada una: un plano, con error medio de 2 a 5 niveles.
+const BLANCO_PLACA = [0, 1, 1, 1, 0.5, 0.886, 0.886, 0.886, 1, 0.773, 0.773, 0.773];
+const ROJO_DIAGONAL = { tl: 0.921, tr: 0.771, bl: 0.675, br: 0.524 }; // las cuatro esquinas
+// Lottie (y AE) aplican el degradado en las coordenadas de la forma: el plano va de la esquina de
+// arriba a la izquierda en la dirección en que más baja, hasta la de abajo a la derecha.
+function rojoDiagonal(capa) {
+    const g = capa.shapes.find(g => g.nm === 'Group 1');
+    const sh = g.it.find(i => i.ty === 'sh').ks, gf = g.it.find(i => i.ty === 'gf');
+    if (sh.a || gf.s.a || gf.e.a || gf.g.k.a || gf.g.p !== 3 || gf.t !== 1) throw new Error(`duelo: el degradado de ${capa.nm} no es el esperado`);
+    const xs = sh.k.v.map(v => v[0]), ys = sh.k.v.map(v => v[1]);
+    const [x0, y0, x1, y1] = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+    const { tl, tr, bl, br } = ROJO_DIAGONAL;
+    const gx = (tr - tl) / (x1 - x0), gy = (bl - tl) / (y1 - y0), n2 = gx * gx + gy * gy;
+    gf.s.k = [x0, y0];
+    gf.e.k = [x0 - gx * (tl - br) / n2, y0 - gy * (tl - br) / n2];
+    gf.g.k.k = [0, tl, 0, 0, 0.5, (tl + br) / 2, 0, 0, 1, br, 0, 0];
+}
+// El tinte azul de los escudos: Lottie no lo dibuja como AE. AE mezcla el escudo con el color del
+// tinte (el que toca a su luminancia, entre Map Black y Map White) según el Amount; el filtro de Lottie
+// además le suma la luminancia en gris, y los escudos salían grises (el azul de Magallanes, 42 59 92
+// en vez del 9 51 101 de la comp de AE). Va como AE, con una capa encima de cada escudo: un
+// rectángulo del color del tinte, con el Amount de opacidad, colgado del escudo (entra con él) y
+// recortado por una copia de su mate. El color es el del tinte a una luminancia fija (la del fondo
+// de los escudos): ahí queda a pocos niveles de AE, y lo claro de cada escudo un poco más claro.
+const LUMINANCIA_TINTE = 0.2;
+function tinteComoAE(d, img) {
+    const ef = (img.ef || []).find(e => e.mn === 'ADBE Tint'), mate = d.layers[d.layers.indexOf(img) - 1];
+    if (!ef || img.ef.length !== 1 || !mate.td) throw new Error(`duelo: el tinte de ${img.cl} no es el esperado`);
+    const [negro, blanco, cantidad] = ef.ef.map(e => e.v);
+    if (negro.a || blanco.a) throw new Error(`duelo: el tinte de ${img.cl} tiene los colores animados`);
+    const color = negro.k.map((c, i) => i < 3 ? c + LUMINANCIA_TINTE * (blanco.k[i] - c) : 1);
+    const { w, h } = d.assets.find(a => a.id === img.refId);
+    const fijo = k => ({ a: 0, k });
+    const ind = Math.max(...d.layers.map(l => l.ind)) + 1;
+    const velo = {
+        ddd: 0, ind: ind + 1, ty: 4, nm: `tinte ${img.cl}`, parent: img.ind, tt: 1, sr: 1, ao: 0, bm: 0,
+        ks: { o: clone(cantidad), r: fijo(0), p: fijo([0, 0, 0]), a: fijo([0, 0, 0]), s: fijo([100, 100, 100]) },
+        shapes: [{
+            ty: 'gr', nm: 'tinte', np: 2, it: [
+                { ty: 'rc', nm: 'escudo', d: 1, s: fijo([w, h]), p: fijo([w / 2, h / 2]), r: fijo(0) },
+                { ty: 'fl', nm: 'color', c: fijo(color), o: fijo(100), r: 1 },
+                { ty: 'tr', nm: 'Transform', p: fijo([0, 0]), a: fijo([0, 0]), s: fijo([100, 100]), r: fijo(0), o: fijo(100), sk: fijo(0), sa: fijo(0) }
+            ]
+        }],
+        ip: img.ip, op: img.op, st: img.st
+    };
+    const mateVelo = Object.assign(clone(mate), { ind, nm: `${mate.nm} tinte` });
+    d.layers.splice(d.layers.indexOf(mate), 0, mateVelo, velo);
+    delete img.ef;
+}
 if (hay('duelo de lanzadores')) {
     const d = load(path.join(SRC, 'duelo de lanzadores/data.json'));
 
@@ -812,6 +878,7 @@ if (hay('duelo de lanzadores')) {
         const [ix0, iy0] = aPantalla(d, img, [0, 0], true), [ix1, iy1] = aPantalla(d, img, [asset.w, asset.h], true);
         const [mx0, my0, mx1, my1] = rectEnPantalla(d, mate);
         if (!mate.td || img.tt !== 1 || ix0 > mx0 || iy0 > my0 || ix1 < mx1 || iy1 < my1) throw new Error(`duelo: ${cl} no cubre su mate`);
+        tinteComoAE(d, img);
     }
     fotos(d);
 
@@ -835,6 +902,14 @@ if (hay('duelo de lanzadores')) {
         rename(d, '.' + visita, `valorvisita${n + 1}`);
         rename(d, '.' + local, `valorlocal${n + 1}`);
     });
+
+    trazadoDeLaCaja(d, 'base animada 6');
+    trazadoDeLaCaja(d, 'base animada 7');
+    const blanco = tabla.shapes.find(g => g.nm === 'Group 2').it.find(i => i.ty === 'gf');
+    if (blanco.g.p !== 3 || blanco.s.k[1] >= blanco.e.k[1]) throw new Error('duelo: el degradado de la tabla no va de arriba abajo');
+    blanco.g.k.k = BLANCO_PLACA.slice();
+    rojoDiagonal(layer(d, 'BASERED Outlines 5')); // la columna del centro
+    rojoDiagonal(layer(d, 'BASERED Outlines')); // la barra de los nombres
 
     // El export trae start (0–30) y un stop del 90 al 121 sin animación.
     d.markers = [

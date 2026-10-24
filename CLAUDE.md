@@ -21,7 +21,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `prevenido/` | El bateador en el círculo: una fila (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). El mismo armado que `3enlinea`, en el mismo lugar | stage `play` pause (0–48) | `salida`: la entrada al revés (1,6 s) |
 | `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
 | `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
-| `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), la barra de los nombres y abajo la tabla de 5 estadísticas (visita a la izquierda, local a la derecha). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
+| `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), el VS en una caja roja, la barra de los nombres y abajo la tabla blanca de 5 estadísticas (visita a la izquierda, local a la derecha, rótulos en la columna roja del centro). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
@@ -162,6 +162,29 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
 - **Colores:** en `lanzador` el export trae `BASE BLANCA` y `BASE ROJA` con el mismo degradado
   naranja. La tabla va blanca y roja para todos los equipos (confirmado por el diseñador): se les
   copia el degradado de la cortina de entrada (`Shape Layer 2` el blanco, `Shape Layer 1` el rojo).
+  En `duelo_lanzadores` el export trae la tabla roja (los números gris oscuro casi no se leían) y la
+  columna del centro y la barra de los nombres en un rojo oscuro vertical. Cómo va lo dio una
+  captura de la comp de AE que mandó Leon (2026-10-24, "así se debería ver"): la tabla es la caja
+  blanca de `placa_juego` (`BLANCO_PLACA` en `prep.js`: medido, 254 arriba y 198 abajo, idéntico) y
+  la columna y la barra, el mismo rojo vivo en diagonal en el rectángulo de cada una
+  (`ROJO_DIAGONAL`: las cuatro esquinas, medidas en la captura; un plano con error medio de 2 a 5
+  niveles). Con eso el render y la captura coinciden salvo en el tinte de los escudos (ver *Tinte*).
+- **Trazados perdidos:** en `duelo_lanzadores`, `base animada 6` y `7` (copias de `base animada`, la
+  caja roja de EL DUELO) llegan con el grupo sin su trazado (`np` 3, pero sólo el degradado y el
+  transform; en AE seguramente lo toman de la original por expresión). La 7 es la caja del VS, que en
+  la comp de AE se ve; la 6, el mate de `base animada 5`, la caja que sube con el logo (30–44). Sin
+  trazado no se veían; `trazadoDeLaCaja()` en `prep.js` les copia el de `base animada`. Con eso la
+  caja roja sube con el logo, se angosta hasta ser una barra al centro y termina en la caja del VS.
+  `placa_juego` trae las mismas dos capas sin trazado, y ahí no se tocó: no hay captura de AE que
+  diga cómo va (el video del diseñador es otra revisión).
+- **Tinte:** los escudos de `duelo_lanzadores` llevan el efecto Tint de AE (Map Black/White a dos
+  azules, Amount 0 → 61 del 55 al 74). El filtro de Lottie no lo dibuja como AE: además del color del
+  tinte le suma la luminancia en gris, y los escudos salían grises (Magallanes 42 59 92 en vez del 9
+  51 101 de la comp). `tinteComoAE()` en `prep.js` saca el efecto y pone encima de cada escudo un
+  rectángulo del color del tinte a luminancia 0.2 (la del fondo de los escudos), con el Amount de
+  opacidad, colgado del escudo y recortado por una copia de su mate. Contra la captura de AE, el
+  error medio en los escudos bajó de 86 a 23 (suma de R, G y B; lo que queda es del escalado de la
+  captura). Probado con 0.2, 0.35 y 0.5.
 - **All Caps:** `ca: 1` en todas las capas de texto, que es lo que `index.js` mira para pasar a
   mayúsculas. Llegó apagado en `ofensiva` (nombres, valores e información) y en el `titulo` de
   `defensiva` y `lanzador`: `prep.js` lo prende y el lint lo controla. Lottie tampoco lo aplica
