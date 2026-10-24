@@ -20,7 +20,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `parcial/` | Score de fin de inning: escudos, C H E de los dos equipos, inning con su flecha, los tres bateadores del próximo inning y la publicidad (`publicidad`, una imagen). Abajo al centro, a la izquierda del score | stage `play` pause (0–32) | `salida`: la entrada al revés (1,1 s) |
 | `prevenido/` | El bateador en el círculo: una fila (nombre y valor) y la publicidad a la derecha (`publicidad`, una imagen). El mismo armado que `3enlinea`, en el mismo lugar | stage `play` pause (0–48) | `salida`: la entrada al revés (1,6 s) |
 | `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
-| `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
+| `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones. El VS va en una caja roja, como en `duelo_lanzadores` | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
 | `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), el VS en una caja roja, la barra de los nombres y abajo la tabla blanca de 5 estadísticas (visita a la izquierda, local a la derecha, rótulos en la columna roja del centro). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
@@ -32,7 +32,7 @@ y `duelo_lanzadores` muestran los ocho de visita y de local, en cruces de a uno)
 `3enlinea_publicidad.png` del 2026-10-06 y `3enlinea.png` del 2026-10-24, con la publicidad por
 defecto; las de
 `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
-2026-10-14; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
+2026-10-24, con la caja del VS; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
 con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
 `duelo_lanzadores.png`): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
@@ -175,8 +175,8 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   la comp de AE se ve; la 6, el mate de `base animada 5`, la caja que sube con el logo (30–44). Sin
   trazado no se veían; `trazadoDeLaCaja()` en `prep.js` les copia el de `base animada`. Con eso la
   caja roja sube con el logo, se angosta hasta ser una barra al centro y termina en la caja del VS.
-  `placa_juego` trae las mismas dos capas sin trazado, y ahí no se tocó: no hay captura de AE que
-  diga cómo va (el video del diseñador es otra revisión).
+  `placa_juego` trae las mismas dos capas sin trazado y lleva el mismo arreglo (pedido de Leon,
+  2026-10-24, sin captura de AE de la placa: se da por hecho que va como en el duelo).
 - **Tinte:** los escudos de `duelo_lanzadores` llevan el efecto Tint de AE (Map Black/White a dos
   azules, Amount 0 → 61 del 55 al 74). El filtro de Lottie no lo dibuja como AE: además del color del
   tinte le suma la luminancia en gris, y los escudos salían grises (Magallanes 42 59 92 en vez del 9

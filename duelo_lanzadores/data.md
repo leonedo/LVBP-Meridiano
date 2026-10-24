@@ -107,7 +107,7 @@ design size, `INNINGS LANZADOS` goes to 43); a value, about 6 (`100-200` goes fr
 | `etiqueta4` / `valorvisita4` / `valorlocal4` | WHIP / 1.09 / 1.09 |
 | `etiqueta5` / `valorvisita5` / `valorlocal5` | ERA / 1.80 / 1.80 |
 | `titulo` | EL DUELO (only during the entry: the red box that opens the card and leaves upwards, frames 0–30) |
-| `vs` | VS (between the crests; no need to send it) |
+| `vs` | VS (in a small red box between the crests; no need to send it) |
 
 ## Image layers
 

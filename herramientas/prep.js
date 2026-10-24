@@ -645,6 +645,18 @@ function unLogo(d, nombre, ind) {
     Object.assign(logo, { nm: '.logomeridiano', cl: 'logomeridiano' });
     enLaCaja(d, logo, ind);
 }
+// En la placa y en el duelo, base animada 6 y 7 son copias de base animada (la caja roja del título)
+// y llegan sin el trazado de su grupo (np 3, pero sólo el degradado y el transform): en AE
+// seguramente lo toman de la original con una expresión, que el export no lleva. La 7 es la caja del
+// VS (en la comp de AE del duelo se ve); la 6, el mate de base animada 5, la caja roja que sube con el
+// logo (30–44): con el mate vacío no se veía. Las dos quedan con el trazado de base animada.
+function trazadoDeLaCaja(d, nombre, nm) {
+    const grupo = l => l.shapes.find(g => g.nm === 'Group 2');
+    const fuente = grupo(layer(d, 'base animada')), g = grupo(layer(d, nm));
+    const tr = gr => JSON.stringify(['p', 'a', 's'].map(k => gr.it.find(i => i.ty === 'tr')[k].k));
+    if (!g || g.np !== 3 || g.it.some(i => i.ty === 'sh') || tr(g) !== tr(fuente)) throw new Error(`${nombre}: ${nm} no es la copia esperada`);
+    g.it.unshift(clone(fuente.it.find(i => i.ty === 'sh')));
+}
 // El rectángulo (rc) de una capa de forma con un solo grupo, en la pantalla: [x0, y0, x1, y1]
 function rectDeForma(capa) {
     const g = capa.shapes[0], rc = g.it.find(i => i.ty === 'rc'), tr = g.it.find(i => i.ty === 'tr');
@@ -728,6 +740,10 @@ if (hay('placa de juego')) {
     // JUEGO DE HOY sube con su caja roja (10–38): la caja sale recortada por el borde de arriba y el
     // texto seguía de largo sobre el fondo (18–30).
     enLaCaja(d, rename(d, 'juego de hoy', 'titulo'), 21);
+    // La caja que sube con el logo y termina en la del VS, como en el duelo. De la placa no hay
+    // captura de AE: se aplicó igual (Leon, 2026-10-24).
+    trazadoDeLaCaja(d, 'placa', 'base animada 6');
+    trazadoDeLaCaja(d, 'placa', 'base animada 7');
 
     // El export trae start (0–30) y un stop del 90 al 121 sin animación.
     d.markers = [
@@ -780,18 +796,6 @@ function fotos(d) {
         refs.add(img.refId);
     }
     if (refs.size !== 1) throw new Error('duelo: las fotos ya no comparten el asset');
-}
-// base animada 6 y 7 son copias de base animada (la caja roja de EL DUELO) y llegan sin el trazado de
-// su grupo (np 3, pero sólo el degradado y el transform): en AE seguramente lo toman de la original
-// con una expresión, que el export no lleva. La 7 es la caja del VS (en la comp de AE se ve); la 6,
-// el mate de base animada 5, la caja roja que sube con el logo (30–44): con el mate vacío no se
-// veía. Las dos quedan con el trazado de base animada.
-function trazadoDeLaCaja(d, nm) {
-    const grupo = l => l.shapes.find(g => g.nm === 'Group 2');
-    const fuente = grupo(layer(d, 'base animada')), g = grupo(layer(d, nm));
-    const tr = gr => JSON.stringify(['p', 'a', 's'].map(k => gr.it.find(i => i.ty === 'tr')[k].k));
-    if (!g || g.np !== 3 || g.it.some(i => i.ty === 'sh') || tr(g) !== tr(fuente)) throw new Error(`duelo: ${nm} no es la copia esperada`);
-    g.it.unshift(clone(fuente.it.find(i => i.ty === 'sh')));
 }
 // Los colores de la comp de AE (la captura que mandó Leon el 2026-10-24: así se tiene que ver). El
 // export trae la tabla roja, con los números gris oscuro casi sin leerse, y la columna del centro y
@@ -903,8 +907,8 @@ if (hay('duelo de lanzadores')) {
         rename(d, '.' + local, `valorlocal${n + 1}`);
     });
 
-    trazadoDeLaCaja(d, 'base animada 6');
-    trazadoDeLaCaja(d, 'base animada 7');
+    trazadoDeLaCaja(d, 'duelo', 'base animada 6');
+    trazadoDeLaCaja(d, 'duelo', 'base animada 7');
     const blanco = tabla.shapes.find(g => g.nm === 'Group 2').it.find(i => i.ty === 'gf');
     if (blanco.g.p !== 3 || blanco.s.k[1] >= blanco.e.k[1]) throw new Error('duelo: el degradado de la tabla no va de arriba abajo');
     blanco.g.k.k = BLANCO_PLACA.slice();
