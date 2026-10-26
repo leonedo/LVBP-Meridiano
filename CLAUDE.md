@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Trece gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Catorce gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -22,6 +22,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `final/` | Score final (line score): escudos, carreras por inning (la columna 9 es la del último inning), C H E y, abajo, ganador, perdedor y MVP; esa barra se apaga con `barra_opacidad` para usarlo a mitad de juego. Abajo al centro, en el lugar de `parcial` | stage `play` pause (0–33) | `salida`: la entrada al revés (1,1 s) |
 | `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones. El VS va en una caja roja, como en `duelo_lanzadores` | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
 | `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), el VS en una caja roja, la barra de los nombres y abajo la tabla blanca de 5 estadísticas (visita a la izquierda, local a la derecha, rótulos en la columna roja del centro). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
+| `himno_nacional/` | Lowbar del himno nacional: la barra del bateador con la bandera (`bandera`, una imagen) en lugar del escudo, el país (`texto`) en la barra blanca y HIMNO NACIONAL (`titulo`) en la pestaña negra. Por defecto, Venezuela. Va en el mismo segmento que `placa_juego`, como segunda opción (pedido de Leon, 2026-10-26); abajo a la izquierda, en el lugar de las barras de bateador | stage `play` pause (0–31) | `salida`: la entrada al revés (1 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
@@ -34,7 +35,8 @@ defecto; las de
 `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
 2026-10-24, con la caja del VS; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
 con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
-`duelo_lanzadores.png`): si un
+`duelo_lanzadores.png`; las de `himno_nacional`, del 2026-10-26: `himno_nacional_variantes.png`
+muestra minúsculas, textos largos, una bandera de otra proporción, una ruta que no carga y `""`): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -91,10 +93,16 @@ diseñador la mandó primero como un rectángulo verde de forma y después como 
 gráfico con Gatorade llega con el rectángulo, se puede convertir en `prep.js` en una capa de imagen
 como esta, sin pedírselo.
 
+Banderas: en `himno_nacional`, `bandera` (129 × 86 en pantalla, 3:2). El asset conserva el tamaño
+del export (3840 × 2560) y el archivo por defecto es `images/venezuela.jpg` a 258 × 172: Lottie
+escala cualquier archivo a esa caja. Recorta (`slice`, el default): una bandera de otra proporción
+llena la caja, cortada a los lados.
+
 ⚠ Las dos barras de bateador y `parcial` llevan la clase `titulo` en **dos capas a propósito**: son las dos mitades de la cortina
 de entrada (en `parcial`, la cortina antes y después de que se abra el panel), y así una sola clave
 cambia el título (`AL BATE`, `PREVENIDO`…). En `final`, `barra_opacidad` también va en dos capas:
 la barra de JG, JP y MVP y la franja del fondo del panel que queda debajo (ver *Barra apagable*).
+En `himno_nacional`, `meridianotv` va en las dos mitades de la cortina de MERIDIANO TELEVISION, igual.
 El audit del editor lo marca como clase duplicada: es esperado, no "arreglarlo".
 
 ### Cuando llega un export nuevo del diseñador
@@ -145,7 +153,11 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   que sirven (`fotolanzadorvisita`/`local`, `lanzadorvisita`/`local`) y quedan; las estadísticas,
   de arriba abajo, a `etiqueta1–5` (`ganadosyperdidos`, `ponches`, `basexbolas`, `whip`,
   `efectividad`) y `valorvisita1–5`/`valorlocal1–5` (`recordvisitante`/`recordlocal`,
-  `ponchesvisitante`, `basesxbolasvisita`…).
+  `ponchesvisitante`, `basesxbolasvisita`…). En `himno_nacional` (el zip es `himno nacional`, armado
+  sobre la barra del bateador), `.nombrejugador` a `texto` (el país), `.informacionbarranegra` a
+  `titulo`, la bandera `Flag_of_Venezuela.svg.webp` (clase `svg webp`, inválida) a `bandera`, con
+  el asset en `images/venezuela.jpg`, y las dos `meridiano television` (sin clase) a `meridianotv`.
+  `Null 7` no es padre de nada y sale: su keyframe del 31 estiraba la entrada.
 - **Mate corrido:** en `duelo_lanzadores` la tabla (`BASE Outlines 3`, el panel que baja con las
   estadísticas) llegó entre el fondo oscuro de la caja (`BASE Outlines`, con `tt`) y su mate
   (`BASE Outlines 2`). Lottie toma de mate la capa de arriba: el fondo se recortaba con la tabla,
@@ -236,7 +248,10 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   (traía 0.01) y `titulo` alineado a la izquierda (tapaba el ►); en `placa_juego`, los nombres de
   los equipos con las cajas del export y `lh` 1.2 del cuerpo (traían 0.01); en `duelo_lanzadores`,
   los nombres y los valores con las cajas del export, y los rótulos (de punto) a cajas de 228, 10
-  px de aire a cada lado en la columna del centro. Los anchos de nombre dejan el mismo aire a los dos lados.
+  px de aire a cada lado en la columna del centro; en `himno_nacional`, `texto` sin el espacio con
+  que llega adelante (` REPUBLICA…`) y la caja corrida ese ancho (7.234: el texto del diseño queda en
+  el mismo píxel), terminando a 57 px del final de la barra blanca, el aire que deja la bandera
+  (613.34), y `titulo` a 280.02, 10 px antes del borde de la pestaña negra (llegaba 31 px afuera). Los anchos de nombre dejan el mismo aire a los dos lados.
 - **`defensiva_lateral`** no está en `prep.js`: es el export del 2026-09-26 ya preparado
   (`git show 0fd3d66:defensiva/`), con el All Caps prendido y `play`/`salida` en el 78 (ahí termina
   la entrada; el export la pausaba en el 90). Si el diseñador la vuelve a exportar, es la receta

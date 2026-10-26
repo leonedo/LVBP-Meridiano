@@ -27,9 +27,11 @@ for g in GRAFICOS:
     for cid, c in comps.items(): check_layers(c['layers'], cid)
     cls = [l['cl'] for l in d['layers'] if l.get('cl')]
     for c in set(cls):
-        # titulo en las barras de bateador y en parcial, y barra_opacidad en final (la barra y la franja
-        # del fondo de debajo): dos capas a propósito (ver CLAUDE.md)
-        a_proposito = ((g.startswith('bateador') or g == 'parcial') and c == 'titulo') or (g == 'final' and c == 'barra_opacidad')
+        # titulo en las barras de bateador y en parcial, meridianotv en himno_nacional (las dos mitades
+        # de la cortina) y barra_opacidad en final (la barra y la franja del fondo de debajo): dos capas
+        # a propósito (ver CLAUDE.md)
+        a_proposito = (((g.startswith('bateador') or g == 'parcial') and c == 'titulo') or (g == 'final' and c == 'barra_opacidad')
+                       or (g == 'himno_nacional' and c == 'meridianotv'))
         if cls.count(c) > 1 and not a_proposito: p(g, f'clase duplicada {c}')
         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]*', c): p(g, f'clase inválida {c!r}')
     for l in d['layers']:

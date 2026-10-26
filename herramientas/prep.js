@@ -6,7 +6,8 @@
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
 //      "3 en linea"/, "score parcial"/, prevenido/, "score final"/, "placa de juego"/,
-//      "duelo de lanzadores"/. Los que no estén se saltean: alcanza con el zip que llegó.
+//      "duelo de lanzadores"/, "himno nacional"/. Los que no estén se saltean: alcanza con el zip
+//      que llegó.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
 //   3. node herramientas/prep.js $EXPORTS $PUB .
@@ -926,5 +927,57 @@ if (hay('duelo de lanzadores')) {
     allCaps(d);
     avisarEntrada(d, 'duelo de lanzadores');
     save(path.join(REPO, 'duelo_lanzadores/data.json'), d);
+}
+
+// ---------------------------------------------------------------- himno nacional
+// Lowbar del himno: la barra del bateador con la bandera en lugar del escudo, el país en la barra
+// blanca y HIMNO NACIONAL en la pestaña negra. Medidas con la fuente real, en el frame 40.
+const ENTRADA_HIMNO = 31; // la barra blanca y la pestaña terminan de entrar en el 30
+const ESPACIO_HIMNO = 7.234; // el espacio inicial del país, a cuerpo 47 (511.04 − 503.81)
+if (hay('himno nacional')) {
+    const d = load(path.join(SRC, 'himno nacional/data.json'));
+
+    // El país llega como " REPUBLICA BOLIVARIANA DE VENEZUELA", con un espacio adelante: el
+    // cliente lo va a mandar sin él. Sin el espacio y con la caja corrida ese ancho, el texto del
+    // diseño queda en el mismo píxel (x 670.44). La caja termina 57 px antes del final de la barra
+    // blanca, el mismo aire que deja la bandera a la izquierda (llegaba a 36).
+    const pais = rename(d, '.nombrejugador', 'texto').t.d.k[0].s; // la clase quedó del bateador
+    if (pais.t !== ' REPUBLICA BOLIVARIANA DE VENEZUELA' || pais.j !== 0) throw new Error('himno: el texto del país cambió');
+    pais.t = pais.t.trim();
+    pais.ps[0] += ESPACIO_HIMNO;
+    pais.sz[0] = 613.34;
+    // HIMNO NACIONAL: la caja llegaba 31 px afuera de la pestaña negra (termina en x 899.96) y uno
+    // más largo se salía antes de encoger. Termina 10 px antes del borde.
+    const titulo = rename(d, '.informacionbarranegra', 'titulo').t.d.k[0].s;
+    if (titulo.j !== 0) throw new Error('himno: el título no está alineado a la izquierda');
+    titulo.sz[0] = 280.02;
+    // La bandera (clase "svg webp", que no es una clase válida) pasa a ser una imagen reemplazable.
+    // El export trae la bandera a 3840 × 2560 (330 KB) para dibujarla a 129 × 86: el asset sigue
+    // con ese tamaño (Lottie escala cualquier archivo a esa caja) y el archivo es
+    // images/venezuela.jpg, a 258 × 172, que se copia a mano. Por defecto recorta (slice): una
+    // bandera de otra proporción llena la caja.
+    const bandera = rename(d, 'Flag_of_Venezuela.svg.webp', 'bandera');
+    Object.assign(d.assets.find(a => a.id === bandera.refId), { p: 'venezuela.jpg' });
+    // MERIDIANO TELEVISION, la cortina de entrada: dos capas (antes y después de partirse), como
+    // AL BATE en las barras de bateador. Llevan la misma clase que el texto del score.
+    for (const nm of ['meridiano television', 'meridiano television 2']) {
+        Object.assign(layer(d, nm), { nm: '.meridianotv', cl: 'meridianotv' });
+    }
+    // Null 7 no es padre de nada y su único keyframe (31) estiraba la entrada
+    const nulo = layer(d, 'Null 7');
+    if (d.layers.some(l => l.parent === nulo.ind)) throw new Error('himno: Null 7 tiene hijos');
+    d.layers.splice(d.layers.indexOf(nulo), 1);
+
+    // El export trae start (0–30) y stop (60–90) sin animación
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_HIMNO, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_HIMNO, cm: 'salida', dr: -ENTRADA_HIMNO }
+    ];
+    // Llega con la carpeta (himno nacional\font), no con el archivo
+    d.fonts.list[0].fPath = FONT;
+    allCaps(d);
+    avisarEntrada(d, 'himno nacional');
+    save(path.join(REPO, 'himno_nacional/data.json'), d);
 }
 console.log('ok');
