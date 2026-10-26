@@ -35,7 +35,7 @@ defecto; las de
 `prevenido`, del 2026-10-07; las de `final`, del 2026-10-10; las de `placa_juego`, del
 2026-10-24, con la caja del VS; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
 con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
-`duelo_lanzadores.png`; las de `himno_nacional`, del 2026-10-26: `himno_nacional_variantes.png`
+`duelo_lanzadores.png`; las de `himno_nacional`, del 2026-10-26, sacadas de CasparCG 2.5.1: `himno_nacional_variantes.png`
 muestra minúsculas, textos largos, una bandera de otra proporción, una ruta que no carga y `""`): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
@@ -251,7 +251,7 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   px de aire a cada lado en la columna del centro; en `himno_nacional`, `texto` sin el espacio con
   que llega adelante (` REPUBLICA…`) y la caja corrida ese ancho (7.234: el texto del diseño queda en
   el mismo píxel), terminando a 57 px del final de la barra blanca, el aire que deja la bandera
-  (613.34), y `titulo` a 280.02, 10 px antes del borde de la pestaña negra (llegaba 31 px afuera). Los anchos de nombre dejan el mismo aire a los dos lados.
+  (613.34), y `titulo` centrado en la pestaña negra (Leon, 2026-10-26: llegaba alineado a la izquierda desde la x 610 y un título corto quedaba corrido), con la caja a 10 px de cada borde (400.36; llegaba 31 px afuera). Los anchos de nombre dejan el mismo aire a los dos lados.
 - **`defensiva_lateral`** no está en `prep.js`: es el export del 2026-09-26 ya preparado
   (`git show 0fd3d66:defensiva/`), con el All Caps prendido y `play`/`salida` en el 78 (ahí termina
   la entrada; el export la pausaba en el 90). Si el diseñador la vuelve a exportar, es la receta

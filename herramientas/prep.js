@@ -946,11 +946,17 @@ if (hay('himno nacional')) {
     pais.t = pais.t.trim();
     pais.ps[0] += ESPACIO_HIMNO;
     pais.sz[0] = 613.34;
-    // HIMNO NACIONAL: la caja llegaba 31 px afuera de la pestaña negra (termina en x 899.96) y uno
-    // más largo se salía antes de encoger. Termina 10 px antes del borde.
-    const titulo = rename(d, '.informacionbarranegra', 'titulo').t.d.k[0].s;
+    // HIMNO NACIONAL: llegaba alineado a la izquierda desde la x 610, en una pestaña negra que va de
+    // la x 479.6 a la 899.96 (un título corto quedaba corrido), y la caja pasaba 31 px el borde.
+    // Va centrado en la pestaña (Leon, 2026-10-26), con la caja a 10 px de cada borde.
+    const capaTitulo = rename(d, '.informacionbarranegra', 'titulo');
+    const titulo = capaTitulo.t.d.k[0].s;
     if (titulo.j !== 0) throw new Error('himno: el título no está alineado a la izquierda');
-    titulo.sz[0] = 280.02;
+    if (capaTitulo.parent || capaTitulo.ks.p.a || capaTitulo.ks.s.k[0] !== 100) throw new Error('himno: el título se movió');
+    const PESTANA = [479.6, 899.96];
+    titulo.j = 2;
+    titulo.sz[0] = PESTANA[1] - PESTANA[0] - 20;
+    titulo.ps[0] = PESTANA[0] + 10 - capaTitulo.ks.p.k[0];
     // La bandera (clase "svg webp", que no es una clase válida) pasa a ser una imagen reemplazable.
     // El export trae la bandera a 3840 × 2560 (330 KB) para dibujarla a 129 × 86: el asset sigue
     // con ese tamaño (Lottie escala cualquier archivo a esa caja) y el archivo es
