@@ -53,7 +53,7 @@ exactly. Send `""` to leave the box empty (the white bar shows behind it).
 
 `texto` and `titulo` are box text: a longer string shrinks to fit instead of overflowing. `texto`
 fits about 40 characters at the design size (`REPUBLICA BOLIVARIANA DE VENEZUELA` is 34) and
-`titulo` about 25 (`HIMNO NACIONAL` is 14); longer goes smaller, in one line.
+`titulo` about 40 (`HIMNO NACIONAL` is 14), centered in the black tab; longer goes smaller, in one line.
 
 | Class | Default text |
 |-------|-------------|
