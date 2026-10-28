@@ -994,7 +994,7 @@ if (hay('himno nacional')) {
 // barras apiladas, <SIGLAS><n>_opacidad, para que el controlador arme las dos igual.
 const ENTRADA_POS = 57; // los nombres terminan de aparecer en el 56
 const POS_MARGEN = 8; // px entre el final del nombre y el de la barra
-const POS_GRIS = 0.55; // el arriba de la columna de los números (el export, blanco)
+const POS_GRIS = 0.294; // el arriba de la columna de los números: la primera parada del export
 const POS_DEGRADADO_EXPORT = [0, 0.294, 0.294, 0.294, 0, 0.647, 0.647, 0.647, 0, 1, 1, 1, 0.466, 0.5, 0.5, 0.5, 1, 0, 0, 0];
 const POS_COLUMNAS = { JUEGOSJUGADOS: 'JJ', JUEGOSGANADOS: 'JG', JUEGOSPERDIDOS: 'JP', JUEGOSDIFERENCIA: 'DIF' };
 const POS_EQUIPOS = { AGUILAS: 'AGUI', BRAVOS: 'BRAVOS', CARDENALES: 'CARD', CARIBES: 'ANZ', LEONES: 'LEO', MAGALLANES: 'MAGA', TIBURONES: 'TIBUS', TIGRES: 'TIGRES' };
@@ -1070,13 +1070,15 @@ if (hay('TABLA DE POSICIONES')) {
     delete mate.tp;
     d.layers.splice(d.layers.indexOf(logo), 0, mate);
 
-    // La columna de los números llega con un degradado de blanco (arriba) a negro, y los números
-    // son blancos: en las filas 1 y 2 casi no se leían. Arranca en gris (POS_GRIS) y baja a la
-    // mitad en el mismo punto del export (Leon, 2026-10-28, entre ése y 0.45).
+    // La columna de los números llega con tres paradas en el 0 (gris 0.294, 0.647 y blanco) y una
+    // gris en el 0.466: Lottie toma la última del 0 y la columna salía blanca arriba, con los
+    // números blancos casi sin leerse en las filas 1 y 2. En AE se ve de la primera (POS_GRIS) a
+    // negro, en línea recta (captura de la comp que mandó Leon, 2026-10-28: 72 arriba, 38 en el
+    // medio y 3 abajo): las paradas del 0 pasan a POS_GRIS y la del 0.466 a la recta.
     const columna = layer(d, 'BASE/TABLA DE POSICIONES Outlines').shapes.find(g => g.nm === 'Group 40');
     const degradado = columna && columna.it.find(i => i.ty === 'gf');
     if (!degradado || JSON.stringify(degradado.g.k.k) !== JSON.stringify(POS_DEGRADADO_EXPORT)) throw new Error('posiciones: el degradado de los números cambió');
-    const g = POS_GRIS, m = POS_GRIS / 2;
+    const g = POS_GRIS, m = +(POS_GRIS * (1 - 0.466)).toFixed(4);
     degradado.g.k.k = [0, g, g, g, 0, g, g, g, 0, g, g, g, 0.466, m, m, m, 1, 0, 0, 0];
 
     // Los textos fijos, con clase como los de score: POSICIONES (la caja roja de la entrada), el
