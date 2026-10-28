@@ -240,8 +240,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   de una capa que se ve donde no debería. En `duelo_lanzadores`, lo mismo con los `ind` 55 y 58
   (el logo y EL DUELO): `unLogo()` y `enLaCaja()`.
 - **Contraste:** en `posiciones` la columna de los números es un degradado de blanco (arriba) a
-  negro, con los números en blanco: en las filas 1 y 2 casi no se leen. Así llega del export
-  (en el JSON es el mismo degradado; queda como está hasta que lo vea el diseñador o Leon).
+  negro, con los números en blanco: en las filas 1 y 2 casi no se leían. Arranca en gris 0.55
+  (`POS_GRIS` en `prep.js`) y baja a la mitad en el mismo punto del export (Leon, 2026-10-28,
+  entre ése y 0.45). Si el diseñador lo arregla, `prep.js` falla: sacar el arreglo.
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
   arriba. Si cambia la duración de la entrada, `play` y `salida` van al último keyframe real, no
   al `start` del diseñador. `prevenido` llegó sin markers y con la comp de 32 s: queda en 90 frames
