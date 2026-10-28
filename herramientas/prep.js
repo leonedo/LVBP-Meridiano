@@ -6,7 +6,7 @@
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
 //      "3 en linea"/, "score parcial"/, prevenido/, "score final"/, "placa de juego"/,
-//      "duelo de lanzadores"/, "himno nacional"/. Los que no estén se saltean: alcanza con el zip
+//      "duelo de lanzadores"/, "himno nacional"/, "TABLA DE POSICIONES"/. Los que no estén se saltean: alcanza con el zip
 //      que llegó.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
@@ -985,5 +985,104 @@ if (hay('himno nacional')) {
     allCaps(d);
     avisarEntrada(d, 'himno nacional');
     save(path.join(REPO, 'himno_nacional/data.json'), d);
+}
+// ---------------------------------------------------------------- tabla de posiciones
+// Pantalla completa: una caja roja con POSICIONES, una blanca con el logo de Meridiano que sube y
+// destapa la tabla (8 filas: la barra del equipo, el nombre, JJ, JG, JP y DIF). Las claves son las
+// de la tabla de posiciones de LVBP-Venevision (las de IVC en LVBP-Stats), sin AVE, que este diseño
+// no tiene: equipo<n>, JJequipo<n>, JGequipo<n>, JPequipo<n>, DIFequipo<n> y, en cada fila, las 8
+// barras apiladas, <SIGLAS><n>_opacidad, para que el controlador arme las dos igual.
+const ENTRADA_POS = 57; // los nombres terminan de aparecer en el 56
+const POS_MARGEN = 8; // px entre el final del nombre y el de la barra
+const POS_COLUMNAS = { JUEGOSJUGADOS: 'JJ', JUEGOSGANADOS: 'JG', JUEGOSPERDIDOS: 'JP', JUEGOSDIFERENCIA: 'DIF' };
+const POS_EQUIPOS = { AGUILAS: 'AGUI', BRAVOS: 'BRAVOS', CARDENALES: 'CARD', CARIBES: 'ANZ', LEONES: 'LEO', MAGALLANES: 'MAGA', TIBURONES: 'TIBUS', TIGRES: 'TIGRES' };
+if (hay('TABLA DE POSICIONES')) {
+    const d = load(path.join(SRC, 'TABLA DE POSICIONES/data.json'));
+    const equipos = Object.keys(POS_EQUIPOS);
+    const nm = l => (l.nm || '').trim().replace(/^[.,]/, '');
+
+    // Las barras de los equipos (imágenes) y los nombres (textos) llegan con el mismo nombre, el
+    // del equipo del diseño en cada fila (Águilas arriba … Tigres abajo); la de Tigres, con coma (sin
+    // clase).
+    const barras = equipos.map(e => {
+        const b = d.layers.filter(l => l.ty === 2 && nm(l) === e);
+        if (b.length !== 1) throw new Error(`posiciones: barra de ${e}: ${b.length}`);
+        return b[0];
+    });
+    const filas = barras.map(b => b.ks.p.k[1]);
+    if (barras.some(b => b.ks.p.a || b.ks.a.a || b.ks.s.a || b.ks.p.k[0] !== barras[0].ks.p.k[0] || b.parent || b.tt || b.td)
+        || filas.some((y, i) => i && y <= filas[i - 1])) throw new Error('posiciones: las barras cambiaron');
+    // En cada fila van las 8, con su ancla (las imágenes miden 425 o 426 × 65 o 66) y la y de la barra
+    // del diseño en esa fila. La del diseño, arriba de la pila; las filas, en el orden del diseño.
+    let ind = 100;
+    const pilas = filas.map((y, f) => [barras[f], ...barras.filter((_, i) => i !== f)].map(b => {
+        const sigla = POS_EQUIPOS[nm(b)];
+        const c = clone(b);
+        c.ks.p.k[1] = y;
+        return Object.assign(c, { nm: `.${sigla}${f + 1}_opacidad`, cl: `${sigla}${f + 1}_opacidad`, ind: freeInd(d, ind++) });
+    }));
+    const desde = d.layers.indexOf(barras[0]);
+    if (barras.some((b, i) => d.layers.indexOf(b) !== desde + i)) throw new Error('posiciones: las barras no están juntas');
+    d.layers.splice(desde, barras.length, ...pilas.flat());
+
+    // Los nombres: equipo<n> por fila. La caja llegaba hasta 2 px del final de la barra: termina
+    // POS_MARGEN antes.
+    const nombres = equipos.map(e => {
+        const t = d.layers.filter(l => l.ty === 5 && nm(l) === e);
+        if (t.length !== 1) throw new Error(`posiciones: nombre de ${e}: ${t.length}`);
+        return t[0];
+    }).sort((a, b) => a.ks.p.k[1] - b.ks.p.k[1]);
+    const finBarra = barras[0].ks.p.k[0] + Math.min(...barras.map(b => d.assets.find(a => a.id === b.refId).w - b.ks.a.k[0]));
+    nombres.forEach((t, i) => {
+        Object.assign(t, { nm: `.equipo${i + 1}`, cl: `equipo${i + 1}` });
+        const s = t.t.d.k[0].s;
+        if (s.j !== 0 || !s.sz) throw new Error('posiciones: los nombres cambiaron');
+        s.sz[0] = finBarra - POS_MARGEN - (t.ks.p.k[0] + s.ps[0]);
+    });
+
+    // Los números: <columna>equipo<n>. Llegan corridos a ojo hasta 2,4 px en y (JG en la fila 1):
+    // cada fila, a la mediana de sus cuatro columnas.
+    const numeros = Array.from({ length: 8 }, () => []);
+    for (const l of d.layers) {
+        const m = nm(l).match(/^(JUEGOS[A-Z]+)POS([1-8])$/);
+        if (!m || l.ty !== 5) continue;
+        const col = POS_COLUMNAS[m[1]];
+        if (!col) throw new Error(`posiciones: columna ${m[1]}`);
+        Object.assign(l, { nm: `.${col}equipo${m[2]}`, cl: `${col}equipo${m[2]}` });
+        numeros[m[2] - 1].push(l);
+    }
+    for (const fila of numeros) {
+        if (fila.length !== 4) throw new Error('posiciones: faltan números');
+        const ys = fila.map(l => l.ks.p.k[1]).sort((a, b) => a - b);
+        for (const l of fila) l.ks.p.k[1] = (ys[1] + ys[2]) / 2;
+    }
+
+    // El logo de Meridiano tiene de mate la capa 42, que no está (oculta en AE): se veía entero
+    // sobre la caja roja (15–28) y sobre la tabla (36–39). Su mate es la caja blanca que sube con
+    // él: una copia de FONDO Outlines 4, con su mismo padre.
+    const logo = layer(d, '2024-Logo-MeridianoTV-original (6).png');
+    if (logo.tp !== 42 || d.layers.some(l => l.ind === 42)) throw new Error('posiciones: el mate del logo cambió');
+    Object.assign(logo, { nm: '.logomeridiano', cl: 'logomeridiano' });
+    const mate = Object.assign(clone(layer(d, 'FONDO Outlines 4')), { nm: 'mate logomeridiano', ind: 42, ip: logo.ip, op: logo.op, td: 1 });
+    delete mate.tt;
+    delete mate.tp;
+    d.layers.splice(d.layers.indexOf(logo), 0, mate);
+
+    // Los textos fijos, con clase como los de score: POSICIONES (la caja roja de la entrada), el
+    // título de la tabla y los rótulos de las columnas (un solo texto, con espacios).
+    rename(d, 'POSICIONES', 'titulo_entrada');
+    rename(d, 'tabla de posiciones', 'titulo');
+    rename(d, 'jj                 jg                  jp                dif', 'columnas');
+
+    // El export trae start (0–30) y stop (90–120) sin animación
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_POS, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 90.0000036657751, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_POS, cm: 'salida', dr: -ENTRADA_POS }
+    ];
+    d.fonts.list[0].fPath = FONT; // llega con la carpeta
+    allCaps(d);
+    avisarEntrada(d, 'posiciones');
+    save(path.join(REPO, 'posiciones/data.json'), d);
 }
 console.log('ok');

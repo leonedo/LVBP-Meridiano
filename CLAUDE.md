@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Catorce gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Quince gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -23,6 +23,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `placa_juego/` | JUEGO DE HOY, **versión preliminar**: la placa de pantalla completa antes del juego, con los dos escudos y nombres, la liga arriba y el estadio abajo. Trae MAGALLANES y TIBURONES en el diseño (el juego del 2026-10-13); los escudos son imágenes (`escudovisita`/`escudolocal`), cada una la mitad entera de la caja (fondo del equipo, marca de agua y escudo, 465 × 419), y en `images/` están los ocho como `<equipo>.png` (`aguilas`, `bravos`, `cardenales`, `caribes`, `leones`, `magallanes`, `tiburones`, `tigres`); `img_1`/`img_0`, las rutas de v0.0.17, quedan como copia de Magallanes y Tiburones. El VS va en una caja roja, como en `duelo_lanzadores` | stage `play` pause (0–74) | `salida`: la entrada al revés (2,5 s) |
 | `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), el VS en una caja roja, la barra de los nombres y abajo la tabla blanca de 5 estadísticas (visita a la izquierda, local a la derecha, rótulos en la columna roja del centro). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
 | `himno_nacional/` | Lowbar del himno nacional: la barra del bateador con la bandera (`bandera`, una imagen) en lugar del escudo, el país (`texto`) en la barra blanca y HIMNO NACIONAL (`titulo`) en la pestaña negra. Por defecto, Venezuela. Va en el mismo segmento que `placa_juego`, como segunda opción (pedido de Leon, 2026-10-26); abajo a la izquierda, en el lugar de las barras de bateador | stage `play` pause (0–31) | `salida`: la entrada al revés (1 s) |
+| `posiciones/` | Tabla de posiciones, pantalla completa: una caja roja con POSICIONES, una blanca con el logo de Meridiano que sube y destapa la tabla (8 filas: barra del equipo, nombre, JJ, JG, JP y DIF). Las claves son las de `posiciones` de LVBP-Venevision sin AVE (`equipo<n>`, `JJequipo<n>`… y en cada fila las 8 barras apiladas, `<SIGLAS><n>_opacidad`), para que el controlador arme las dos igual (2026-10-28) | stage `play` pause (0–57) | `salida`: la entrada al revés (1,9 s) |
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
@@ -36,7 +37,8 @@ defecto; las de
 2026-10-24, con la caja del VS; las de `parcial`, `parcial_equipos.png` del 2026-10-07 y `parcial.png` del 2026-10-21,
 con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
 `duelo_lanzadores.png`; las de `himno_nacional`, del 2026-10-26, sacadas de CasparCG 2.5.1: `himno_nacional_variantes.png`
-muestra minúsculas, textos largos, una bandera de otra proporción, una ruta que no carga y `""`): si un
+muestra minúsculas, textos largos, una bandera de otra proporción, una ruta que no carga y `""`; las de
+`posiciones`, del 2026-10-28, con `posiciones_equipos.png` en 8 casos que ponen cada equipo en las 8 filas): si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -157,7 +159,17 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   sobre la barra del bateador), `.nombrejugador` a `texto` (el país), `.informacionbarranegra` a
   `titulo`, la bandera `Flag_of_Venezuela.svg.webp` (clase `svg webp`, inválida) a `bandera`, con
   el asset en `images/venezuela.jpg`, y las dos `meridiano television` (sin clase) a `meridianotv`.
-  `Null 7` no es padre de nada y sale: su keyframe del 31 estiraba la entrada.
+  `Null 7` no es padre de nada y sale: su keyframe del 31 estiraba la entrada. En `posiciones` (el
+  zip es `TABLA DE POSICIONES`), los nombres (`.AGUILAS`…, por fila de arriba abajo) a `equipo1–8`,
+  `JUEGOSJUGADOS/GANADOS/PERDIDOS/DIFERENCIAPOSn` a `JJ/JG/JP/DIFequipon` (las claves de la tabla de
+  LVBP-Venevision), y las barras (imágenes con el mismo nombre que los textos, la de Tigres con
+  coma) pasan a 64 capas: en cada fila las 8, `<SIGLAS><n>_opacidad`, con la y de la barra del
+  diseño y ésa arriba de la pila. `POSICIONES`, `tabla de posiciones` y los rótulos `jj … dif`, a
+  `titulo_entrada`/`titulo`/`columnas`. La caja del nombre termina 8 px antes del final de la barra
+  (llegaba a 2), y los números de cada fila van a la mediana de su y (JG de la fila 1 llegaba 2,4
+  px más abajo). El logo de Meridiano tenía de mate el `ind` 42, que no viene (ver *Capas
+  ocultas*): se veía sobre la caja roja y sobre la tabla; su mate es una copia de `FONDO Outlines
+  4`, la caja blanca que sube con él.
 - **Mate corrido:** en `duelo_lanzadores` la tabla (`BASE Outlines 3`, el panel que baja con las
   estadísticas) llegó entre el fondo oscuro de la caja (`BASE Outlines`, con `tt`) y su mate
   (`BASE Outlines 2`). Lottie toma de mate la capa de arriba: el fondo se recortaba con la tabla,
@@ -227,6 +239,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   el frame 31: no se veía nunca, y sale. Pista para reconocerlo: un `ind` salteado justo arriba
   de una capa que se ve donde no debería. En `duelo_lanzadores`, lo mismo con los `ind` 55 y 58
   (el logo y EL DUELO): `unLogo()` y `enLaCaja()`.
+- **Contraste:** en `posiciones` la columna de los números es un degradado de blanco (arriba) a
+  negro, con los números en blanco: en las filas 1 y 2 casi no se leen. Así llega del export
+  (en el JSON es el mismo degradado; queda como está hasta que lo vea el diseñador o Leon).
 - **Markers:** los del diseñador (`start`, `loop`, `hold`…) se reemplazan por los de la tabla de
   arriba. Si cambia la duración de la entrada, `play` y `salida` van al último keyframe real, no
   al `start` del diseñador. `prevenido` llegó sin markers y con la comp de 32 s: queda en 90 frames
