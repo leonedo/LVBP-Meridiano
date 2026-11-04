@@ -54,7 +54,7 @@ batter's AVE in the period; `jugador` is `nombre` + `apellido`.
 | `titulo` | optional: goes in the tab, before `subtitulo` (`ZONA DE BATEO · TEMPORADA 2026-27`) | empty by default: no ZONA DE BATEO (Leon, 2026-11-03) |
 | `placa` | the layout of the batter's bar: `barra` (default: the Meridiano batter lowbar, chosen by Leon), `ficha` or `tarjeta` | |
 | `ancho` | 0 to 1: how much the zone's width follows its percentage | 0.5 by default |
-| `inclinacion` | degrees: the camera turns around home plate, rigidly; **+** lays the field down (up to 20), **−** stands it up (down to −10); home plate stays in the same place on screen | 0 is the design shot. An operator setting sent **before `play`** (a slider in the client, −8 to +10: at −10 the big screen pokes a few pixels out of the top of the frame; at −8 it fits whole). It changes the whole shot, the entry included; not meant to be animated on air |
+| `inclinacion` | degrees: the camera turns around home plate, rigidly; **+** lays the field down (up to 20), **−** stands it up (down to −10); home plate stays in the same place on screen | 0 is the design shot. An operator setting sent **before `play`** (a slider in the client, −8 to +10. Measured: the big screen fits whole down to −4; from −5 its top edge leaves the frame, and at −8 the top of the logo is cut too). It changes the whole shot, the entry included; not meant to be animated on air |
 | `publicidad` | overrides on air the sponsor of `publicidad.js`: `""` takes the sponsor off (the Meridiano logo shows) | an image must come as a `data:` URL (base64), not as a path (see *Sponsor*) |
 
 ## Sponsor
