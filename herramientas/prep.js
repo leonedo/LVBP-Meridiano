@@ -1143,6 +1143,19 @@ if (hay('ARBITROS')) {
         // Terminan 8 px antes de la raya del medio (llegaban a 7,6)
         s.sz[0] = xRaya - 8 - (t.ks.p.k[0] - t.ks.a.k[0] + s.ps[0]);
     }
+    // Las filas llegan corridas a ojo: HOME 3 px más abajo que su nombre, 3B 3 px más arriba que el
+    // suyo y la fila 2 entera 3 px más abajo que las otras (medido en la pausa, el centro de las letras
+    // contra el centro de su fila: 1,8 / 4,8 / 2,2 / 2,5 en los nombres). Cada rótulo va a la altura de
+    // su nombre y la fila 2 sube 3: todas quedan a 2 px (± 0,5) del centro de su fila.
+    const ARB_FILAS = [
+        ['UMPIREHOME', 723.5, 0], ['UMPIREPRIMERA', 771.5, -3], ['UMPIRESEGUNDA', 815.5, 0], ['UMPIRETERCERA', 861.5, 0],
+        ['rotulohome', 725.187, -3], ['rotuloprimera', 769.687, -3], ['rotulosegunda', 813.687, 0], ['rotulotercera', 856.687, 3]
+    ];
+    for (const [cl, y, dy] of ARB_FILAS) {
+        const t = d.layers.find(l => l.cl === cl);
+        if (t.ks.p.a || t.ks.p.k[1] !== y) throw new Error(`árbitros: ${cl} llegó en otra y (medir de nuevo ARB_FILAS)`);
+        t.ks.p.k[1] = y + dy;
+    }
 
     // Los dos ARBITROS llegan con mates que no se exportaron (ocultos en AE: ind 9 y 11) y Lottie no
     // carga. El de la pestaña (arbitros 2, hijo de la pestaña) va recortado por la máscara de la

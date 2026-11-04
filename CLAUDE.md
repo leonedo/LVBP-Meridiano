@@ -181,7 +181,9 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   (`Shape Layer 4`), con los mismos keyframes y curvas (Lottie no anida mates). La pestaña y la
   tarjeta llegaban gris claro con el texto blanco encima, que no se leía: van con el mismo
   degradado oscuro (`ARB_OSCURO`, 0.2 → 0.02). Las posiciones, centradas en su columna (de la raya
-  del medio al borde del panel); los nombres, hasta 8 px antes de la raya, y todos con `lh` 36.
+  del medio al borde del panel); los nombres, hasta 8 px antes de la raya, y todos con `lh` 36. Las filas llegaban corridas a
+  ojo (HOME 3 px más abajo que su nombre, 3B 3 px más arriba y la fila 2 entera 3 px más abajo):
+  cada rótulo va a la altura de su nombre y la fila 2 sube 3 (`ARB_FILAS`), a 2 px del centro de su fila.
 - **Mate corrido:** en `duelo_lanzadores` la tabla (`BASE Outlines 3`, el panel que baja con las
   estadísticas) llegó entre el fondo oscuro de la caja (`BASE Outlines`, con `tt`) y su mate
   (`BASE Outlines 2`). Lottie toma de mate la capa de arriba: el fondo se recortaba con la tabla,
