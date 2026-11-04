@@ -63,7 +63,7 @@ bien (los carteles, sin la barra negra). cue-qs-beisbol manda además las nuevas
 (2026-11-04): `conexiones1..3` (el TC de la API, las veces que bateó hacia esa zona),
 `promedio1..3`, `conexiones` y `promedio` (el total y el promedio de las tres), `jugador`,
 `subtitulo` e `inclinacion`. `inclinacion` es el ajuste del operador antes del `play` (un slider
-en el cliente, de −8 a +10; el template acepta de −10 a +20). Medido en la pausa: la pantalla
+en el cliente, de −4 a +10 desde el 2026-11-04, antes de −8; el template acepta de −10 a +20). Medido en la pausa: la pantalla
 gigante entra entera hasta −4; desde −5 asoma por arriba del cuadro y a −8 se pierden el borde y
 la punta del logo (igual en CasparCG, medido por Leon). El sponsor lo escribe la app en
 `publicidad.js` (base64: con `file://` no se puede mandar una ruta).
