@@ -4,7 +4,8 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Dieciséis gráficos en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`).
+Dieciséis gráficos Lottie en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`),
+más uno en 3D (`zonacaliente/`, ver *Zona caliente 3D*).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
 | Carpeta | Qué es | Flujo | Salida |
@@ -25,6 +26,38 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `himno_nacional/` | Lowbar del himno nacional: la barra del bateador con la bandera (`bandera`, una imagen) en lugar del escudo, el país (`texto`) en la barra blanca y HIMNO NACIONAL (`titulo`) en la pestaña negra. Por defecto, Venezuela. Va en el mismo segmento que `placa_juego`, como segunda opción (pedido de Leon, 2026-10-26); abajo a la izquierda, en el lugar de las barras de bateador | stage `play` pause (0–31) | `salida`: la entrada al revés (1 s) |
 | `posiciones/` | Tabla de posiciones, pantalla completa: una caja roja con POSICIONES, una blanca con el logo de Meridiano que sube y destapa la tabla (8 filas: barra del equipo, nombre, JJ, JG, JP y DIF). Las claves son las de `posiciones` de LVBP-Venevision sin AVE (`equipo<n>`, `JJequipo<n>`… y en cada fila las 8 barras apiladas, `<SIGLAS><n>_opacidad`), para que el controlador arme las dos igual (2026-10-28) | stage `play` pause (0–57) | `salida`: la entrada al revés (1,9 s) |
 | `arbitros/` | Los cuatro árbitros: un panel gris con el nombre y la posición de cada uno (`UMPIREHOME`, `UMPIREPRIMERA`, `UMPIRESEGUNDA`, `UMPIRETERCERA`, las claves del gráfico de árbitros de IVC) y la pestaña negra con ARBITROS. Entra una tarjeta negra con ARBITROS espaciado que sube y destapa el panel. Abajo a la derecha (x 1350–1727, y 667–882) | stage `play` pause (0–41) | `salida`: la entrada al revés (1,4 s) |
+| `zonacaliente/` | **Zona caliente 3D** (Three.js, no Lottie): la copia compilada de `zonacaliente-mtv/` del repo `leonedo/3d-gx-poc`. El campo visto desde detrás del home con las tres zonas (porcentaje, conexiones y promedio en un cartel sobre cada una), la barra del bateador abajo y la pantalla gigante con el logo de Meridiano o el sponsor (`publicidad.js`). Las claves de IVC (`porcentaje1..3`) sirven tal cual; las demás en su `data.md`. **Necesita CasparCG con GPU** (la 2.5.1 con el arreglo de #1834 que instala cue-qs-beisbol, o la 2.6.0; `enable-gpu` + `d3d11`); sin WebGL muestra un aviso rojo y la API responde igual | `play`: entrada (3,8 s) y queda quieto; sin stages, `next` no hace nada | `stop`: la entrada al revés (3 s) y suelta la capa |
+
+### Zona caliente 3D (`zonacaliente/`)
+
+No es un Lottie y no pasa por nada de este repo: no carga `../index.js`, `lottie.js` ni
+`webcg-framework.umd.js`, y `prep.js` y `lint.py` lo saltean solos (no tiene `data.json`). Son tres
+archivos: `zonacaliente-mtv.js` (todo embebido: Three.js, la escena GLB, el logo, la League Gothic y
+el mapa de entorno, 1,2 MB; 0,4 MB en el zip), `publicidad.js` (el sponsor de la pantalla gigante;
+`null` = sin sponsor, queda el logo) e `index.html` (el `zonacaliente-mtv.html` del POC, renombrado
+para seguir la convención de las otras carpetas: el controlador lo llama
+`LVBP-Meridiano/zonacaliente/index`). Lo pidió Leon el 2026-11-03, después de aprobar el diseño del
+POC (PR #2 de `3d-gx-poc`).
+
+**Cualquier cambio va en `leonedo/3d-gx-poc`, `zonacaliente-mtv/`** (`src/main.js`,
+`blender/build_scene.py`), y de ahí se copia lo compilado: `npm run build` en ese repo y copiar
+`templates/zonacaliente-mtv/zonacaliente-mtv.js` (y `publicidad.js` si cambió) acá. Esta copia es del
+commit `dfec0c6` de ese repo (rama del PR #2). Su README tiene el contrato entero, la receta de
+Blender, las herramientas de preview (`tools/preview.mjs`, por software, sin GPU) y lo que se sabe
+de CasparCG con GPU (`docs/casparcg_1834.md`: la 2.5.1 oficial de Windows sale transparente con
+`enable-gpu`; va la 2.5.1 con el arreglo de #1834, la que instala cue-qs-beisbol desde el
+2026-11-04, la 2.6.0 de build propia o la 2.5.0).
+
+El bundle está compilado para Chrome 79 (`target` de esbuild en `tools/build.mjs` del POC): el
+CasparCG 2.3.2 de LVBP-Stats trae CEF 79, que no parsea `??` ni `?.`. Si se recompila con otro
+target, en ese server falla entero con un SyntaxError, sin aviso.
+
+Las claves nuevas (`conexiones1..3`, `promedio1..3`, `conexiones`, `promedio`, `subtitulo`, `placa`,
+`inclinacion`, `publicidad`) todavía no las manda ninguna app: cue-qs-beisbol y LVBP-Stats mandan
+las de IVC (`porcentaje1..3`), con las que el gráfico ya se ve bien (los carteles, sin la barra
+negra). `inclinacion` es el ajuste del operador antes del `play` (un slider en el cliente, de −8 a
++10; el template acepta de −10 a +20). El sponsor lo escribe la app en `publicidad.js` (base64: con
+`file://` no se puede mandar una ruta).
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
@@ -39,7 +72,9 @@ defecto; las de
 con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
 `duelo_lanzadores.png`; las de `himno_nacional`, del 2026-10-26, sacadas de CasparCG 2.5.1: `himno_nacional_variantes.png`
 muestra minúsculas, textos largos, una bandera de otra proporción, una ruta que no carga y `""`; las de
-`posiciones`, del 2026-10-28, con `posiciones_equipos.png` en 8 casos que ponen cada equipo en las 8 filas); las de `arbitros`, del 2026-11-04: `arbitros_variantes.png` muestra minúsculas, un nombre largo, `""` y otro título: si un
+`posiciones`, del 2026-10-28, con `posiciones_equipos.png` en 8 casos que ponen cada equipo en las 8 filas); las de `arbitros`, del 2026-11-04: `arbitros_variantes.png` muestra minúsculas, un nombre largo, `""` y otro título; la de
+`zonacaliente`, del 2026-11-03, la pausa con el ejemplo de su `data.md`, renderizada por software en
+Chromium sobre un fondo oscuro, no en CasparCG: si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del

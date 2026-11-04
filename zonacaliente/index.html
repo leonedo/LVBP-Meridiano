@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>zonacaliente</title>
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+  canvas { display: block; }
+  /* index.html?fondo=1 : un fondo oscuro detrás, solo para previsualizar (sin eso es transparente, como en CasparCG) */
+  body.fondo { background: radial-gradient(ellipse at 50% 70%, #3a3f48 0%, #1c1f25 70%); }
+  .error { position: absolute; top: 20px; left: 20px; color: #fff; background: #b00020; font: 28px sans-serif; padding: 12px; }
+</style>
+</head>
+<body>
+<!-- Zona caliente 3D (Three.js, no Lottie): la copia compilada de zonacaliente-mtv/ del repo leonedo/3d-gx-poc.
+     No carga ../index.js ni ../lottie.js: todo va embebido en zonacaliente-mtv.js. Ver data.md y CLAUDE.md. -->
+<!-- publicidad.js: el sponsor de la pantalla gigante (window.ZONA_PUBLICIDAD); lo genera tools/publicidad.mjs de ese repo. null = sin sponsor -->
+<script src="publicidad.js"></script>
+<script src="zonacaliente-mtv.js"></script>
+</body>
+</html>
