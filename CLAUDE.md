@@ -4,7 +4,7 @@ Base de templates HTML para gráficos Lottie en CasparCG (webcg-framework).
 
 ## Este repo: LVBP para Meridiano TV
 
-Quince gráficos Lottie en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`),
+Dieciséis gráficos Lottie en League Gothic (cada carpeta trae su `font/`; `fPath` = `font/LeagueGothic-Regular.otf`),
 más uno en 3D (`zonacaliente/`, ver *Zona caliente 3D*).
 Las keys del UPDATE de cada uno están en su `data.md`.
 
@@ -25,7 +25,8 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `duelo_lanzadores/` | EL DUELO, el vs de lanzadores: armado sobre la placa de juego (la misma caja, el título que sube y las medias placas como escudos, `escudovisita`/`escudolocal` con los mismos ocho `<equipo>.png`, entintados de azul), con la foto de cada lanzador delante de su escudo (`fotolanzadorvisita`/`fotolanzadorlocal`, por defecto transparentes), el VS en una caja roja, la barra de los nombres y abajo la tabla blanca de 5 estadísticas (visita a la izquierda, local a la derecha, rótulos en la columna roja del centro). Al centro, gráfico solo | stage `play` pause (0–75) | `salida`: la entrada al revés (2,5 s) |
 | `himno_nacional/` | Lowbar del himno nacional: la barra del bateador con la bandera (`bandera`, una imagen) en lugar del escudo, el país (`texto`) en la barra blanca y HIMNO NACIONAL (`titulo`) en la pestaña negra. Por defecto, Venezuela. Va en el mismo segmento que `placa_juego`, como segunda opción (pedido de Leon, 2026-10-26); abajo a la izquierda, en el lugar de las barras de bateador | stage `play` pause (0–31) | `salida`: la entrada al revés (1 s) |
 | `posiciones/` | Tabla de posiciones, pantalla completa: una caja roja con POSICIONES, una blanca con el logo de Meridiano que sube y destapa la tabla (8 filas: barra del equipo, nombre, JJ, JG, JP y DIF). Las claves son las de `posiciones` de LVBP-Venevision sin AVE (`equipo<n>`, `JJequipo<n>`… y en cada fila las 8 barras apiladas, `<SIGLAS><n>_opacidad`), para que el controlador arme las dos igual (2026-10-28) | stage `play` pause (0–57) | `salida`: la entrada al revés (1,9 s) |
-| `zonacaliente/` | **Zona caliente 3D** (Three.js, no Lottie): la copia compilada de `zonacaliente-mtv/` del repo `leonedo/3d-gx-poc`. El campo visto desde detrás del home con las tres zonas (porcentaje, conexiones y promedio en un cartel sobre cada una), la barra del bateador abajo y la pantalla gigante con el logo de Meridiano o el sponsor (`publicidad.js`). Las claves de IVC (`porcentaje1..3`) sirven tal cual; las demás en su `data.md`. **Necesita CasparCG con GPU** (2.6.0, `enable-gpu` + `d3d11`); sin WebGL muestra un aviso rojo y la API responde igual | `play`: entrada (3,8 s) y queda quieto; sin stages, `next` no hace nada | `stop`: la entrada al revés (3 s) y suelta la capa |
+| `arbitros/` | Los cuatro árbitros: un panel gris con el nombre y la posición de cada uno (`UMPIREHOME`, `UMPIREPRIMERA`, `UMPIRESEGUNDA`, `UMPIRETERCERA`, las claves del gráfico de árbitros de IVC) y la pestaña negra con ARBITROS. Entra una tarjeta negra con ARBITROS espaciado que sube y destapa el panel. Abajo a la derecha (x 1350–1727, y 667–882) | stage `play` pause (0–41) | `salida`: la entrada al revés (1,4 s) |
+| `zonacaliente/` | **Zona caliente 3D** (Three.js, no Lottie): la copia compilada de `zonacaliente-mtv/` del repo `leonedo/3d-gx-poc`. El campo visto desde detrás del home con las tres zonas (porcentaje, conexiones y promedio en un cartel sobre cada una), la barra del bateador abajo y la pantalla gigante con el logo de Meridiano o el sponsor (`publicidad.js`). Las claves de IVC (`porcentaje1..3`) sirven tal cual; las demás en su `data.md`. **Necesita CasparCG con GPU** (la 2.5.1 con el arreglo de #1834 que instala cue-qs-beisbol, o la 2.6.0; `enable-gpu` + `d3d11`); sin WebGL muestra un aviso rojo y la API responde igual | `play`: entrada (3,8 s) y queda quieto; sin stages, `next` no hace nada | `stop`: la entrada al revés (3 s) y suelta la capa |
 
 ### Zona caliente 3D (`zonacaliente/`)
 
@@ -44,7 +45,8 @@ POC (PR #2 de `3d-gx-poc`).
 commit `dfec0c6` de ese repo (rama del PR #2). Su README tiene el contrato entero, la receta de
 Blender, las herramientas de preview (`tools/preview.mjs`, por software, sin GPU) y lo que se sabe
 de CasparCG con GPU (`docs/casparcg_1834.md`: la 2.5.1 oficial de Windows sale transparente con
-`enable-gpu`; va la 2.6.0 de build propia o la 2.5.0).
+`enable-gpu`; va la 2.5.1 con el arreglo de #1834, la que instala cue-qs-beisbol desde el
+2026-11-04, la 2.6.0 de build propia o la 2.5.0).
 
 El bundle está compilado para Chrome 79 (`target` de esbuild en `tools/build.mjs` del POC): el
 CasparCG 2.3.2 de LVBP-Stats trae CEF 79, que no parsea `??` ni `?.`. Si se recompila con otro
@@ -70,9 +72,9 @@ defecto; las de
 con la publicidad por defecto; las de `duelo_lanzadores`, del 2026-10-24, con la foto de ejemplo en
 `duelo_lanzadores.png`; las de `himno_nacional`, del 2026-10-26, sacadas de CasparCG 2.5.1: `himno_nacional_variantes.png`
 muestra minúsculas, textos largos, una bandera de otra proporción, una ruta que no carga y `""`; las de
-`posiciones`, del 2026-10-28, con `posiciones_equipos.png` en 8 casos que ponen cada equipo en las 8 filas; la de
+`posiciones`, del 2026-10-28, con `posiciones_equipos.png` en 8 casos que ponen cada equipo en las 8 filas); las de `arbitros`, del 2026-11-04: `arbitros_variantes.png` muestra minúsculas, un nombre largo, `""` y otro título; la de
 `zonacaliente`, del 2026-11-03, la pausa con el ejemplo de su `data.md`, renderizada por software en
-Chromium sobre un fondo oscuro, no en CasparCG): si un
+Chromium sobre un fondo oscuro, no en CasparCG: si un
 gráfico cambia, hay que regenerarlas. No entran al zip (`.gitattributes`).
 
 Textos: salen en mayúsculas aunque lleguen en minúsculas (ver *Mayúsculas* en Convenciones del
@@ -204,6 +206,19 @@ Cada export de AE trae los nombres crudos y hay que repetir la preparación. Bus
   px más abajo). El logo de Meridiano tenía de mate el `ind` 42, que no viene (ver *Capas
   ocultas*): se veía sobre la caja roja y sobre la tabla; su mate es una copia de `FONDO Outlines
   4`, la caja blanca que sube con él.
+  En `arbitros` (el zip es `ARBITROS`), los nombres llegan con clases que sirven
+  (`UMPIRETERCERA`…) salvo `UMPIREPRINCIPAL`, que pasa a `UMPIREHOME` (la clave de IVC); las
+  posiciones (`HOME`, `1B`, `2B`, `3B`: las de dígito no son clases válidas) a
+  `rotulohome`/`rotuloprimera`/`rotulosegunda`/`rotulotercera`, y los dos `arbitros` (sin clase) a
+  `titulo` (la pestaña) y `titulo_entrada` (la tarjeta de la entrada). Los dos llegan con mates
+  que no se exportaron (`ind` 9 y 11): el de la pestaña es una copia de su máscara (`Shape Layer
+  5`); el de la tarjeta, un rectángulo que es la tarjeta (`Shape Layer 2`) recortada por su máscara
+  (`Shape Layer 4`), con los mismos keyframes y curvas (Lottie no anida mates). La pestaña y la
+  tarjeta llegaban gris claro con el texto blanco encima, que no se leía: van con el mismo
+  degradado oscuro (`ARB_OSCURO`, 0.2 → 0.02). Las posiciones, centradas en su columna (de la raya
+  del medio al borde del panel); los nombres, hasta 8 px antes de la raya, y todos con `lh` 36. Las filas llegaban corridas a
+  ojo (HOME 3 px más abajo que su nombre, 3B 3 px más arriba y la fila 2 entera 3 px más abajo):
+  cada rótulo va a la altura de su nombre y la fila 2 sube 3 (`ARB_FILAS`), a 2 px del centro de su fila.
 - **Mate corrido:** en `duelo_lanzadores` la tabla (`BASE Outlines 3`, el panel que baja con las
   estadísticas) llegó entre el fondo oscuro de la caja (`BASE Outlines`, con `tt`) y su mate
   (`BASE Outlines 2`). Lottie toma de mate la capa de arriba: el fondo se recortaba con la tabla,

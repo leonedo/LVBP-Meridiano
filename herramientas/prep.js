@@ -6,7 +6,7 @@
 //   1. Descomprimir los zips del diseñador en una carpeta (EXPORTS): score/, defensiva/,
 //      "tabla lanzador"/, "lowbar bateador"/, "lowbar bateador informacion"/, ofensiva/,
 //      "3 en linea"/, "score parcial"/, prevenido/, "score final"/, "placa de juego"/,
-//      "duelo de lanzadores"/, "himno nacional"/, "TABLA DE POSICIONES"/. Los que no estén se saltean: alcanza con el zip
+//      "duelo de lanzadores"/, "himno nacional"/, "TABLA DE POSICIONES"/, ARBITROS/. Los que no estén se saltean: alcanza con el zip
 //      que llegó.
 //   2. Los JSON publicados, de donde se trasplantan las capas que el export no trae:
 //        mkdir -p $PUB && for g in score lanzador; do git show HEAD:$g/data.json > $PUB/$g.json; done
@@ -1097,5 +1097,113 @@ if (hay('TABLA DE POSICIONES')) {
     allCaps(d);
     avisarEntrada(d, 'posiciones');
     save(path.join(REPO, 'posiciones/data.json'), d);
+}
+// ---------------------------------------------------------------- árbitros
+// Abajo a la derecha: un panel gris con los cuatro árbitros (nombre y posición) y, arriba, la pestaña
+// con ARBITROS. Entra una tarjeta con ARBITROS espaciado que sube y destapa el panel. Las claves de los
+// nombres son las del gráfico de árbitros de IVC (LVBP-Stats, muestraIVC.muestraArbitro), para que el
+// controlador mande lo mismo: UMPIREHOME, UMPIREPRIMERA, UMPIRESEGUNDA y UMPIRETERCERA.
+const ENTRADA_ARB = 41; // la pestaña termina de subir en el 40
+// La pestaña y la tarjeta llegan gris claro (0.985 → 0.802) con el texto blanco encima: no se lee
+// (Leon: fondos casi negros). El mismo degradado, oscuro.
+const ARB_GRIS_EXPORT = [0, 0.985, 0.985, 0.985, 0.5, 0.893, 0.893, 0.893, 1, 0.802, 0.802, 0.802];
+const ARB_OSCURO = [0, 0.2, 0.2, 0.2, 0.5, 0.11, 0.11, 0.11, 1, 0.02, 0.02, 0.02];
+const ARB_LH = 36; // 1.2 del cuerpo 30: llegan con 0.01
+if (hay('ARBITROS')) {
+    const d = load(path.join(SRC, 'ARBITROS/data.json'));
+    const porInd = i => d.layers.find(l => l.ind === i);
+
+    // Los nombres. El principal llega como UMPIREPRINCIPAL: en IVC es UMPIREHOME.
+    const nombres = [['.UMPIREPRINCIPAL', 'UMPIREHOME'], ['.UMPIREPRIMERA', 'UMPIREPRIMERA'],
+        ['.UMPIRESEGUNDA', 'UMPIRESEGUNDA'], ['.UMPIRETERCERA', 'UMPIRETERCERA']].map(([nm, cl]) => rename(d, nm, cl));
+    // Las posiciones, textos fijos: 1B, 2B y 3B no son clases válidas (arrancan con dígito). Llegan
+    // alineadas a la izquierda en cajas distintas, que pasaban el borde del panel, a ojo en el centro de
+    // su columna: van centradas en ella (de la raya del medio al borde del panel), con 4 px de aire.
+    const panel = layer(d, 'Shape Layer 3');
+    const mascaraPanel = layer(d, 'Shape Layer 6');
+    const [sx] = panel.ks.s.k.map(v => v / 100);
+    const raya = panel.shapes.find(g => g.nm === 'Shape 3').it.filter(i => i.ty === 'sh')[1].ks.k.v;
+    if (panel.ks.a.a || panel.ks.s.a || mascaraPanel.ks.p.a || Math.abs(raya[0][0] - raya[1][0]) > 1) throw new Error('árbitros: el panel cambió');
+    const xRaya = panel.ks.p.k[1].s[0] + ((raya[0][0] + raya[1][0]) / 2 - panel.ks.a.k[0]) * sx;
+    const finPanel = mascaraPanel.ks.p.k[0] + 218.5 / 2 * mascaraPanel.ks.s.k[0] / 100;
+    const columna = [xRaya, finPanel];
+    for (const [nm, cl] of [['.HOME', 'rotulohome'], ['.1B', 'rotuloprimera'], ['.2B', 'rotulosegunda'], ['.3B', 'rotulotercera']]) {
+        const t = rename(d, nm, cl);
+        const s = t.t.d.k[0].s;
+        if (s.j !== 0 || t.parent || t.ks.p.a || t.ks.s.k[0] !== 100) throw new Error(`árbitros: ${nm} cambió`);
+        s.j = 2;
+        s.sz[0] = columna[1] - columna[0] - 8;
+        s.ps[0] = columna[0] + 4 - (t.ks.p.k[0] - t.ks.a.k[0]);
+        s.lh = ARB_LH;
+    }
+    for (const t of nombres) {
+        const s = t.t.d.k[0].s;
+        if (!s.sz) throw new Error('árbitros: los nombres no son de caja');
+        s.lh = ARB_LH;
+        // Terminan 8 px antes de la raya del medio (llegaban a 7,6)
+        s.sz[0] = xRaya - 8 - (t.ks.p.k[0] - t.ks.a.k[0] + s.ps[0]);
+    }
+    // Las filas llegan corridas a ojo: HOME 3 px más abajo que su nombre, 3B 3 px más arriba que el
+    // suyo y la fila 2 entera 3 px más abajo que las otras (medido en la pausa, el centro de las letras
+    // contra el centro de su fila: 1,8 / 4,8 / 2,2 / 2,5 en los nombres). Cada rótulo va a la altura de
+    // su nombre y la fila 2 sube 3: todas quedan a 2 px (± 0,5) del centro de su fila.
+    const ARB_FILAS = [
+        ['UMPIREHOME', 723.5, 0], ['UMPIREPRIMERA', 771.5, -3], ['UMPIRESEGUNDA', 815.5, 0], ['UMPIRETERCERA', 861.5, 0],
+        ['rotulohome', 725.187, -3], ['rotuloprimera', 769.687, -3], ['rotulosegunda', 813.687, 0], ['rotulotercera', 856.687, 3]
+    ];
+    for (const [cl, y, dy] of ARB_FILAS) {
+        const t = d.layers.find(l => l.cl === cl);
+        if (t.ks.p.a || t.ks.p.k[1] !== y) throw new Error(`árbitros: ${cl} llegó en otra y (medir de nuevo ARB_FILAS)`);
+        t.ks.p.k[1] = y + dy;
+    }
+
+    // Los dos ARBITROS llegan con mates que no se exportaron (ocultos en AE: ind 9 y 11) y Lottie no
+    // carga. El de la pestaña (arbitros 2, hijo de la pestaña) va recortado por la máscara de la
+    // pestaña, como ella: una copia de Shape Layer 5. El grande va con la tarjeta (sube con ella del 10
+    // al 21) y sólo se ve donde se ve la tarjeta: la tarjeta recortada por su máscara (Shape Layer 4).
+    // Lottie no anida mates, así que el mate es un rectángulo con esa intersección: con los mismos
+    // keyframes y curvas que la tarjeta (los bordes son lineales en su posición), crece desde abajo
+    // mientras la tarjeta entra (0–10) y se achica hacia arriba mientras sale (10–21).
+    const pestanaTxt = layer(d, 'arbitros 2'), grande = layer(d, 'arbitros');
+    if (pestanaTxt.tp !== 9 || grande.tp !== 11 || porInd(9) || porInd(11)) throw new Error('árbitros: los mates cambiaron');
+    const matePestana = Object.assign(clone(layer(d, 'Shape Layer 5')), { nm: 'mate arbitros 2', ind: 9 });
+    d.layers.splice(d.layers.indexOf(pestanaTxt), 0, matePestana);
+    const tarjeta = layer(d, 'Shape Layer 2'), mascara = layer(d, 'Shape Layer 4');
+    const kf = tarjeta.ks.p.k;
+    if (!tarjeta.ks.p.a || kf.length !== 3 || mascara.ks.p.a || JSON.stringify(tarjeta.ks.s.k) !== JSON.stringify(mascara.ks.s.k)
+        || ['rc', 'tr'].some(t => JSON.stringify(tarjeta.shapes[0].it.find(i => i.ty === t)) !== JSON.stringify(mascara.shapes[0].it.find(i => i.ty === t)))) throw new Error('árbitros: la tarjeta cambió');
+    const sy = tarjeta.ks.s.k[1] / 100;
+    const medio = 31.5 / 2 * sy; // la mitad del alto en pantalla
+    const [m0, m1] = [mascara.ks.p.k[1] - medio, mascara.ks.p.k[1] + medio];
+    const corte = c => { const a = Math.max(c - medio, m0), b = Math.min(c + medio, m1); return b > a ? [a, b] : (c > mascara.ks.p.k[1] ? [m1, m1] : [m0, m0]); };
+    const mateGrande = clone(mascara);
+    Object.assign(mateGrande, { nm: 'mate arbitros', ind: 11 });
+    const gr = mateGrande.shapes[0];
+    const rc = gr.it.find(i => i.ty === 'rc'), tr = gr.it.find(i => i.ty === 'tr');
+    const local = y => tarjeta.ks.a.k[1] + (y - mascara.ks.p.k[1]) / sy; // pantalla → capa
+    const ease = k => k.i ? { i: { x: [k.i.x, k.i.x], y: [k.i.y, k.i.y] }, o: { x: [k.o.x, k.o.x], y: [k.o.y, k.o.y] } } : {};
+    rc.s = { a: 1, k: kf.map(k => { const [a, b] = corte(k.s[1]); return { t: k.t, s: [218.5, (b - a) / sy], ...ease(k) }; }) };
+    tr.p = { a: 1, k: kf.map(k => { const [a, b] = corte(k.s[1]); return { t: k.t, s: [tr.p.k[0], local((a + b) / 2)], ...ease(k) }; }) };
+    d.layers.splice(d.layers.indexOf(grande), 0, mateGrande);
+
+    // La pestaña (Shape Layer 1) y la tarjeta (Shape Layer 2), oscuras
+    for (const nm of ['Shape Layer 1', 'Shape Layer 2']) {
+        const gf = layer(d, nm).shapes[0].it.find(i => i.ty === 'gf');
+        if (JSON.stringify(gf.g.k.k) !== JSON.stringify(ARB_GRIS_EXPORT)) throw new Error(`árbitros: el degradado de ${nm} cambió`);
+        gf.g.k.k = ARB_OSCURO;
+    }
+    rename(d, 'arbitros 2', 'titulo');
+    rename(d, 'arbitros', 'titulo_entrada');
+
+    // El export trae START (0–30) y STOP (60–90) sin animación
+    d.markers = [
+        { tm: 0, cm: 'play', dr: ENTRADA_ARB, payload: { name: 'play', type: 'pause', order: 1, stop: 'salida' } },
+        { tm: 60.0000024438501, cm: 'stop', dr: 1 },
+        { tm: ENTRADA_ARB, cm: 'salida', dr: -ENTRADA_ARB }
+    ];
+    d.fonts.list[0].fPath = FONT; // llega como "ARBITROS/ FONT"
+    allCaps(d);
+    avisarEntrada(d, 'árbitros');
+    save(path.join(REPO, 'arbitros/data.json'), d);
 }
 console.log('ok');
