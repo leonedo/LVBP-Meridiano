@@ -26,7 +26,7 @@ Las keys del UPDATE de cada uno están en su `data.md`.
 | `himno_nacional/` | Lowbar del himno nacional: la barra del bateador con la bandera (`bandera`, una imagen) en lugar del escudo, el país (`texto`) en la barra blanca y HIMNO NACIONAL (`titulo`) en la pestaña negra. Por defecto, Venezuela. Va en el mismo segmento que `placa_juego`, como segunda opción (pedido de Leon, 2026-10-26); abajo a la izquierda, en el lugar de las barras de bateador | stage `play` pause (0–31) | `salida`: la entrada al revés (1 s) |
 | `posiciones/` | Tabla de posiciones, pantalla completa: una caja roja con POSICIONES, una blanca con el logo de Meridiano que sube y destapa la tabla (8 filas: barra del equipo, nombre, JJ, JG, JP y DIF). Las claves son las de `posiciones` de LVBP-Venevision sin AVE (`equipo<n>`, `JJequipo<n>`… y en cada fila las 8 barras apiladas, `<SIGLAS><n>_opacidad`), para que el controlador arme las dos igual (2026-10-28) | stage `play` pause (0–57) | `salida`: la entrada al revés (1,9 s) |
 | `arbitros/` | Los cuatro árbitros: un panel gris con el nombre y la posición de cada uno (`UMPIREHOME`, `UMPIREPRIMERA`, `UMPIRESEGUNDA`, `UMPIRETERCERA`, las claves del gráfico de árbitros de IVC) y la pestaña negra con ARBITROS. Entra una tarjeta negra con ARBITROS espaciado que sube y destapa el panel. Abajo a la derecha (x 1350–1727, y 667–882) | stage `play` pause (0–41) | `salida`: la entrada al revés (1,4 s) |
-| `zonacaliente/` | **Zona caliente 3D** (Three.js, no Lottie): la copia compilada de `zonacaliente-mtv/` del repo `leonedo/3d-gx-poc`. El campo visto desde detrás del home con las tres zonas (porcentaje, conexiones y promedio en un cartel sobre cada una), la barra del bateador abajo y la pantalla gigante con el logo de Meridiano o el sponsor (`publicidad.js`). Las claves de IVC (`porcentaje1..3`) sirven tal cual; las demás en su `data.md`. **Necesita CasparCG con GPU** (la 2.5.1 con el arreglo de #1834 que instala cue-qs-beisbol, o la 2.6.0; `enable-gpu` + `d3d11`); sin WebGL muestra un aviso rojo y la API responde igual | `play`: entrada (3,8 s) y queda quieto; sin stages, `next` no hace nada | `stop`: la entrada al revés (3 s) y suelta la capa |
+| `zonacaliente/` | **Zona caliente 3D** (Three.js, no Lottie): la copia compilada de `zonacaliente-mtv/` del repo `leonedo/3d-gx-poc`. El campo visto desde detrás del home con las tres zonas (porcentaje, conexiones y promedio en un cartel sobre cada una), la barra del bateador abajo y la pantalla gigante con el logo de Meridiano o el sponsor (`publicidad.js`). Las claves de IVC (`porcentaje1..3`) sirven tal cual; las demás en su `data.md`. **Necesita CasparCG con GPU** (la 2.5.1 con el arreglo de #1834 que instala cue-qs-beisbol, o la 2.6.0; `enable-gpu` + `d3d11`); sin WebGL muestra un aviso rojo y la API responde igual. En el 2.3.2 de LVBP-Stats **no sale** (Leon, 2026-11-03: los `PRINT` salen transparentes, el bug #1834 también está ahí): es sólo para cue-qs-beisbol | `play`: entrada (3,8 s) y queda quieto; sin stages, `next` no hace nada | `stop`: la entrada al revés (3 s) y suelta la capa |
 
 ### Zona caliente 3D (`zonacaliente/`)
 
@@ -52,12 +52,21 @@ El bundle está compilado para Chrome 79 (`target` de esbuild en `tools/build.mj
 CasparCG 2.3.2 de LVBP-Stats trae CEF 79, que no parsea `??` ni `?.`. Si se recompila con otro
 target, en ese server falla entero con un SyntaxError, sin aviso.
 
-Las claves nuevas (`conexiones1..3`, `promedio1..3`, `conexiones`, `promedio`, `subtitulo`, `placa`,
-`inclinacion`, `publicidad`) todavía no las manda ninguna app: cue-qs-beisbol y LVBP-Stats mandan
-las de IVC (`porcentaje1..3`), con las que el gráfico ya se ve bien (los carteles, sin la barra
-negra). `inclinacion` es el ajuste del operador antes del `play` (un slider en el cliente, de −8 a
-+10; el template acepta de −10 a +20). El sponsor lo escribe la app en `publicidad.js` (base64: con
-`file://` no se puede mandar una ruta).
+Probada por Leon en Windows el 2026-11-03 (Intel Iris Xe) con esta misma copia: en la 2.6.0 propia
+(la 2.5.1 con el arreglo, la que instala cue-qs-beisbol) sale bien, 56,6 fps en la pausa y 40 en
+la entrada, y el `stop` suelta la capa a los 2,75 s; en el CasparCG 2.3.2 de LVBP-Stats carga sin
+errores pero el canal sale transparente, con o sin `enable-gpu`. Por eso no va en LVBP-Stats
+(Leon, 2026-11-04). El detalle, en el README del POC, *Probado en Windows*.
+
+Las claves: las de IVC (`porcentaje1..3`) sirven tal cual, y con ellas solas el gráfico ya se ve
+bien (los carteles, sin la barra negra). cue-qs-beisbol manda además las nuevas desde su PR #18
+(2026-11-04): `conexiones1..3` (el TC de la API, las veces que bateó hacia esa zona),
+`promedio1..3`, `conexiones` y `promedio` (el total y el promedio de las tres), `jugador`,
+`subtitulo` e `inclinacion`. `inclinacion` es el ajuste del operador antes del `play` (un slider
+en el cliente, de −4 a +10 desde el 2026-11-04, antes de −8; el template acepta de −10 a +20). Medido en la pausa: la pantalla
+gigante entra entera hasta −4; desde −5 asoma por arriba del cuadro y a −8 se pierden el borde y
+la punta del logo (igual en CasparCG, medido por Leon). El sponsor lo escribe la app en
+`publicidad.js` (base64: con `file://` no se puede mandar una ruta).
 
 Cómo se ve cada uno, en [capturas/](capturas/): `<gráfico>.png` es la pantalla completa con data de
 ejemplo (muestra dónde cae en el cuadro) y `<gráfico>_equipos.png`, todos los equipos (en `score`,
